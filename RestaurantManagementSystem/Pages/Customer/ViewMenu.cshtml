@@ -1,0 +1,397 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.ViewMenuModel
+
+@{
+    ViewData["Title"] = "Coffee Menu";
+}
+
+<style>
+    body {
+        background-color: #f7ebe1;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #33261d;
+    }
+
+    .menu-container {
+        padding: 20px 0;
+    }
+
+    /* Search & Filter Bar */
+    .search-input {
+        border-radius: 25px;
+        border: 1px solid #ebd3c2;
+        padding: 10px 20px;
+        background-color: #ffffff;
+    }
+
+        .search-input:focus {
+            border-color: #ee964b;
+            box-shadow: 0 0 0 0.2rem rgba(238, 150, 75, 0.25);
+        }
+
+    .btn-filter {
+        background-color: #ee964b;
+        color: white;
+        border-radius: 25px;
+        padding: 8px 22px;
+        font-weight: 600;
+        border: none;
+        transition: background-color 0.2s;
+    }
+
+        .btn-filter:hover {
+            background-color: #d88238;
+            color: white;
+        }
+
+    /* Category Chips */
+    .category-chip {
+        border-radius: 20px;
+        padding: 6px 20px;
+        font-weight: 600;
+        font-size: 14px;
+        border: 1px solid #ebd3c2;
+        background-color: #ffffff;
+        color: #6c584c;
+        cursor: pointer;
+        margin-right: 8px;
+        white-space: nowrap;
+        transition: all 0.2s;
+        user-select: none;
+    }
+
+        .category-chip.active,
+        .category-chip:hover {
+            background-color: #ee964b;
+            color: white;
+            border-color: #ee964b;
+        }
+
+    /* Product Cards */
+    .product-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 16px;
+        border: none;
+        box-shadow: 0 8px 20px rgba(108, 88, 76, 0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(108, 88, 76, 0.1);
+        }
+
+    .img-container {
+        width: 100%;
+        height: 160px;
+        border-radius: 16px;
+        overflow: hidden;
+        background-color: #f2e9e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+    }
+
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .card-title-custom {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2b1e16;
+        margin: 0;
+    }
+
+    .card-price-custom {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2b1e16;
+    }
+
+    .card-description-custom {
+        font-size: 12px;
+        color: #8c7a6b;
+        margin-top: 4px;
+        margin-bottom: 12px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Size Pills */
+    .size-btn {
+        border-radius: 14px;
+        border: 1px solid #ebd3c2;
+        background-color: #fffaf5;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 14px;
+        color: #6c584c;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .size-btn.active {
+            background-color: #ebd3c2;
+            color: #33261d;
+            border-color: #ebd3c2;
+        }
+
+    /* Controls & Action Buttons */
+    .qty-box {
+        background-color: #fff9f5;
+        border-radius: 16px;
+        border: 1px solid #ebd3c2;
+        display: inline-flex;
+        align-items: center;
+        padding: 2px;
+    }
+
+    .qty-btn {
+        border: none;
+        background: transparent;
+        color: #8c7a6b;
+        font-weight: bold;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+    }
+
+        .qty-btn:hover {
+            background-color: #ebd3c2;
+            color: #33261d;
+        }
+
+    .btn-add-cart {
+        background-color: #b07d5b;
+        color: white;
+        border-radius: 16px;
+        border: none;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 8px 16px;
+        transition: background-color 0.2s;
+        cursor: pointer;
+    }
+
+        .btn-add-cart:hover {
+            background-color: #966747;
+            color: white;
+        }
+
+        .btn-add-cart:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+</style>
+
+<div class="container menu-container">
+    @* Anti-forgery token: required for the fetch POST below *@
+    @Html.AntiForgeryToken()
+
+    <!-- Top Search Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control search-input" placeholder="Search menu items..." />
+            </div>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-filter" id="filterBtn">Filter</button>
+        </div>
+    </div>
+
+    <!-- Category Filter Bar -->
+    <div class="d-flex align-items-center mb-4 overflow-auto pb-2" id="categoryContainer">
+        <span class="category-chip active" data-category="all">All Items</span>
+        <span class="category-chip" data-category="coffee">Coffee</span>
+        <span class="category-chip" data-category="non-coffee">Non Coffee</span>
+        <span class="category-chip" data-category="food">Food</span>
+        <span class="category-chip" data-category="snack">Snack</span>
+        <span class="category-chip" data-category="dessert">Dessert</span>
+    </div>
+
+    <!-- Page Header Title -->
+    <h2 class="fw-bold mb-4" style="color: #2b1e16;">Menu List</h2>
+
+    <!-- Dynamic Menu Items Grid -->
+    <div class="row g-4" id="menuGrid">
+        @if (Model.Menus != null && Model.Menus.Any())
+        {
+            @foreach (var item in Model.Menus)
+            {
+                <div class="col-12 col-md-6 col-lg-4 menu-item-card" data-name="@item.MenuName.ToLower()">
+                    <div class="product-card">
+                        <div>
+                            <!-- Image Display -->
+                            <div class="img-container">
+                                @if (!string.IsNullOrEmpty(item.ImagePath))
+                                {
+                                    <img src="@item.ImagePath" alt="@item.MenuName" />
+                                }
+                                else
+                                {
+                                    <!-- Fallback coffee placeholder image -->
+                                    <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=400&q=80" alt="Coffee" />
+                                }
+                            </div>
+
+                            <!-- Name & Price Header -->
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h3 class="card-title-custom">@item.MenuName</h3>
+                                <span class="card-price-custom">@item.Price.ToString("C")</span>
+                            </div>
+
+                            <!-- Description -->
+                            <p class="card-description-custom">@item.Description</p>
+
+                            <!-- Size Selector -->
+                            <div class="mb-3">
+                                <span class="text-muted d-block mb-1" style="font-size: 11px;">Size</span>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn size-btn active">Small</button>
+                                    <button type="button" class="btn size-btn">Large</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quantity & Add to Cart Action -->
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                            <div class="qty-box">
+                                <button type="button" class="qty-btn btn-minus">-</button>
+                                <span class="px-2 qty-value" style="font-size: 13px; font-weight: 600;">1</span>
+                                <button type="button" class="qty-btn btn-plus">+</button>
+                            </div>
+
+                            <button type="button" class="btn btn-add-cart" data-id="@item.Id" data-name="@item.MenuName">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12" id="noItemsMessage">
+                <div class="alert alert-info rounded-4">
+                    No menu items found. Please check back later or add new items from the admin panel.
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Interactive Size Selector (Small / Large)
+        document.querySelectorAll('.size-btn').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const parentGroup = this.parentElement;
+                parentGroup.querySelectorAll('.size-btn').forEach(function (btn) {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // 2. Interactive Quantity Plus & Minus Controls
+        document.querySelectorAll('.qty-box').forEach(function (box) {
+            const minusBtn = box.querySelector('.btn-minus');
+            const plusBtn = box.querySelector('.btn-plus');
+            const qtyVal = box.querySelector('.qty-value');
+
+            minusBtn.addEventListener('click', function () {
+                let currentQty = parseInt(qtyVal.textContent, 10);
+                if (currentQty > 1) {
+                    qtyVal.textContent = currentQty - 1;
+                }
+            });
+
+            plusBtn.addEventListener('click', function () {
+                let currentQty = parseInt(qtyVal.textContent, 10);
+                qtyVal.textContent = currentQty + 1;
+            });
+        });
+
+        // 3. Category Filter Chips Toggle
+        const categoryChips = document.querySelectorAll('.category-chip');
+        categoryChips.forEach(function (chip) {
+            chip.addEventListener('click', function () {
+                categoryChips.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 4. Client-side Realtime Search Filter
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function () {
+                const query = this.value.toLowerCase().trim();
+                const cards = document.querySelectorAll('.menu-item-card');
+
+                cards.forEach(function (card) {
+                    const itemName = card.getAttribute('data-name');
+                    if (itemName.includes(query)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // 5. Add to Cart: sends the item to the server (OnPostAddToCartAsync)
+        document.querySelectorAll('.btn-add-cart').forEach(function (button) {
+            button.addEventListener('click', async function () {
+                const itemName = this.getAttribute('data-name') || 'Item';
+                const menuId = parseInt(this.getAttribute('data-id'), 10);
+                const card = this.closest('.product-card');
+                const size = card.querySelector('.size-btn.active')?.textContent.trim() || 'Small';
+                const quantity = parseInt(card.querySelector('.qty-value')?.textContent, 10) || 1;
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                this.disabled = true;
+
+                try {
+                    const response = await fetch('?handler=AddToCart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({ menuId: menuId, size: size, quantity: quantity })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        alert(`Added ${quantity} x ${itemName} (${size}) to your cart!`);
+                    } else {
+                        alert(result.message || 'Could not add to cart. Error ' + response.status);
+                    }
+                } catch (err) {
+                    alert('Could not add to cart. Please try again.');
+                } finally {
+                    this.disabled = false;
+                }
+            });
+        });
+    });
+</script>

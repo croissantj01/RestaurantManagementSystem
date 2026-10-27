@@ -1,0 +1,116 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.LoginModel
+
+@{
+    ViewData["Title"] = "Customer Login";
+}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-5">
+
+            <div class="card shadow">
+
+                <div class="card-body">
+
+                    <h2 class="text-center mb-4">
+                        Customer Login
+                    </h2>
+
+
+                    <!-- Registration Success Message -->
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success">
+
+                            <strong>Registration successful!</strong>
+
+                            @Model.SuccessMessage
+
+                        </div>
+                    }
+
+
+                    <!-- Login Error Message -->
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+
+                            @Model.ErrorMessage
+
+                        </div>
+                    }
+
+
+                    <form method="post">
+
+                        <!-- Email -->
+                        <div class="mb-3">
+
+                            <label asp-for="Email"
+                                   class="form-label">
+                                Email
+                            </label>
+
+                            <input asp-for="Email"
+                                   class="form-control"
+                                   placeholder="Enter your email" />
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Password -->
+                        <div class="mb-3">
+
+                            <label asp-for="Password"
+                                   class="form-label">
+                                Password
+                            </label>
+
+                            <input asp-for="Password"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="Enter your password" />
+
+                            <span asp-validation-for="Password"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Login Button -->
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Login
+                        </button>
+
+                    </form>
+
+
+                    <!-- Register Link -->
+                    <div class="text-center mt-3">
+
+                        Don't have an account?
+
+                        <a asp-page="/Customer/Register">
+                            Register
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

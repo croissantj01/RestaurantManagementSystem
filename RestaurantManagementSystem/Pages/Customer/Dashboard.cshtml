@@ -1,0 +1,233 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.DashboardModel
+
+@{
+    ViewData["Title"] = "Customer Dashboard";
+}
+
+<div class="container mt-5">
+
+    <!-- Dashboard Heading -->
+    <div class="mb-4">
+
+        <h1>
+            Customer Dashboard
+        </h1>
+
+        <p class="text-muted">
+            Welcome, <strong>@Model.CustomerName</strong>
+        </p>
+
+    </div>
+
+
+    <!-- Reservation Success Message -->
+    @if (TempData["ReservationSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            <strong>Reservation successful!</strong>
+            @TempData["ReservationSuccess"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- Dashboard Cards -->
+
+    <div class="row g-4">
+
+
+        <!-- Reserve Table -->
+
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <h4 class="card-title">
+                        Reserve Table
+                    </h4>
+
+                    <p class="card-text">
+                        Reserve a table for your dining experience.
+                    </p>
+
+                    <a asp-page="/Customer/ReserveTable"
+                       class="btn btn-primary">
+
+                        Reserve Table
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Order Menu -->
+
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <h4 class="card-title">
+                        Order Menu
+                    </h4>
+
+                    <p class="card-text">
+                        Browse the menu and place your food order.
+                    </p>
+
+                    <a asp-page="/Customer/ViewMenu"
+                       class="btn btn-success">
+
+                        View Menu
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- My Reservations -->
+
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <h4 class="card-title">
+                        My Reservations
+                    </h4>
+
+                    <p class="card-text">
+                        View and manage your table reservations.
+                    </p>
+
+                    <a asp-page="/Customer/MyReservation"
+                       class="btn btn-info">
+
+                        My Reservations
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- My Orders -->
+
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <h4 class="card-title">
+                        My Orders
+                    </h4>
+
+                    <p class="card-text">
+                        View your food orders and order status.
+                    </p>
+
+                    <a asp-page="/Customer/MyOrders"
+                       class="btn btn-warning">
+
+                        My Orders
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- My Profile -->
+
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <h4 class="card-title">
+                        My Profile
+                    </h4>
+
+                    <p class="card-text">
+                        View and update your customer information.
+                    </p>
+
+                    <a asp-page="/Customer/Profile"
+                       class="btn btn-secondary">
+
+                        My Profile
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Logout -->
+
+        <div class="col-md-4">
+
+            <div class="card h-100 shadow-sm">
+
+                <div class="card-body">
+
+                    <h4 class="card-title">
+                        Logout
+                    </h4>
+
+                    <p class="card-text">
+                        Sign out from your customer account.
+                    </p>
+
+                    <form method="post"
+                          asp-page-handler="Logout">
+
+                        <button type="submit"
+                                class="btn btn-danger">
+
+                            Logout
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

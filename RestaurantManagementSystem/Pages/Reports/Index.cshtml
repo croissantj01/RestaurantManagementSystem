@@ -1,0 +1,371 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Reports.IndexModel
+
+@{
+    ViewData["Title"] = "Restaurant Reports";
+}
+
+<div class="container mt-4 mb-5">
+
+    <!-- Page heading -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Restaurant Reports</h2>
+            <p class="text-muted">
+                Served orders, sales revenue and best-selling menu items.
+            </p>
+        </div>
+
+        <a asp-page="/RestaurantTables/Dashboard"
+           class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Date filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <form method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label asp-for="DateFrom" class="form-label">
+                        From Date
+                    </label>
+
+                    <input asp-for="DateFrom"
+                           type="date"
+                           class="form-control"
+                           value="@Model.DateFrom?.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="DateTo" class="form-label">
+                        To Date
+                    </label>
+
+                    <input asp-for="DateTo"
+                           type="date"
+                           class="form-control"
+                           value="@Model.DateTo?.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">
+                        Filter Reports
+                    </button>
+
+                    <a asp-page="/Reports/Index"
+                       class="btn btn-outline-secondary">
+                        Reset
+                    </a>
+                </div>
+
+            </form>
+
+            @if (Model.DateFrom.HasValue &&
+                 Model.DateTo.HasValue &&
+                 Model.DateFrom.Value.Date > Model.DateTo.Value.Date)
+            {
+                <div class="alert alert-danger mt-3 mb-0">
+                    From Date cannot be later than To Date.
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <!-- Individual PDF download buttons -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Download Reports (PDF)</h5>
+        </div>
+
+        <div class="card-body">
+            <p class="text-muted">
+                Download each report separately using the selected date range.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2">
+
+                <a asp-page-handler="DownloadServedOrdersPdf"
+                   asp-route-dateFrom="@Model.DateFrom?.ToString("yyyy-MM-dd")"
+                   asp-route-dateTo="@Model.DateTo?.ToString("yyyy-MM-dd")"
+                   class="btn btn-outline-primary">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                    Served Orders PDF
+                </a>
+
+                <a asp-page-handler="DownloadSalesRevenuePdf"
+                   asp-route-dateFrom="@Model.DateFrom?.ToString("yyyy-MM-dd")"
+                   asp-route-dateTo="@Model.DateTo?.ToString("yyyy-MM-dd")"
+                   class="btn btn-outline-success">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                    Sales Revenue PDF
+                </a>
+
+                <a asp-page-handler="DownloadBestSellingPdf"
+                   asp-route-dateFrom="@Model.DateFrom?.ToString("yyyy-MM-dd")"
+                   asp-route-dateTo="@Model.DateTo?.ToString("yyyy-MM-dd")"
+                   class="btn btn-outline-dark">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                    Best-Selling Items PDF
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-start border-primary border-4">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Total Served Orders
+                    </p>
+
+                    <h2 class="fw-bold text-primary">
+                        @Model.TotalServedOrders
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-start border-success border-4">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Total Sales Revenue
+                    </p>
+
+                    <h2 class="fw-bold text-success">
+                        RM @Model.TotalRevenue.ToString("N2")
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 border-start border-warning border-4">
+                <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Total Items Sold
+                    </p>
+
+                    <h2 class="fw-bold text-warning">
+                        @Model.TotalItemsSold
+                    </h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Report 1: Served orders -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">1. Served Orders Report</h5>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover align-middle">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Table</th>
+                            <th>Dine-In Date</th>
+                            <th>Dine-In Time</th>
+                            <th>Items</th>
+                            <th class="text-end">Total (RM)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (!Model.ServedOrders.Any())
+                        {
+                            <tr>
+                                <td colspan="6"
+                                    class="text-center text-muted py-3">
+                                    No served orders found.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var order in Model.ServedOrders)
+                            {
+                                <tr>
+                                    <td>#@order.OrderId</td>
+
+                                    <td>
+                                        @(order.Table?.TableNumber ?? "N/A")
+                                    </td>
+
+                                    <td>
+                                        @order.DineInDateTime.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        @order.DineInDateTime.ToString("hh:mm tt")
+                                    </td>
+
+                                    <td>
+                                        @if (order.OrderItems != null &&
+                                             order.OrderItems.Any())
+                                        {
+                                            <ul class="mb-0 ps-3">
+                                                @foreach (var item in order.OrderItems)
+                                                {
+                                                    <li>
+                                                        @(item.Menu?.MenuName ?? "Unknown item")
+                                                        x @item.Quantity
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                    </td>
+
+                                    <td class="text-end">
+                                        @order.TotalAmount.ToString("N2")
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td colspan="5">Total Revenue</td>
+                            <td class="text-end">
+                                @Model.TotalRevenue.ToString("N2")
+                            </td>
+                        </tr>
+                    </tfoot>
+
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Report 2: Sales revenue -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">2. Sales Revenue Report</h5>
+        </div>
+
+        <div class="card-body">
+
+            <p>
+                <strong>Reporting Period:</strong>
+                @(Model.DateFrom?.ToString("dd/MM/yyyy") ?? "Beginning")
+                to
+                @(Model.DateTo?.ToString("dd/MM/yyyy") ?? "Latest")
+            </p>
+
+            <table class="table table-bordered">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Description</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Number of served orders</td>
+                        <td class="text-end">
+                            @Model.TotalServedOrders
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Total items sold</td>
+                        <td class="text-end">
+                            @Model.TotalItemsSold
+                        </td>
+                    </tr>
+
+                    <tr class="table-success fw-bold">
+                        <td>Total Revenue</td>
+                        <td class="text-end">
+                            RM @Model.TotalRevenue.ToString("N2")
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+    <!-- Report 3: Best-selling menu items -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">3. Best-Selling Menu Items Report</h5>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Rank</th>
+                            <th>Menu Item</th>
+                            <th class="text-end">Quantity Sold</th>
+                            <th class="text-end">Sales Amount (RM)</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (!Model.BestSellingItems.Any())
+                        {
+                            <tr>
+                                <td colspan="4"
+                                    class="text-center text-muted py-3">
+                                    No menu sales found.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            var rank = 1;
+
+                            @foreach (var item in Model.BestSellingItems)
+                            {
+                                <tr>
+                                    <td>@rank</td>
+                                    <td>@item.MenuName</td>
+
+                                    <td class="text-end">
+                                        @item.QuantitySold
+                                    </td>
+
+                                    <td class="text-end">
+                                        @item.SalesAmount.ToString("N2")
+                                    </td>
+                                </tr>
+
+                                rank++;
+                            }
+                        }
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+</div>

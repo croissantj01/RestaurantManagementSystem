@@ -1,0 +1,77 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Admin.LoginModel
+
+@{
+    ViewData["Title"] = "Admin Login";
+}
+
+<div class="container">
+
+    <div class="row justify-content-center mt-5">
+
+        <div class="col-md-5">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">Admin Login</h3>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <form method="post">
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                Invalid username or password.
+                            </div>
+                        }
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Username
+                            </label>
+
+                            <input name="Username"
+                                   class="form-control"
+                                   placeholder="Enter username" />
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Password
+                            </label>
+
+                            <input name="Password"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="Enter password" />
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Login
+                        </button>
+
+                    </form>
+
+                </div>
+
+                <div class="card-footer text-center">
+                    <small class="text-muted">
+                        Staff Account System
+                    </small>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

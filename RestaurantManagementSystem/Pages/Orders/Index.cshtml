@@ -1,0 +1,362 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Orders.IndexModel
+
+@{
+    ViewData["Title"] = "Order Listing";
+}
+
+<div class="container mt-4 mb-5">
+
+    <!-- Page heading -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Order Listing</h2>
+            <p class="text-muted">
+                Manage customer orders and table availability.
+            </p>
+        </div>
+
+        <a asp-page="/Orders/MakeOrder" class="btn btn-primary">
+            Make Order
+        </a>
+
+        <a asp-page="/Admin/Dashboard"
+           class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Success message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["SuccessMessage"]
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    <!-- Error message -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["ErrorMessage"]
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    <!-- Filter by order status -->
+    <form method="get" class="card card-body shadow-sm mb-3">
+        <div class="row g-3 align-items-end">
+
+            <div class="col-md-4">
+                <label for="statusFilter"
+                       class="form-label fw-bold">
+                    Filter by Order Status
+                </label>
+
+                <select id="statusFilter"
+                        name="statusFilter"
+                        class="form-select">
+
+                    <option value=""
+                            selected="@(string.IsNullOrEmpty(Model.StatusFilter))">
+                        All Orders
+                    </option>
+
+                    <option value="Pending"
+                            selected="@(Model.StatusFilter == "Pending")">
+                        Pending
+                    </option>
+
+                    <option value="Preparing"
+                            selected="@(Model.StatusFilter == "Preparing")">
+                        Preparing
+                    </option>
+
+                    <option value="Serving"
+                            selected="@(Model.StatusFilter == "Serving")">
+                        Serving
+                    </option>
+
+                    <option value="Served"
+                            selected="@(Model.StatusFilter == "Served")">
+                        Served
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+
+                <a asp-page="/Orders/Index"
+                   class="btn btn-secondary">
+                    Reset
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+    <!-- Order listing table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-2">
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle mb-0">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Table</th>
+                            <th>Dine-In Date</th>
+                            <th>Dine-In Time</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Order Status</th>
+                            <th>Table Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Orders == null || !Model.Orders.Any())
+                        {
+                            <tr>
+                                <td colspan="9"
+                                    class="text-center text-muted py-4">
+                                    No orders found for this status.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var order in Model.Orders)
+                            {
+                                <tr>
+                                    <!-- Order ID -->
+                                    <td>
+                                        #@order.OrderId
+                                    </td>
+
+                                    <!-- Table details -->
+                                    <td>
+                                        <strong>
+                                            @(order.Table?.TableNumber ?? "N/A")
+                                        </strong>
+                                        <br />
+                                        <small class="text-muted">
+                                            @(order.Table?.DiningArea ?? "")
+                                        </small>
+                                    </td>
+
+                                    <!-- Dine-in date -->
+                                    <td>
+                                        @order.DineInDateTime.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <!-- Dine-in time -->
+                                    <td>
+                                        @order.DineInDateTime.ToString("hh:mm tt")
+                                    </td>
+
+                                    <!-- Order items -->
+                                    <td>
+                                        @if (order.OrderItems != null &&
+                                             order.OrderItems.Any())
+                                        {
+                                            <ul class="mb-0 ps-3">
+                                                @foreach (var item in order.OrderItems)
+                                                {
+                                                    <li>
+                                                        @(item.Menu?.MenuName ?? "Unknown item")
+                                                        x @item.Quantity
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                No items
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <!-- Total amount -->
+                                    <td class="fw-bold text-nowrap">
+                                        RM @order.TotalAmount.ToString("0.00")
+                                    </td>
+
+                                    <!-- Order status and update form -->
+                                    <td style="min-width: 165px;">
+
+                                        @if (order.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark mb-2">
+                                                Pending
+                                            </span>
+                                        }
+                                        else if (order.Status == "Preparing")
+                                        {
+                                            <span class="badge bg-primary mb-2">
+                                                Preparing
+                                            </span>
+                                        }
+                                        else if (order.Status == "Serving")
+                                        {
+                                            <span class="badge bg-info text-dark mb-2">
+                                                Serving
+                                            </span>
+                                        }
+                                        else if (order.Status == "Served")
+                                        {
+                                            <span class="badge bg-success mb-2">
+                                                Served
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary mb-2">
+                                                @order.Status
+                                            </span>
+                                        }
+
+                                        <form method="post"
+                                              asp-page-handler="UpdateStatus">
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@order.OrderId" />
+
+                                            <input type="hidden"
+                                                   name="statusFilter"
+                                                   value="@Model.StatusFilter" />
+
+                                            <select name="status"
+                                                    class="form-select form-select-sm mb-2">
+
+                                                <option value="Pending"
+                                                        selected="@(order.Status == "Pending")">
+                                                    Pending
+                                                </option>
+
+                                                <option value="Preparing"
+                                                        selected="@(order.Status == "Preparing")">
+                                                    Preparing
+                                                </option>
+
+                                                <option value="Serving"
+                                                        selected="@(order.Status == "Serving")">
+                                                    Serving
+                                                </option>
+
+                                                <option value="Served"
+                                                        selected="@(order.Status == "Served")">
+                                                    Served
+                                                </option>
+                                            </select>
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-warning w-100">
+                                                Update Status
+                                            </button>
+                                        </form>
+
+                                    </td>
+
+                                    <!-- Table status -->
+                                    <td>
+                                        @if (order.Table?.Status == "Occupied")
+                                        {
+                                            <span class="badge bg-danger">
+                                                Occupied
+                                            </span>
+                                        }
+                                        else if (order.Table?.Status == "Available")
+                                        {
+                                            <span class="badge bg-success">
+                                                Available
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @(order.Table?.Status ?? "Unknown")
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <!-- Action buttons -->
+                                    <td style="min-width: 210px;">
+                                        <div class="d-flex flex-wrap gap-1">
+
+                                            <!-- View order -->
+                                            <a asp-page="/Orders/OrderConfirmation"
+                                               asp-route-id="@order.OrderId"
+                                               class="btn btn-sm btn-primary">
+                                                View Order
+                                            </a>
+
+                                            <!-- Make table available -->
+                                            @if (order.Table != null &&
+                                                 order.Table.Status == "Occupied")
+                                            {
+                                                <form method="post"
+                                                      asp-page-handler="MakeAvailable"
+                                                      onsubmit="return confirm('Make this table available?');">
+
+                                                    <input type="hidden"
+                                                           name="id"
+                                                           value="@order.OrderId" />
+
+                                                    <input type="hidden"
+                                                           name="statusFilter"
+                                                           value="@Model.StatusFilter" />
+
+                                                    <button type="submit"
+                                                            class="btn btn-sm btn-success">
+                                                        Available
+                                                    </button>
+                                                </form>
+                                            }
+
+                                            <!-- Delete order -->
+                                            <form method="post"
+                                                  asp-page-handler="Delete"
+                                                  onsubmit="return confirm('Are you sure you want to delete order #@order.OrderId? This cannot be undone.');">
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@order.OrderId" />
+
+                                                <input type="hidden"
+                                                       name="statusFilter"
+                                                       value="@Model.StatusFilter" />
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-danger">
+                                                    Delete
+                                                </button>
+                                            </form>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

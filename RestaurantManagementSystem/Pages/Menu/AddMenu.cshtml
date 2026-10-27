@@ -1,0 +1,115 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Menu.AddMenuModel
+
+@{
+    ViewData["Title"] = "Add Menu";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Add Menu</h2>
+
+        <a asp-page="/Admin/Dashboard"
+           class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+
+            <form method="post"
+                  enctype="multipart/form-data">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <!-- Menu Name -->
+                <div class="mb-3">
+                    <label asp-for="Menu.MenuName"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="Menu.MenuName"
+                           class="form-control"
+                           placeholder="Enter menu name" />
+
+                    <span asp-validation-for="Menu.MenuName"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label asp-for="Menu.Description"
+                           class="form-label">
+                    </label>
+
+                    <textarea asp-for="Menu.Description"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Enter menu description">
+                    </textarea>
+
+                    <span asp-validation-for="Menu.Description"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <!-- Price -->
+                <div class="mb-3">
+                    <label asp-for="Menu.Price"
+                           class="form-label">
+                    </label>
+
+                    <div class="input-group">
+                        <span class="input-group-text">RM</span>
+
+                        <input asp-for="Menu.Price"
+                               type="number"
+                               step="0.01"
+                               min="0.01"
+                               class="form-control"
+                               placeholder="0.00" />
+                    </div>
+
+                    <span asp-validation-for="Menu.Price"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <!-- Image -->
+                <div class="mb-3">
+                    <label asp-for="ImageFile"
+                           class="form-label">
+                        Menu Image
+                    </label>
+
+                    <input asp-for="ImageFile"
+                           type="file"
+                           class="form-control"
+                           accept="image/*" />
+
+                    <span asp-validation-for="ImageFile"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Add Menu
+                </button>
+
+                <a asp-page="/Admin/Dashboard"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

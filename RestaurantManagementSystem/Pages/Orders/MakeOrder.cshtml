@@ -1,0 +1,400 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Orders.MakeOrderModel
+
+@{
+    ViewData["Title"] = "Make Order";
+}
+
+<div class="container mt-4">
+
+    <!-- ================================= -->
+    <!-- PAGE TITLE -->
+    <!-- ================================= -->
+
+    <div class="text-center mb-4">
+
+        <h1 class="fw-bold">
+            Make Your Order
+        </h1>
+
+        <p class="text-muted">
+            Select your table, dine-in date and time,
+            and choose your food.
+        </p>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- FORM -->
+    <!-- ================================= -->
+
+    <form method="post">
+
+        <!-- Validation -->
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+
+        <!-- ================================= -->
+        <!-- DINE-IN INFORMATION -->
+        <!-- ================================= -->
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header bg-primary text-white">
+
+                <h5 class="mb-0">
+                    Dine-In Information
+                </h5>
+
+            </div>
+
+
+            <div class="card-body">
+
+                <div class="row">
+
+
+                    <!-- ========================== -->
+                    <!-- TABLE -->
+                    <!-- ========================== -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <label asp-for="Order.TableId"
+                               class="form-label">
+
+                            Select Table
+
+                        </label>
+
+
+                        <select asp-for="Order.TableId"
+                                class="form-select">
+
+                            <option value="">
+                                -- Select Table --
+                            </option>
+
+
+                            @foreach (var table in Model.Tables)
+                            {
+                                <option value="@table.RestaurantTableId">
+
+                                    @table.TableNumber
+                                    -
+                                    @table.DiningArea
+                                    -
+                                    Capacity: @table.Capacity
+
+                                </option>
+                            }
+
+                        </select>
+
+
+                        <span asp-validation-for="Order.TableId"
+                              class="text-danger">
+                        </span>
+
+
+                        @if (Model.Tables.Count == 0)
+                        {
+                            <small class="text-danger">
+                                No tables are currently available.
+                            </small>
+                        }
+
+                    </div>
+
+
+                    <!-- ========================== -->
+                    <!-- DATE -->
+                    <!-- ========================== -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <label asp-for="DineInDate"
+                               class="form-label">
+
+                            Dine-In Date
+
+                        </label>
+
+
+                        <input asp-for="DineInDate"
+                               type="date"
+                               class="form-control" />
+
+                    </div>
+
+
+                    <!-- ========================== -->
+                    <!-- TIME -->
+                    <!-- ========================== -->
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+
+                            Dine-In Time
+
+                        </label>
+
+
+                        <div class="row">
+
+
+                            <!-- HOUR -->
+
+                            <div class="col-4">
+
+                                <select asp-for="SelectedHour"
+                                        class="form-select">
+
+                                    @for (int hour = 1;
+                                          hour <= 12;
+                                          hour++)
+                                    {
+                                        <option value="@hour">
+
+                                            @hour.ToString("00")
+
+                                        </option>
+                                    }
+
+                                </select>
+
+                                <small class="text-muted">
+                                    Hour
+                                </small>
+
+                            </div>
+
+
+                            <!-- MINUTE -->
+
+                            <div class="col-4">
+
+                                <select asp-for="SelectedMinute"
+                                        class="form-select">
+
+                                    @for (int minute = 0;
+                                          minute < 60;
+                                          minute++)
+                                    {
+                                        <option value="@minute">
+
+                                            @minute.ToString("00")
+
+                                        </option>
+                                    }
+
+                                </select>
+
+                                <small class="text-muted">
+                                    Minute
+                                </small>
+
+                            </div>
+
+
+                            <!-- AM PM -->
+
+                            <div class="col-4">
+
+                                <select asp-for="SelectedAmPm"
+                                        class="form-select">
+
+                                    <option value="AM">
+                                        AM
+                                    </option>
+
+                                    <option value="PM">
+                                        PM
+                                    </option>
+
+                                </select>
+
+                                <small class="text-muted">
+                                    AM / PM
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ================================= -->
+        <!-- FOOD -->
+        <!-- ================================= -->
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header bg-dark text-white">
+
+                <h5 class="mb-0">
+                    Select Food
+                </h5>
+
+            </div>
+
+
+            <div class="card-body">
+
+                @if (Model.Menus.Count == 0)
+                {
+                    <div class="alert alert-warning">
+
+                        No menu items are currently available.
+
+                    </div>
+                }
+                else
+                {
+
+                    <div class="row">
+
+                        @foreach (var menu in Model.Menus)
+                        {
+
+                            <div class="col-md-4 mb-4">
+
+
+                                <!-- FOOD CARD -->
+
+                                <div class="card h-100 shadow-sm">
+
+
+                                    <!-- IMAGE -->
+
+                                    @if (!string.IsNullOrEmpty(
+                                        menu.ImagePath))
+                                    {
+                                        <img src="@menu.ImagePath"
+                                             class="card-img-top"
+                                             style="height:200px; object-fit:cover;"
+                                             alt="@menu.MenuName" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light
+                                                    text-center
+                                                    p-5">
+
+                                            <span class="text-muted">
+
+                                                No Image
+
+                                            </span>
+
+                                        </div>
+                                    }
+
+
+                                    <!-- FOOD DETAILS -->
+
+                                    <div class="card-body">
+
+
+                                        <h5 class="card-title">
+
+                                            @menu.MenuName
+
+                                        </h5>
+
+
+                                        <p class="card-text text-muted">
+
+                                            @menu.Description
+
+                                        </p>
+
+
+                                        <h5 class="text-primary">
+
+                                            RM
+                                            @menu.Price.ToString("0.00")
+
+                                        </h5>
+
+
+                                        <!-- QUANTITY -->
+
+                                        <div class="mt-3">
+
+                                            <label class="form-label">
+
+                                                Quantity
+
+                                            </label>
+
+
+                                            <input type="number"
+                                                   name="Quantities[@menu.Id]"
+                                                   value="0"
+                                                   min="0"
+                                                   class="form-control" />
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        }
+
+                    </div>
+
+                }
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ================================= -->
+        <!-- BUTTONS -->
+        <!-- ================================= -->
+
+        <div class="d-flex
+                    justify-content-between
+                    mb-5">
+
+
+            <a asp-page="/Orders/Index"
+               class="btn btn-secondary">
+
+                Back
+
+            </a>
+
+
+            <button type="submit"
+                    class="btn btn-success">
+
+                Confirm Order
+
+            </button>
+
+        </div>
+
+
+    </form>
+
+</div>

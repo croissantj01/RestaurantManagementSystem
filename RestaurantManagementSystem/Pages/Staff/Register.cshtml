@@ -1,0 +1,131 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Staff.RegisterModel
+
+@{
+    ViewData["Title"] = "Register Staff";
+}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-7">
+
+            <div class="card shadow">
+
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        Register Staff Account
+                    </h4>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    <form method="post">
+
+                        <!-- Full Name -->
+                        <div class="mb-3">
+                            <label asp-for="Staff.FullName"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="Staff.FullName"
+                                   class="form-control"
+                                   placeholder="Enter full name" />
+
+                            <span asp-validation-for="Staff.FullName"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label asp-for="Staff.Email"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="Staff.Email"
+                                   class="form-control"
+                                   placeholder="Enter email address" />
+
+                            <span asp-validation-for="Staff.Email"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label asp-for="Staff.Username"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="Staff.Username"
+                                   class="form-control"
+                                   placeholder="Create username" />
+
+                            <span asp-validation-for="Staff.Username"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label asp-for="Staff.Password"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="Staff.Password"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="Create password" />
+
+                            <span asp-validation-for="Staff.Password"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+                            <label asp-for="Staff.ConfirmPassword"
+                                   class="form-label">
+                            </label>
+
+                            <input asp-for="Staff.ConfirmPassword"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="Confirm password" />
+
+                            <span asp-validation-for="Staff.ConfirmPassword"
+                                  class="text-danger">
+                            </span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                Create Staff Account
+                            </button>
+
+                            <a href="/Admin/Dashboard"
+                               class="btn btn-secondary">
+                                Back
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

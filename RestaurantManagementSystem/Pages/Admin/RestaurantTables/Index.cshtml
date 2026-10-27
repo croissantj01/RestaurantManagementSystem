@@ -1,0 +1,70 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Admin.RestaurantTables.IndexModel
+
+@{
+    ViewData["Title"] = "Manage Restaurant Tables";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Manage Restaurant Tables</h2>
+            <p class="text-muted">Manage dining areas, tables, capacity and availability.</p>
+        </div>
+
+        <a asp-page="Create" class="btn btn-primary">
+            + Add Table
+        </a>
+    </div>
+
+    @if (Model.RestaurantTables.Count == 0)
+    {
+        <div class="alert alert-info">
+            No restaurant tables have been added yet.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>Table Number</th>
+                    <th>Dining Area</th>
+                    <th>Capacity</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var table in Model.RestaurantTables)
+                {
+                    <tr>
+                        <td>@table.TableNumber</td>
+                        <td>@table.DiningArea</td>
+                        <td>@table.Capacity</td>
+                        <td>@table.Status</td>
+
+                        <td>
+                            <a asp-page="Edit"
+                               asp-route-id="@table.RestaurantTableId"
+                               class="btn btn-sm btn-warning">
+                                Edit
+                            </a>
+
+                            <a asp-page="Delete"
+                               asp-route-id="@table.RestaurantTableId"
+                               class="btn btn-sm btn-danger">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    }
+
+</div>

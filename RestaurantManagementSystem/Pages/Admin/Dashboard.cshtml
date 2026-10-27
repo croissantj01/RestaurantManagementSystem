@@ -1,0 +1,395 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Admin.DashboardModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-5">
+
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2>Admin Dashboard</h2>
+            <p class="text-muted mb-0">
+                Manage staff accounts and menus
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <!-- Register Staff Button -->
+            <a href="/Staff/Register"
+               class="btn btn-primary">
+                Register Staff
+            </a>
+
+            <!-- Add Menu Button -->
+            <a asp-page="/Menu/AddMenu"
+               class="btn btn-success">
+                Add Menu
+            </a>
+
+            <a asp-page="/Admin/RestaurantTables/Index"
+                class="btn btn-primary">
+                Manage Tables
+            </a>
+
+            <a asp-page="/Orders/MakeOrder"
+                class="btn btn-secondary">
+                Make Order
+            </a>
+
+            <a asp-page="/Orders/Index"
+               class="btn btn-warning">
+                Order Listing
+            </a>
+
+            <!-- Logout Button -->
+            <form method="post"
+                  asp-page-handler="Logout"
+                  class="d-inline">
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- Success Message -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            @TempData["SuccessMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- STAFF ACCOUNTS CARD -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow mb-4">
+
+        <!-- Card Header -->
+        <div class="card-header bg-primary text-white">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+                    Staff Accounts
+                </h5>
+
+                <span class="badge bg-light text-dark">
+                    Total: @Model.StaffList.Count
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Card Body -->
+        <div class="card-body">
+
+            @if (Model.StaffList.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th style="width: 80px;">
+                                    No.
+                                </th>
+
+                                <th>
+                                    Full Name
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Username
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @{
+                                int no = 1;
+                            }
+
+                            @foreach (var staff in Model.StaffList)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @no
+                                    </td>
+
+                                    <td>
+                                        @staff.FullName
+                                    </td>
+
+                                    <td>
+                                        @staff.Email
+                                    </td>
+
+                                    <td>
+                                        @staff.Username
+                                    </td>
+
+                                </tr>
+
+                                no++;
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <!-- No Staff Message -->
+
+                <div class="text-center py-5">
+
+                    <h5 class="text-muted">
+                        No staff accounts found.
+                    </h5>
+
+                    <p class="text-muted">
+                        Click "Register Staff" to create a staff account.
+                    </p>
+
+                    <a href="/Staff/Register"
+                       class="btn btn-primary">
+                        Register Staff
+                    </a>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- MENU MANAGEMENT CARD -->
+    <!-- ===================================================== -->
+
+    <div class="card shadow mb-4">
+
+        <!-- Card Header -->
+        <div class="card-header bg-success text-white">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+                    Menu Management
+                </h5>
+
+                <div class="d-flex align-items-center gap-2">
+
+                    <span class="badge bg-light text-dark">
+                        Total: @Model.MenuList.Count
+                    </span>
+
+                    <a asp-page="/Menu/AddMenu"
+                       class="btn btn-light btn-sm">
+                        + Add Menu
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Card Body -->
+        <div class="card-body">
+
+            @if (Model.MenuList.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+
+                            <tr>
+
+                                <th style="width: 100px;">
+                                    Image
+                                </th>
+
+                                <th style="width: 70px;">
+                                    No.
+                                </th>
+
+                                <th>
+                                    Menu Name
+                                </th>
+
+                                <th>
+                                    Description
+                                </th>
+
+                                <th style="width: 120px;">
+                                    Price
+                                </th>
+
+                                <th style="width: 180px;">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @{
+                                int menuNo = 1;
+                            }
+
+                            @foreach (var menu in Model.MenuList)
+                            {
+                                <tr>
+
+                                    <!-- Menu Image -->
+                                    <td>
+
+                                        @if (!string.IsNullOrEmpty(menu.ImagePath))
+                                        {
+                                            <img src="@menu.ImagePath"
+                                                 alt="@menu.MenuName"
+                                                 class="rounded border"
+                                                 style="width: 80px;
+                                            height: 60px;
+                                            object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                No image
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Number -->
+                                    <td>
+                                        @menuNo
+                                    </td>
+
+
+                                    <!-- Menu Name -->
+                                    <td>
+                                        <strong>
+                                            @menu.MenuName
+                                        </strong>
+                                    </td>
+
+
+                                    <!-- Description -->
+                                    <td>
+                                        @menu.Description
+                                    </td>
+
+
+                                    <!-- Price -->
+                                    <td>
+                                        <strong>
+                                            RM @menu.Price.ToString("0.00")
+                                        </strong>
+                                    </td>
+
+
+                                    <!-- Actions -->
+                                    <td>
+
+                                        <a asp-page="/Menu/EditMenu"
+                                           asp-route-id="@menu.Id"
+                                           class="btn btn-warning btn-sm">
+                                            Edit
+                                        </a>
+
+                                        <a asp-page="/Menu/DeleteMenu"
+                                           asp-route-id="@menu.Id"
+                                           class="btn btn-danger btn-sm">
+                                            Delete
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                                menuNo++;
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <!-- No Menu Message -->
+
+                <div class="text-center py-5">
+
+                    <h5 class="text-muted">
+                        No menu items found.
+                    </h5>
+
+                    <p class="text-muted">
+                        Click "Add Menu" to create your first menu item.
+                    </p>
+
+                    <a asp-page="/Menu/AddMenu"
+                       class="btn btn-success">
+                        + Add Menu
+                    </a>
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+
+</div>

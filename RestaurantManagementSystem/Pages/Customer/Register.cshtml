@@ -1,0 +1,149 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.RegisterModel
+
+@{
+    ViewData["Title"] = "Customer Registration";
+}
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-5">
+
+            <div class="card shadow">
+
+                <div class="card-body">
+
+                    <h2 class="text-center mb-4">
+                        Customer Registration
+                    </h2>
+
+                    <form method="post">
+
+                        <!-- Full Name -->
+                        <div class="mb-3">
+
+                            <label asp-for="Customer.FullName"
+                                   class="form-label">
+                                Full Name
+                            </label>
+
+                            <input asp-for="Customer.FullName"
+                                   class="form-control"
+                                   placeholder="Enter your full name" />
+
+                            <span asp-validation-for="Customer.FullName"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Email -->
+                        <div class="mb-3">
+
+                            <label asp-for="Customer.Email"
+                                   class="form-label">
+                                Email
+                            </label>
+
+                            <input asp-for="Customer.Email"
+                                   class="form-control"
+                                   placeholder="Enter your email" />
+
+                            <span asp-validation-for="Customer.Email"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Phone -->
+                        <div class="mb-3">
+
+                            <label asp-for="Customer.Phone"
+                                   class="form-label">
+                                Phone
+                            </label>
+
+                            <input asp-for="Customer.Phone"
+                                   class="form-control"
+                                   placeholder="Enter your phone number" />
+
+                            <span asp-validation-for="Customer.Phone"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Password -->
+                        <div class="mb-3">
+
+                            <label asp-for="Customer.Password"
+                                   class="form-label">
+                                Password
+                            </label>
+
+                            <input asp-for="Customer.Password"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="Enter your password" />
+
+                            <span asp-validation-for="Customer.Password"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+
+                            <label asp-for="ConfirmPassword"
+                                   class="form-label">
+                                Confirm Password
+                            </label>
+
+                            <input asp-for="ConfirmPassword"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="Confirm your password" />
+
+                            <span asp-validation-for="ConfirmPassword"
+                                  class="text-danger">
+                            </span>
+
+                        </div>
+
+
+                        <!-- Register Button -->
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Register
+                        </button>
+
+                    </form>
+
+
+                    <!-- Login Link -->
+                    <div class="text-center mt-3">
+
+                        Already have an account?
+
+                        <a asp-page="/Customer/Login">
+                            Login
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

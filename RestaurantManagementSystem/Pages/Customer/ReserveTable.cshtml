@@ -1,0 +1,174 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.ReserveTableModel
+
+@{
+    ViewData["Title"] = "Reserve a Table";
+}
+
+<div class="container mt-5">
+
+    <h1 class="fw-bold">
+        Reserve a Table
+    </h1>
+
+    <p class="text-muted">
+        Select your preferred table, date, time and number of guests.
+    </p>
+
+
+    <div class="card mt-4">
+
+        <div class="card-body">
+
+            <h2 class="mb-4">
+                Table Reservation
+            </h2>
+
+
+            <!-- ERROR MESSAGE -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+
+                    <div asp-validation-summary="All"></div>
+
+                </div>
+            }
+
+
+            <form method="post">
+
+                <!-- TABLE -->
+
+                <div class="mb-3">
+
+                    <label asp-for="SelectedTableId"
+                           class="form-label">
+                        Select Table
+                    </label>
+
+                    <select asp-for="SelectedTableId"
+                            class="form-select">
+
+                        <option value="">
+                            -- Select Table --
+                        </option>
+
+                        @foreach (var table in Model.Tables)
+                        {
+                            <option value="@table.RestaurantTableId">
+
+                                @table.TableNumber
+                                -
+                                @table.DiningArea
+                                -
+                                Capacity: @table.Capacity
+
+                            </option>
+                        }
+
+                    </select>
+
+                    @if (Model.Tables.Count == 0)
+                    {
+                        <div class="text-danger mt-2">
+                            No tables are available for the selected
+                            date and time.
+                        </div>
+                    }
+
+                    <span asp-validation-for="SelectedTableId"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- DINE-IN DATE -->
+
+                <div class="mb-3">
+
+                    <label asp-for="ReservationDate"
+                           class="form-label">
+                        Dine-In Date
+                    </label>
+
+                    <input asp-for="ReservationDate"
+                           type="date"
+                           class="form-control" />
+
+                    <span asp-validation-for="ReservationDate"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- DINE-IN TIME -->
+
+                <div class="mb-3">
+
+                    <label asp-for="ReservationTime"
+                           class="form-label">
+                        Dine-In Time
+                    </label>
+
+                    <input asp-for="ReservationTime"
+                           type="time"
+                           class="form-control" />
+
+                    <small class="text-muted">
+                        Each reservation is for 2 hours.
+                    </small>
+
+                    <span asp-validation-for="ReservationTime"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- NUMBER OF GUESTS -->
+
+                <div class="mb-3">
+
+                    <label asp-for="NumberOfGuests"
+                           class="form-label">
+                        Number of Guests
+                    </label>
+
+                    <input asp-for="NumberOfGuests"
+                           type="number"
+                           min="1"
+                           class="form-control" />
+
+                    <span asp-validation-for="NumberOfGuests"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <div class="mt-4">
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Reserve Table
+                    </button>
+
+                    <a asp-page="/Customer/Dashboard"
+                       class="btn btn-secondary">
+                        Back to Dashboard
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

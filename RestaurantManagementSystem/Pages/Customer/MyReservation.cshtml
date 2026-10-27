@@ -1,0 +1,209 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.MyReservationModel
+
+@{
+    ViewData["Title"] = "My Reservations";
+}
+
+<div class="container mt-5">
+
+    <!-- PAGE TITLE -->
+    <h1 class="fw-bold">
+        My Reservations
+    </h1>
+
+    <p class="text-muted">
+        View and manage your table reservations.
+    </p>
+
+
+    <!-- RESERVATION CARD -->
+    <div class="card mt-4">
+
+        <div class="card-body">
+
+            <h2 class="mb-4">
+                My Reservations
+            </h2>
+
+
+            @if (Model.Reservations.Count == 0)
+            {
+                <div class="alert alert-info">
+                    You do not have any reservations.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-bordered align-middle">
+
+                        <!-- TABLE HEADER -->
+                        <thead>
+                            <tr>
+
+                                <th>
+                                    Table
+                                </th>
+
+                                <th>
+                                    Dining Area
+                                </th>
+
+                                <th>
+                                    Dine-In Date
+                                </th>
+
+                                <th>
+                                    Time
+                                </th>
+
+                                <th>
+                                    Guests
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+                        </thead>
+
+
+                        <!-- TABLE BODY -->
+                        <tbody>
+
+                            @foreach (var reservation in Model.Reservations)
+                            {
+                                <tr>
+
+                                    <!-- TABLE NUMBER -->
+                                    <td>
+                                        @reservation.RestaurantTable.TableNumber
+                                    </td>
+
+
+                                    <!-- DINING AREA -->
+                                    <td>
+                                        @reservation.RestaurantTable.DiningArea
+                                    </td>
+
+
+                                    <!-- DINE-IN DATE -->
+                                    <td>
+                                        @reservation.ReservationDate.ToString("dd/MM/yyyy")
+                                    </td>
+
+
+                                    <!-- TIME -->
+                                    <td>
+                                        @{
+                                            DateTime startDateTime =
+                                                DateTime.Today.Add(
+                                                    reservation.ReservationTime
+                                                );
+
+                                            DateTime endDateTime =
+                                                startDateTime.AddHours(2);
+                                        }
+
+                                        @startDateTime.ToString("hh:mm tt")
+                                        -
+                                        @endDateTime.ToString("hh:mm tt")
+                                    </td>
+
+
+                                    <!-- NUMBER OF GUESTS -->
+                                    <td>
+                                        @reservation.NumberOfGuests
+                                    </td>
+
+
+                                    <!-- STATUS -->
+                                    <td>
+
+                                        @if (reservation.Status == "Reserved")
+                                        {
+                                            <span class="badge bg-success">
+                                                Reserved
+                                            </span>
+                                        }
+                                        else if (reservation.Status == "Cancelled")
+                                        {
+                                            <span class="badge bg-danger">
+                                                Cancelled
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @reservation.Status
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- ACTION -->
+                                    <td>
+
+                                        @if (reservation.Status == "Reserved")
+                                        {
+                                            <form method="post"
+                                                  asp-page-handler="Cancel"
+                                                  asp-route-id="@reservation.ReservationId">
+
+                                                <button type="submit"
+                                                        class="btn btn-danger btn-sm"
+                                                        onclick="return confirm('Are you sure you want to cancel this reservation?');">
+                                                    Cancel
+                                                </button>
+
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span>
+                                                -
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+    <!-- BUTTONS -->
+    <div class="mt-4">
+
+        <a asp-page="/Customer/ReserveTable"
+           class="btn btn-primary">
+            Reserve a New Table
+        </a>
+
+
+        <a asp-page="/Customer/Dashboard"
+           class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+
+    </div>
+
+</div>
