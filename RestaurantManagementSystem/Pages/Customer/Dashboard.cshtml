@@ -11,153 +11,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
+    
+    <!-- Bootstrap & FontAwesome -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <style>
-        :root {
-            --primary-color: #F39C12;
-            --primary-hover: #D68910;
-            --cream-bg: #FFFDF9;
-            --text-main: #2D3748;
-            --text-muted: #718096;
-        }
-
-        body {
-            background-color: var(--cream-bg);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .navbar-custom {
-            background-color: #FFFFFF;
-            padding: 15px 0;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.03);
-        }
-
-        .navbar-brand {
-            font-weight: 800;
-            font-size: 1.5rem;
-            color: #2D3748 !important;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-brand span {
-            background-color: #2D3748;
-            color: #FFFFFF;
-            padding: 5px 10px;
-            border-radius: 8px;
-        }
-
-        .nav-link {
-            font-weight: 600;
-            color: var(--text-main) !important;
-            margin-right: 15px;
-            transition: color 0.2s;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: var(--primary-color) !important;
-        }
-
-        .hero-section {
-            background: linear-gradient(135deg, #FFF9F0 0%, #FFE0B2 100%);
-            border-radius: 24px;
-            padding: 50px;
-            margin-top: 30px;
-            margin-bottom: 40px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.1);
-        }
-
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 800;
-            line-height: 1.2;
-            color: #2D3748;
-        }
-
-        .hero-title span {
-            color: var(--primary-color);
-        }
-
-        .category-card {
-            background: #FFFFFF;
-            border-radius: 16px;
-            padding: 20px 10px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            color: var(--text-main);
-            display: block;
-            border: 2px solid transparent;
-        }
-
-        .category-card:hover {
-            border-color: var(--primary-color);
-            transform: translateY(-5px);
-        }
-
-        .category-icon {
-            font-size: 1.8rem;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
-
-        .category-title {
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin: 0;
-        }
-
-        .promo-action-card {
-            background: #FFFFFF;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.3s;
-            border: none;
-        }
-
-        .promo-action-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .action-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-        }
-
-        .btn-action {
-            background-color: #2D3748;
-            color: #FFFFFF;
-            border-radius: 12px;
-            padding: 10px 20px;
-            font-weight: 600;
-            border: none;
-            text-align: center;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-
-        .btn-action:hover {
-            background-color: var(--primary-color);
-            color: #FFFFFF;
-        }
-    </style>
+    
+    <!-- External CSS Reference -->
+    <link rel="stylesheet" href="~/StyleSheet.css" asp-append-version="true" />
 </head>
 <body>
 
@@ -204,7 +64,7 @@
             </div>
         }
 
-        <!-- Promotional Hero Section (Badge Removed) -->
+        <!-- Hero Section -->
         <div class="hero-section">
             <div class="row align-items-center">
                 <div class="col-lg-7">
