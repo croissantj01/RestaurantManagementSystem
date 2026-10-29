@@ -5,229 +5,355 @@
     ViewData["Title"] = "Customer Dashboard";
 }
 
-<div class="container mt-5">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            --primary-color: #F39C12;
+            --primary-hover: #D68910;
+            --cream-bg: #FFFDF9;
+            --text-main: #2D3748;
+            --text-muted: #718096;
+        }
 
-    <!-- Dashboard Heading -->
-    <div class="mb-4">
+        body {
+            background-color: var(--cream-bg);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-        <h1>
-            Customer Dashboard
-        </h1>
+        .navbar-custom {
+            background-color: #FFFFFF;
+            padding: 15px 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.03);
+        }
 
-        <p class="text-muted">
-            Welcome, <strong>@Model.CustomerName</strong>
-        </p>
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #2D3748 !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    </div>
+        .navbar-brand span {
+            background-color: #2D3748;
+            color: #FFFFFF;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
 
+        .nav-link {
+            font-weight: 600;
+            color: var(--text-main) !important;
+            margin-right: 15px;
+            transition: color 0.2s;
+        }
 
-    <!-- Reservation Success Message -->
-    @if (TempData["ReservationSuccess"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show"
-             role="alert">
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color) !important;
+        }
 
-            <strong>Reservation successful!</strong>
-            @TempData["ReservationSuccess"]
+        .hero-section {
+            background: linear-gradient(135deg, #FFF9F0 0%, #FFE0B2 100%);
+            border-radius: 24px;
+            padding: 50px;
+            margin-top: 30px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.1);
+        }
 
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #2D3748;
+        }
+
+        .hero-title span {
+            color: var(--primary-color);
+        }
+
+        .category-card {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 20px 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-main);
+            display: block;
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        .category-icon {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .category-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .promo-action-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s;
+            border: none;
+        }
+
+        .promo-action-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .btn-action {
+            background-color: #2D3748;
+            color: #FFFFFF;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 600;
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <span><i class="fa-solid fa-utensils"></i></span> MyCafe
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
             </button>
-
-        </div>
-    }
-
-
-    <!-- Dashboard Cards -->
-
-    <div class="row g-4">
-
-
-        <!-- Reserve Table -->
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow-sm">
-
-                <div class="card-body">
-
-                    <h4 class="card-title">
-                        Reserve Table
-                    </h4>
-
-                    <p class="card-text">
-                        Reserve a table for your dining experience.
-                    </p>
-
-                    <a asp-page="/Customer/ReserveTable"
-                       class="btn btn-primary">
-
-                        Reserve Table
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- Order Menu -->
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow-sm">
-
-                <div class="card-body">
-
-                    <h4 class="card-title">
-                        Order Menu
-                    </h4>
-
-                    <p class="card-text">
-                        Browse the menu and place your food order.
-                    </p>
-
-                    <a asp-page="/Customer/ViewMenu"
-                       class="btn btn-success">
-
-                        View Menu
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- My Reservations -->
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow-sm">
-
-                <div class="card-body">
-
-                    <h4 class="card-title">
-                        My Reservations
-                    </h4>
-
-                    <p class="card-text">
-                        View and manage your table reservations.
-                    </p>
-
-                    <a asp-page="/Customer/MyReservation"
-                       class="btn btn-info">
-
-                        My Reservations
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- My Orders -->
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow-sm">
-
-                <div class="card-body">
-
-                    <h4 class="card-title">
-                        My Orders
-                    </h4>
-
-                    <p class="card-text">
-                        View your food orders and order status.
-                    </p>
-
-                    <a asp-page="/Customer/MyOrders"
-                       class="btn btn-warning">
-
-                        My Orders
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- My Profile -->
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow-sm">
-
-                <div class="card-body">
-
-                    <h4 class="card-title">
-                        My Profile
-                    </h4>
-
-                    <p class="card-text">
-                        View and update your customer information.
-                    </p>
-
-                    <a asp-page="/Customer/Profile"
-                       class="btn btn-secondary">
-
-                        My Profile
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- Logout -->
-
-        <div class="col-md-4">
-
-            <div class="card h-100 shadow-sm">
-
-                <div class="card-body">
-
-                    <h4 class="card-title">
-                        Logout
-                    </h4>
-
-                    <p class="card-text">
-                        Sign out from your customer account.
-                    </p>
-
-                    <form method="post"
-                          asp-page-handler="Logout">
-
-                        <button type="submit"
-                                class="btn btn-danger">
-
-                            Logout
-
+            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link active" asp-page="/Customer/Dashboard">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Customer/ViewMenu">Restaurants & Menu</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Customer/MyReservation">My Bookings</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Customer/MyOrders">My Orders</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-page="/Customer/Profile">Profile</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end">
+                        <span class="d-block text-muted" style="font-size: 0.8rem;">Welcome back,</span>
+                        <strong class="text-dark">@Model.CustomerName</strong>
+                    </div>
+                    <form method="post" asp-page-handler="Logout" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
                         </button>
-
                     </form>
+                </div>
+            </div>
+        </div>
+    </nav>
 
+    <!-- Main Container -->
+    <div class="container my-4">
+
+        @if (TempData["ReservationSuccess"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4 shadow-sm" role="alert">
+                <strong>Reservation successful!</strong> @TempData["ReservationSuccess"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Promotional Hero Section (Badge Removed) -->
+        <div class="hero-section">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h1 class="hero-title">Great Food & <span>Table Reservations</span></h1>
+                    <p class="text-muted mt-3 mb-4">Discover your favorite meals, explore our menu, and secure your table instantly.</p>
+                    
+                    <div>
+                        <a asp-page="/Customer/ReserveTable" class="btn btn-warning btn-lg fw-bold px-4 py-3 rounded-pill shadow-sm" style="background-color: var(--primary-color); color: #FFFFFF; border: none;">
+                            <i class="fa-solid fa-chair me-2"></i> Make Reservation
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5 d-none d-lg-block text-center">
+                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=60" alt="Delicious Food" class="img-fluid rounded-circle shadow-lg" style="width: 320px; height: 320px; object-fit: cover; border: 8px solid #FFFFFF;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Food Category Quick Filters -->
+        <div class="mb-5">
+            <h3 class="fw-bold mb-4">Choose Category</h3>
+            <div class="row g-3">
+                <div class="col-6 col-md-2">
+                    <a asp-page="/Customer/ViewMenu" class="category-card">
+                        <div class="category-icon"><i class="fa-solid fa-burger"></i></div>
+                        <h6 class="category-title">Burgers</h6>
+                    </a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <a asp-page="/Customer/ViewMenu" class="category-card">
+                        <div class="category-icon"><i class="fa-solid fa-pizza-slice"></i></div>
+                        <h6 class="category-title">Pizza</h6>
+                    </a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <a asp-page="/Customer/ViewMenu" class="category-card">
+                        <div class="category-icon"><i class="fa-solid fa-fish"></i></div>
+                        <h6 class="category-title">Sushi</h6>
+                    </a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <a asp-page="/Customer/ViewMenu" class="category-card">
+                        <div class="category-icon"><i class="fa-solid fa-bowl-food"></i></div>
+                        <h6 class="category-title">Salads</h6>
+                    </a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <a asp-page="/Customer/ViewMenu" class="category-card">
+                        <div class="category-icon"><i class="fa-solid fa-ice-cream"></i></div>
+                        <h6 class="category-title">Desserts</h6>
+                    </a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <a asp-page="/Customer/ViewMenu" class="category-card">
+                        <div class="category-icon"><i class="fa-solid fa-cup-togo"></i></div>
+                        <h6 class="category-title">Drinks</h6>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Core Actions -->
+        <div class="mb-5">
+            <h3 class="fw-bold mb-4">Customer Quick Actions</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="promo-action-card">
+                        <div>
+                            <div class="action-icon" style="background: #FFF3E0; color: #E67E22;">
+                                <i class="fa-solid fa-chair"></i>
+                            </div>
+                            <h4 class="fw-bold">Reserve Table</h4>
+                            <p class="text-muted small">Reserve a table ahead of time for a seamless dining experience.</p>
+                        </div>
+                        <a asp-page="/Customer/ReserveTable" class="btn btn-action">Reserve Table</a>
+                    </div>
                 </div>
 
-            </div>
+                <div class="col-md-4">
+                    <div class="promo-action-card">
+                        <div>
+                            <div class="action-icon" style="background: #E8F8F5; color: #16A085;">
+                                <i class="fa-solid fa-utensils"></i>
+                            </div>
+                            <h4 class="fw-bold">Order Menu</h4>
+                            <p class="text-muted small">Browse the full restaurant menu and place your food order.</p>
+                        </div>
+                        <a asp-page="/Customer/ViewMenu" class="btn btn-action">View Menu</a>
+                    </div>
+                </div>
 
+                <div class="col-md-4">
+                    <div class="promo-action-card">
+                        <div>
+                            <div class="action-icon" style="background: #EBF5FB; color: #2980B9;">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <h4 class="fw-bold">My Reservations</h4>
+                            <p class="text-muted small">View, update, or track your active table bookings.</p>
+                        </div>
+                        <a asp-page="/Customer/MyReservation" class="btn btn-action">My Reservations</a>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="promo-action-card">
+                        <div>
+                            <div class="action-icon" style="background: #FEF9E7; color: #D4AC0D;">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+                            <h4 class="fw-bold">My Orders</h4>
+                            <p class="text-muted small">Check live food order statuses and your full ordering history.</p>
+                        </div>
+                        <a asp-page="/Customer/MyOrders" class="btn btn-action">My Orders</a>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="promo-action-card">
+                        <div>
+                            <div class="action-icon" style="background: #F4ECF7; color: #8E44AD;">
+                                <i class="fa-solid fa-user-gear"></i>
+                            </div>
+                            <h4 class="fw-bold">My Profile</h4>
+                            <p class="text-muted small">Update your personal account details, phone, and addresses.</p>
+                        </div>
+                        <a asp-page="/Customer/Profile" class="btn btn-action">My Profile</a>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="promo-action-card">
+                        <div>
+                            <div class="action-icon" style="background: #FDEDEC; color: #C0392B;">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </div>
+                            <h4 class="fw-bold">Logout</h4>
+                            <p class="text-muted small">Securely sign out of your customer account session.</p>
+                        </div>
+                        <form method="post" asp-page-handler="Logout">
+                            <button type="submit" class="btn btn-action w-100" style="background-color: #C0392B;">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
 
-</div>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
