@@ -1,0 +1,69 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Admin.ManageStaff.AddStaffModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Add Staff";
+    ViewData["ActiveNav"] = "Staff";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/MenuPages.css" asp-append-version="true" />
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Add Staff</h2>
+        <p class="text-muted mb-0">Create a new staff account.</p>
+    </div>
+    <a asp-page="/Admin/ManageStaff/ManageStaff" class="btn btn-back">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Staff
+    </a>
+</div>
+
+<div class="form-card">
+    <form method="post">
+
+        <div asp-validation-summary="ModelOnly" class="field-error mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Staff.FullName" class="form-label"></label>
+                <input asp-for="Staff.FullName" class="form-control" placeholder="Enter full name" />
+                <span asp-validation-for="Staff.FullName" class="field-error"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Staff.Email" class="form-label"></label>
+                <input asp-for="Staff.Email" type="email" class="form-control" placeholder="name@example.com" />
+                <span asp-validation-for="Staff.Email" class="field-error"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Staff.Username" class="form-label"></label>
+                <input asp-for="Staff.Username" class="form-control" placeholder="Enter username" />
+                <span asp-validation-for="Staff.Username" class="field-error"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Staff.Password" class="form-label"></label>
+                <input asp-for="Staff.Password" type="password" class="form-control" placeholder="At least 6 characters" />
+                <span asp-validation-for="Staff.Password" class="field-error"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Staff.ConfirmPassword" class="form-label"></label>
+                <input asp-for="Staff.ConfirmPassword" type="password" class="form-control" placeholder="Re-enter password" />
+                <span asp-validation-for="Staff.ConfirmPassword" class="field-error"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-orange">
+                <i class="fa-solid fa-check me-2"></i> Create Account
+            </button>
+            <a asp-page="/Admin/ManageStaff" class="btn btn-back">Cancel</a>
+        </div>
+    </form>
+</div>

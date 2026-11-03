@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using RestaurantManagementSystem.Data;
-using StaffModel = RestaurantManagementSystem.Models.Staff;
-using MenuModel = RestaurantManagementSystem.Models.Menu;
 
 namespace RestaurantManagementSystem.Pages.Admin
 {
@@ -16,31 +14,63 @@ namespace RestaurantManagementSystem.Pages.Admin
             _context = context;
         }
 
-        // Staff list
-        public List<StaffModel> StaffList { get; set; }
-            = new List<StaffModel>();
+        // Statuses that are not counted in the "today" cards
+        // (both spellings are covered)
+        private static readonly string[] CancelledStatuses =
+            { "Cancelled", "Canceled" };
 
-        // Menu list
-        public List<MenuModel> MenuList { get; set; }
-            = new List<MenuModel>();
+        // Numbers shown in the overview cards
+        public int TodayOrders { get; set; }
+        public int TodayReservations { get; set; }
+        public int ReservedTables { get; set; }
+        public int TotalTables { get; set; }
+        public int CustomerCount { get; set; }
+        public int StaffCount { get; set; }
+        public int MenuCount { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
             // Check whether admin is logged in
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
             {
-                return RedirectToPage("/Admin/Login");
+                return RedirectToPage("/Index", new { login = "true" });
             }
 
-            // Get all staff accounts
-            StaffList = await _context.Staffs
-                .OrderByDescending(s => s.Id)
-                .ToListAsync();
+            // "Today" runs from midnight up to (not including) tomorrow's midnight
+            DateTime today = DateTime.Today;
+            DateTime tomorrow = today.AddDays(1);
 
-            // Get all menu items
-            MenuList = await _context.Menus
-                .OrderBy(m => m.Id)
-                .ToListAsync();
+            // Today's orders: Pending + Preparing + Served, not Cancelled
+            TodayOrders = await _context.Orders
+                .CountAsync(o =>
+                    o.DineInDateTime >= today &&
+                    o.DineInDateTime < tomorrow &&
+                    !CancelledStatuses.Contains(o.Status));
+
+            // Today's reservations, not Cancelled
+            TodayReservations = await _context.Reservations
+                .CountAsync(r =>
+                    r.ReservationDate >= today &&
+                    r.ReservationDate < tomorrow &&
+                    !CancelledStatuses.Contains(r.Status));
+
+            // Reserved tables: different tables booked today (a table booked
+            // twice is counted once), not Cancelled
+            ReservedTables = await _context.Reservations
+                .Where(r =>
+                    r.ReservationDate >= today &&
+                    r.ReservationDate < tomorrow &&
+                    !CancelledStatuses.Contains(r.Status))
+                .Select(r => r.RestaurantTableId)
+                .Distinct()
+                .CountAsync();
+
+            // All tables in the restaurant (the "25" in "3/25")
+            TotalTables = await _context.RestaurantTables.CountAsync();
+
+            CustomerCount = await _context.Customers.CountAsync();
+            StaffCount = await _context.Staffs.CountAsync();
+            MenuCount = await _context.Menus.CountAsync();
 
             return Page();
         }
@@ -50,8 +80,8 @@ namespace RestaurantManagementSystem.Pages.Admin
             // Clear admin session
             HttpContext.Session.Clear();
 
-            // Redirect to admin login
-            return RedirectToPage("/Admin/Login");
+            // Back to the homepage
+            return RedirectToPage("/Index");
         }
     }
 }

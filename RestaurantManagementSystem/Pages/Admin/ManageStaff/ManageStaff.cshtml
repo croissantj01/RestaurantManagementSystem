@@ -1,0 +1,84 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Admin.ManageStaff.ManageStaffModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Manage Staff";
+    ViewData["ActiveNav"] = "Staff";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/MenuPages.css" asp-append-version="true" />
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Manage Staff</h2>
+        <p class="text-muted mb-0">Create, update or remove staff accounts.</p>
+    </div>
+    <a asp-page="/Admin/ManageStaff/AddStaff" class="btn btn-orange">
+        <i class="fa-solid fa-user-plus me-2"></i> Add Staff
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+        <i class="fa-solid fa-circle-check me-1"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="panel-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="panel-title"><i class="fa-solid fa-users me-2 icon-accent"></i>All Staff Accounts</h5>
+        <span class="count-pill">@Model.StaffList.Count total</span>
+    </div>
+
+    @if (Model.StaffList.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="fa-solid fa-user-slash"></i>
+            No staff accounts yet. Click Add Staff to create one.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table admin-table">
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var staff in Model.StaffList)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="staff-avatar">@(string.IsNullOrEmpty(staff.FullName) ? "?" : staff.FullName.Substring(0, 1).ToUpper())</div>
+                                    <strong>@staff.FullName</strong>
+                                </div>
+                            </td>
+                            <td>@staff.Email</td>
+                            <td><span class="area-chip">@staff.Username</span></td>
+                            <td class="text-end text-nowrap">
+                                <a asp-page="/Admin/ManageStaff/EditStaff" asp-route-id="@staff.Id" class="btn btn-sm btn-edit">
+                                    <i class="fa-solid fa-pen me-1"></i> Edit
+                                </a>
+                                <a asp-page="/Admin/ManageStaff/DeleteStaff" asp-route-id="@staff.Id" class="btn btn-sm btn-delete">
+                                    <i class="fa-solid fa-trash me-1"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

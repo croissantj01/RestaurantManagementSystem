@@ -1,0 +1,118 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Admin.AnnouncementsModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Announcements";
+    ViewData["ActiveNav"] = "Announcements";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-4 mt-4 shadow-sm" role="alert">
+        <i class="fa-solid fa-circle-check me-1"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+    <h3 class="fw-bold mb-0">Announcements</h3>
+    <a asp-page="/Admin/Dashboard" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="row g-4 mb-5">
+    <!-- New announcement -->
+    <div class="col-lg-5">
+        <div class="panel-card">
+            <h5 class="panel-title mb-3"><i class="fa-solid fa-bullhorn me-2 icon-accent"></i>New Announcement</h5>
+
+            <form method="post" asp-page-handler="Add">
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label">Title</label>
+                    <input asp-for="Title" class="form-control" placeholder="e.g. Closed on Public Holiday" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Message" class="form-label">Message</label>
+                    <textarea asp-for="Message" class="form-control" rows="5" placeholder="Write your announcement here..."></textarea>
+                    <span asp-validation-for="Message" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-orange w-100">
+                     Post Announcement
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Existing announcements -->
+    <div class="col-lg-7">
+        <div class="panel-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="panel-title"><i class="fa-solid fa-list me-2 icon-accent"></i>Posted Announcements</h5>
+                <span class="count-pill">@Model.AnnouncementList.Count total</span>
+            </div>
+
+            @if (Model.AnnouncementList.Any())
+            {
+                <div class="table-scroll">
+                    <table class="table admin-table">
+                        <thead>
+                            <tr>
+                                <th>Posted</th>
+                                <th>Announcement</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var a in Model.AnnouncementList)
+                            {
+                                <tr>
+                                    <td class="text-nowrap">@a.CreatedAt.ToString("dd MMM yyyy")<br /><small class="text-muted">@a.CreatedAt.ToString("h:mm tt")</small></td>
+                                    <td>
+                                        <strong>@a.Title</strong>
+                                        <div class="text-muted small">@a.Message</div>
+                                    </td>
+                                    <td>
+                                        @if (a.IsActive)
+                                        {
+                                            <span class="area-chip">Visible</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="area-chip" style="opacity:.6;">Hidden</span>
+                                        }
+                                    </td>
+                                    <td class="text-end text-nowrap">
+                                        <form method="post" asp-page-handler="Toggle" asp-route-id="@a.AnnouncementId" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-edit">
+                                                <i class="fa-solid @(a.IsActive ? "fa-eye-slash" : "fa-eye") me-1"></i> @(a.IsActive ? "Hide" : "Show")
+                                            </button>
+                                        </form>
+                                        <form method="post" asp-page-handler="Delete" asp-route-id="@a.AnnouncementId" class="d-inline"
+                                              onsubmit="return confirm('Delete this announcement?');">
+                                            <button type="submit" class="btn btn-sm btn-delete">
+                                                <i class="fa-solid fa-trash me-1"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    No announcements yet. Post your first one.
+                </div>
+            }
+        </div>
+    </div>
+</div>

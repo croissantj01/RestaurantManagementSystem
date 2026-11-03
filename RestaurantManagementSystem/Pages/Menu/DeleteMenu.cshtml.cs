@@ -27,7 +27,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             // Check admin login
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
             {
-                return RedirectToPage("/Admin/Login");
+                return RedirectToPage("/Index", new { login = "true" });
             }
 
             Menu = await _context.Menus
@@ -46,7 +46,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             // Check admin login
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
             {
-                return RedirectToPage("/Admin/Login");
+                return RedirectToPage("/Index", new { login = "true" });
             }
 
             // Find menu
@@ -82,7 +82,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             TempData["SuccessMessage"] =
                 "Menu deleted successfully!";
 
-            return RedirectToPage("/Admin/Dashboard");
+            return RedirectToPage("/Admin/ManageMenu");
         }
     }
 }
