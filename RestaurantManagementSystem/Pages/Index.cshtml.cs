@@ -65,7 +65,7 @@ namespace RestaurantManagementSystem.Pages
                 HttpContext.Session.SetString("StaffLoggedIn", "true");
                 HttpContext.Session.SetInt32("StaffId", staff.Id);
                 HttpContext.Session.SetString("StaffName", staff.FullName);
-                return RedirectToPage("/RestaurantTables/Dashboard");
+                return RedirectToPage("/Staff/Dashboard");
             }
 
             // 3. Customer (ASSUMPTION: Customers table with Email and Password)
