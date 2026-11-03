@@ -12,18 +12,23 @@
     <div class="container position-relative">
         <div class="row align-items-center gy-5">
             <div class="col-lg-6">
-                <span class="hero-tag"><i class="fa-solid fa-fire me-2"></i>Fast. Delicious. Enjoyable.</span>
-                <h1 class="hero-heading">MyCafe Food Ordering &amp; <span>Easy Table Reservations</span></h1>
+                <span class="hero-tag">Fast. Delicious. Enjoyable.</span>
+                <h1 class="hero-heading">MyCafe Food Ordering &amp; <span>Table Reservations</span></h1>
                 <p class="hero-text">
                     Discover your favourite dishes, book a table and enjoy a smooth dining experience
                     at MyCafe.
                 </p>
+                <ul class="hero-points">
+                    <li><i class="fa-solid fa-chair"></i><span><strong>Reserve a table</strong> </span></li>
+                    <li><i class="fa-solid fa-circle-check"></i><span><strong>Make your order</strong> </span></li>
+                </ul>
+
                 <div class="d-flex flex-wrap gap-3">
                     <button type="button" class="btn btn-orange btn-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
                         <i class="fa-solid fa-right-to-bracket me-2"></i> Login
                     </button>
                     <a asp-page="/Customer/Register" class="btn btn-outline-dark-pill btn-lg">
-                        <i class="fa-solid fa-user-plus me-2"></i> Create Account
+                        <i class="fa-solid fa-user-plus me-2"></i> Register
                     </a>
                 </div>
 
@@ -31,10 +36,24 @@
             </div>
 
             <div class="col-lg-6">
-                <div class="hero-visual">
-                    <div class="img-slot hero-img">
+                <div class="hero-arch-wrap">
+                    <div class="arch-backdrop"></div>
+
+                    <div class="img-slot hero-arch">
                         <i class="fa-solid fa-image slot-icon"></i>
                         <img src="~/images/restaurant.jpg" alt="Delicious food at MyCafe" onerror="this.remove()" />
+                    </div>
+
+                    <!-- Rotating badge -->
+                    <div class="hero-sticker" aria-hidden="true">
+                        <svg viewBox="0 0 120 120">
+                            <defs>
+                                <path id="stickerCircle" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0" />
+                            </defs>
+                            <circle cx="60" cy="60" r="58" />
+                            <text><textPath href="#stickerCircle" textLength="272" lengthAdjust="spacing">RESERVE • ORDER • ENJOY • </textPath></text>
+                        </svg>
+                        <i class="fa-solid fa-utensils"></i>
                     </div>
                 </div>
             </div>
@@ -42,34 +61,12 @@
     </div>
 </header>
 
-<!-- ===== Features ===== -->
-<section class="section" id="features">
-    <div class="container">
-        <div class="section-head">
-            <span class="eyebrow">Why MyCafe</span>
-            <h2>Everything you need, in one place</h2>
-            <p>Whether you are making a reservation or placing orders, MyCafe keeps everything simple.</p>
-        </div>
-
-        <div class="float-row">
-            <div class="float-card">
-                <div class="float-icon"><i class="fa-solid fa-chair"></i></div>
-                <div><strong>Reserve a table</strong><small>In just a few clicks</small></div>
-            </div>
-            <div class="float-card">
-                <div class="float-icon green"><i class="fa-solid fa-circle-check"></i></div>
-                <div><strong>Order confirmed</strong><small>Ready in 15 mins</small></div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ===== Popular Dishes ===== -->
+<!-- ===== Dishes ===== -->
 <section class="section section-alt" id="dishes">
     <div class="container">
         <div class="section-head">
             <span class="eyebrow">Our Favourites</span>
-            <h2>Popular Dishes</h2>
+            <h2>Our Dishes</h2>
             <p>A little taste of what is waiting for you at MyCafe.</p>
         </div>
 
@@ -110,7 +107,7 @@
                     <div class="dish-body"><h5>Sweet Desserts</h5><p>The perfect way to end your meal.</p></div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </section>
