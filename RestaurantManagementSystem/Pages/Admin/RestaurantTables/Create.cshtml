@@ -2,93 +2,69 @@
 @model RestaurantManagementSystem.Pages.Admin.RestaurantTables.CreateModel
 
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Add Restaurant Table";
+    ViewData["ActiveNav"] = "Tables";
 }
 
-<div class="container mt-4">
+@section Styles {
+    <link rel="stylesheet" href="~/RestaurantTables.css" asp-append-version="true" />
+}
 
-    <h2>Add Restaurant Table</h2>
-
-    <form method="post">
-
-        <div class="mb-3">
-            <label asp-for="RestaurantTable.TableNumber"
-                   class="form-label">
-                Table Number
-            </label>
-
-            <input asp-for="RestaurantTable.TableNumber"
-                   class="form-control"
-                   placeholder="e.g. T01" />
-
-            <span asp-validation-for="RestaurantTable.TableNumber"
-                  class="text-danger"></span>
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h2 class="page-title">Add Restaurant Table</h2>
+                <p class="text-muted mb-0">Enter the details for the new table.</p>
+            </div>
+            <a asp-page="Index" class="btn btn-back">
+                <i class="fa-solid fa-arrow-left me-2"></i> Back to Tables
+            </a>
         </div>
 
-        <div class="mb-3">
-            <label asp-for="RestaurantTable.DiningArea"
-                   class="form-label">
-                Dining Area
-            </label>
+        <div class="form-card">
+            <form method="post">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="RestaurantTable.TableNumber" class="form-label">Table Number</label>
+                        <input asp-for="RestaurantTable.TableNumber" class="form-control" placeholder="e.g. T01" />
+                        <span asp-validation-for="RestaurantTable.TableNumber" class="field-error"></span>
+                    </div>
 
-            <select asp-for="RestaurantTable.DiningArea"
-                    class="form-select">
+                    <div class="col-md-6">
+                        <label asp-for="RestaurantTable.DiningArea" class="form-label">Dining Area</label>
+                        <select asp-for="RestaurantTable.DiningArea" class="form-select">
+                            <option value="">-- Select Dining Area --</option>
+                            <option value="Indoor">Indoor</option>
+                            <option value="Outdoor">Outdoor</option>
+                            <option value="VIP Room">VIP Room</option>
+                        </select>
+                        <span asp-validation-for="RestaurantTable.DiningArea" class="field-error"></span>
+                    </div>
 
-                <option value="">-- Select Dining Area --</option>
-                <option value="Indoor">Indoor</option>
-                <option value="Outdoor">Outdoor</option>
-                <option value="VIP Room">VIP Room</option>
+                    <div class="col-md-6">
+                        <label asp-for="RestaurantTable.Capacity" class="form-label">Capacity</label>
+                        <input asp-for="RestaurantTable.Capacity" type="number" class="form-control" min="1" max="20" />
+                        <span asp-validation-for="RestaurantTable.Capacity" class="field-error"></span>
+                    </div>
 
-            </select>
+                    <div class="col-md-6">
+                        <label asp-for="RestaurantTable.Status" class="form-label">Status</label>
+                        <select asp-for="RestaurantTable.Status" class="form-select">
+                            <option value="Available">Available</option>
+                            <option value="Reserved">Reserved</option>
+                            <option value="Occupied">Occupied</option>
+                            <option value="Unavailable">Unavailable</option>
+                        </select>
+                        <span asp-validation-for="RestaurantTable.Status" class="field-error"></span>
+                    </div>
+                </div>
 
-            <span asp-validation-for="RestaurantTable.DiningArea"
-                  class="text-danger"></span>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-orange">
+                        <i class="fa-solid fa-check me-2"></i> Save Table
+                    </button>
+                    <a asp-page="Index" class="btn btn-back">Cancel</a>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label asp-for="RestaurantTable.Capacity"
-                   class="form-label">
-                Capacity
-            </label>
-
-            <input asp-for="RestaurantTable.Capacity"
-                   type="number"
-                   class="form-control"
-                   min="1"
-                   max="20" />
-
-            <span asp-validation-for="RestaurantTable.Capacity"
-                  class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="RestaurantTable.Status"
-                   class="form-label">
-                Status
-            </label>
-
-            <select asp-for="RestaurantTable.Status"
-                    class="form-select">
-
-                <option value="Available">Available</option>
-                <option value="Reserved">Reserved</option>
-                <option value="Occupied">Occupied</option>
-                <option value="Unavailable">Unavailable</option>
-
-            </select>
-
-            <span asp-validation-for="RestaurantTable.Status"
-                  class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-primary">
-            Save Table
-        </button>
-
-        <a asp-page="Index" class="btn btn-secondary">
-            Cancel
-        </a>
-
-    </form>
-
-</div>

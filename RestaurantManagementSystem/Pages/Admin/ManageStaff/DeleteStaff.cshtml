@@ -1,0 +1,51 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Admin.ManageStaff.DeleteStaffModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Delete Staff";
+    ViewData["ActiveNav"] = "Staff";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/MenuPages.css" asp-append-version="true" />
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Delete Staff</h2>
+        <p class="text-muted mb-0">Review the account before removing it.</p>
+    </div>
+    <a asp-page="/Admin/ManageStaff/ManageStaff" class="btn btn-back">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Staff
+    </a>
+</div>
+
+<div class="delete-warning">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span>Are you sure you want to delete this staff account? This cannot be undone.</span>
+</div>
+
+<div class="form-card">
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="staff-avatar staff-avatar-lg">@(string.IsNullOrEmpty(Model.Staff.FullName) ? "?" : Model.Staff.FullName.Substring(0, 1).ToUpper())</div>
+        <div>
+            <h4 class="fw-bold mb-1">@Model.Staff.FullName</h4>
+            <span class="area-chip">@Model.Staff.Username</span>
+        </div>
+    </div>
+
+    <p class="mb-0"><i class="fa-solid fa-envelope me-2 text-muted"></i>@Model.Staff.Email</p>
+
+    <form method="post">
+        <input type="hidden" asp-for="Staff.Id" />
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-danger-solid">
+                <i class="fa-solid fa-trash me-2"></i> Yes, Delete
+            </button>
+            <a asp-page="/Admin/ManageStaff" class="btn btn-back">Cancel</a>
+        </div>
+    </form>
+</div>
