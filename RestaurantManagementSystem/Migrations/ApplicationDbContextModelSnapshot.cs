@@ -93,6 +93,10 @@ namespace RestaurantManagementSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -173,6 +177,40 @@ namespace RestaurantManagementSystem.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("RestaurantManagementSystem.Models.Payment", b =>
+                {
+                    b.Property<int>("PaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("PaymentId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("RestaurantManagementSystem.Models.Reservation", b =>
@@ -300,6 +338,17 @@ namespace RestaurantManagementSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Menu");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("RestaurantManagementSystem.Models.Payment", b =>
+                {
+                    b.HasOne("RestaurantManagementSystem.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Order");
                 });

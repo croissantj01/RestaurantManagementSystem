@@ -27,6 +27,8 @@ namespace RestaurantManagementSystem.Data
 
         public DbSet<Reservation> Reservations { get; set; }
 
+        public DbSet<Payment> Payments { get; set; }
+
         public DbSet<RestaurantManagementSystem.Models.CartItem> CartItems { get; set; } = default!;
     }
 }

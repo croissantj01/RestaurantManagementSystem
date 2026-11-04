@@ -1,0 +1,56 @@
+﻿@page
+@{
+    Layout = "_StaffLayout";
+    ViewData["Title"] = "Staff Dashboard";
+}
+
+<div class="staff-page-container">
+
+    <div class="staff-dashboard-heading">
+        <h2>Welcome Back, Staff!</h2>
+        <p>Manage your restaurant operations with ease.</p>
+    </div>
+
+    <h3 class="staff-quick-title">Staff Quick Actions</h3>
+
+    <div class="staff-quick-grid">
+
+        <!-- Reservations -->
+        <div class="staff-quick-card">
+            <div class="staff-quick-icon reservation-icon">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <h4>Manage Reservations</h4>
+            <p>View and manage customer table reservations.</p>
+            <a asp-page="/Staff/Reservation" class="staff-quick-btn">
+                Manage Reservations
+            </a>
+        </div>
+
+        <!-- Orders -->
+        <div class="staff-quick-card">
+            <div class="staff-quick-icon orders-icon">
+                <i class="fa-solid fa-utensils"></i>
+            </div>
+            <h4>Manage Orders</h4>
+            <p>View and manage customer food orders.</p>
+            <a asp-page="/Staff/Order" class="staff-quick-btn">
+                View Orders
+            </a>
+        </div>
+
+        <!-- Payments -->
+        <div class="staff-quick-card">
+            <div class="staff-quick-icon payments-icon">
+                <i class="fa-solid fa-credit-card"></i>
+            </div>
+            <h4>Manage Payments</h4>
+            <p>View and monitor customer payment records.</p>
+            <a asp-page="/Staff/Payment" class="staff-quick-btn">
+                View Payments
+            </a>
+        </div>
+
+    </div>
+
+</div>

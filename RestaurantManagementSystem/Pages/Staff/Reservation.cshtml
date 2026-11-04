@@ -1,0 +1,226 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Staff.ReservationsModel
+
+@{
+    Layout = "_StaffLayout";
+    ViewData["Title"] = "Manage Reservations";
+  }
+
+<div class="staff-page-container">
+
+    <!-- Page Heading -->
+    <div class="mb-4">
+        <h2 class="fw-bold">Manage Reservations</h2>
+        <p class="text-muted">
+            View and manage customer table reservations.
+        </p>
+    </div>
+
+    
+
+<!-- Summary Cards -->
+<div class="reservation-summary">
+
+    <div class="summary-card">
+        <div class="summary-icon total-icon">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <p>Total Reservations</p>
+        <h3>@Model.TotalReservations</h3>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-icon pending-icon">
+            <i class="fa-solid fa-clock"></i>
+        </div>
+        <p>Pending</p>
+        <h3>@Model.PendingReservations</h3>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-icon confirmed-icon">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <p>Confirmed</p>
+        <h3>@Model.ConfirmedReservations</h3>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-icon cancelled-icon">
+            <i class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <p>Cancelled</p>
+        <h3>@Model.CancelledReservations</h3>
+    </div>
+
+</div>
+
+
+
+  
+<!-- Reservation Table -->
+<div class="card reservation-list-card">
+
+    <div class="reservation-list-header">
+        <h5>Reservation List</h5>
+        <p>Manage and review all customer reservations</p>
+    </div>
+
+    <div class="card-body">
+
+<form method="get">
+    <div class="reservation-toolbar">
+
+        <input type="text"
+               name="SearchCustomer"
+               class="form-control"
+               placeholder="Search customer name..."
+               value="@Model.SearchCustomer" />
+
+        <select name="SelectedStatus" class="form-select">
+            <option value="">All Status</option>
+            <option value="Pending" selected="@(Model.SelectedStatus == "Pending")">Pending</option>
+            <option value="Confirmed" selected="@(Model.SelectedStatus == "Confirmed")">Confirmed</option>
+            <option value="Cancelled" selected="@(Model.SelectedStatus == "Cancelled")">Cancelled</option>
+        </select>
+
+        <input type="date"
+               name="SelectedDate"
+               class="form-control"
+               value="@Model.SelectedDate?.ToString("yyyy-MM-dd")" />
+
+        <button type="submit" class="btn payment-search-btn">
+            <i class="fa-solid fa-magnifying-glass me-2"></i>
+            Search
+        </button>
+
+        <a asp-page="/Staff/Reservation"
+           class="btn payment-reset-btn">
+            <i class="fa-solid fa-rotate-left me-2"></i>
+            Reset
+        </a>
+
+    </div>
+</form>
+
+        <!-- Table -->
+        <div class="table-responsive">
+
+            <table class="table reservations-table align-middle">
+
+                <thead>
+                    <tr>
+                        <th>Reservation ID</th>
+                        <th>Customer</th>
+                        <th>Table</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Guests</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+    @foreach (var reservation in Model.Reservations)
+    {
+        <tr>
+            <td>
+                <strong>R@reservation.ReservationId.ToString("D3")</strong>
+            </td>
+
+            <td>@reservation.Customer.FullName</td>
+
+            <td>@reservation.RestaurantTable.TableNumber</td>
+
+            <td>@reservation.ReservationDate.ToString("dd/MM/yyyy")</td>
+
+            <td>
+                @DateTime.Today.Add(reservation.ReservationTime).ToString("hh:mm tt")
+            </td>
+
+            <td>@reservation.NumberOfGuests</td>
+
+            <td>
+                @if (reservation.Status == "Confirmed")
+                {
+                    <span class="reservation-status confirmed">
+                        Confirmed
+                    </span>
+                }
+                else if (reservation.Status == "Cancelled")
+                {
+                    <span class="reservation-status cancelled">
+                        Cancelled
+                    </span>
+                }
+                else
+                {
+                    <span class="reservation-status pending">
+                        Pending
+                    </span>
+                }
+            </td>
+
+            <td>
+                <div class="reservation-actions">
+
+                    @if (reservation.Status == "Reserved" ||
+                         reservation.Status == "Pending")
+                    {
+                        <form method="post" asp-page-handler="Confirm">
+                            <input type="hidden" name="id"
+                                   value="@reservation.ReservationId" />
+
+                            <button type="submit"
+                                    class="reservation-btn confirm-btn">
+                                Confirm
+                            </button>
+                        </form>
+
+                        <form method="post" asp-page-handler="Cancel">
+                            <input type="hidden" name="id"
+                                   value="@reservation.ReservationId" />
+
+                            <button type="submit"
+                                    class="reservation-btn cancel-btn">
+                                Cancel
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No actions</span>
+                    }
+
+                </div>
+            </td>
+        </tr>
+    }
+
+    @if (!Model.Reservations.Any())
+    {
+        <tr>
+            <td colspan="8" class="text-center py-4">
+                No reservations found.
+            </td>
+        </tr>
+    }
+
+                </tbody>
+
+            </table>
+
+        </div> 
+
+    </div> 
+
+</div> 
+
+</div> 
+
+
+        
+        
+

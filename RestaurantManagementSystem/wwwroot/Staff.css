@@ -1,0 +1,610 @@
+﻿
+/* ===== General Page ===== */
+
+body {
+    margin: 0;
+    background-color: #FFFDF9;
+    color: #2D3748;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== Staff Navbar ===== */
+
+.staff-navbar {
+    width: 100%;
+    box-sizing: border-box;
+    background: #FFFFFF;
+    padding: 15px 25px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+.staff-navbar-inner {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding-left: 0;
+    box-sizing: border-box;
+}
+
+/* Logo */
+
+.staff-brand {
+    justify-self: start;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #2D3748;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.brand-icon {
+    background: #2D3748;
+    color: #FFFFFF;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+/* Navigation Links */
+
+.staff-nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    transform: translateX(-25px);
+}
+
+    .staff-nav-links a {
+        color: #2D3748;
+        text-decoration: none;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: color 0.2s ease;
+    }
+
+        .staff-nav-links a:hover {
+            color: #F39C12;
+        }
+
+/* Welcome and Logout */
+
+.staff-user-section {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.staff-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+    .staff-welcome span {
+        color: #718096;
+        font-size: 0.8rem;
+    }
+
+    .staff-welcome strong {
+        color: #2D3748;
+    }
+
+.staff-user-section form {
+    margin: 0;
+}
+
+.staff-logout {
+    background: white;
+    color: #DC3545;
+    border: 1px solid #DC3545;
+    border-radius: 30px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+    .staff-logout:hover {
+        background: #DC3545;
+        color: white;
+    }
+
+/* ===== Page Content ===== */
+
+.staff-content {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ===== Reservations Content Layout ===== */
+
+.staff-page-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 25px;
+    box-sizing: border-box;
+}
+
+
+/* =================================
+   RESERVATIONS PAGE
+================================= */
+
+/* Page container */
+.staff-page-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 25px;
+    box-sizing: border-box;
+}
+
+    /* Page heading */
+    .staff-page-container h2 {
+        color: #2D3748;
+        font-size: 1.8rem;
+    }
+
+    .staff-page-container p {
+        color: #718096;
+    }
+
+
+
+    /* Reservation list card */
+    .staff-page-container > .card {
+        border: none !important;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #FFFFFF;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .staff-page-container .card-header {
+        border-bottom: 1px solid #EDF0F2;
+        padding: 18px 22px !important;
+    }
+
+    /* Search and filter */
+    .staff-page-container .form-control,
+    .staff-page-container .form-select {
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 10px 12px;
+        box-shadow: none;
+    }
+
+        .staff-page-container .form-control:focus,
+        .staff-page-container .form-select:focus {
+            border-color: #F39C12;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.12);
+        }
+
+    /* Reservation table */
+    .staff-page-container .table {
+        margin-bottom: 0;
+        vertical-align: middle;
+    }
+
+        .staff-page-container .table thead th {
+            background: #FFF8EB;
+            color: #4A5568;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 14px 12px;
+            border-bottom: 1px solid #F0E5D5;
+            white-space: nowrap;
+        }
+
+        .staff-page-container .table tbody td {
+            padding: 15px 12px;
+            color: #4A5568;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #EDF0F2;
+        }
+
+        .staff-page-container .table tbody tr:hover {
+            background: #FFFCF5;
+        }
+
+    /* Status badges */
+    .staff-page-container .badge {
+        padding: 7px 11px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    /* Action buttons */
+    .staff-page-container .btn {
+        border-radius: 7px;
+        font-weight: 600;
+    }
+
+
+
+/* ===== Four Summary Cards in One Row ===== */
+
+.reservation-summary {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 18px;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+    .reservation-summary .summary-card {
+        background: #FFFFFF;
+        border: none;
+        border-radius: 14px;
+        padding: 18px;
+        min-width: 0;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+    }
+
+        .reservation-summary .summary-card:hover {
+            transform: translateY(-4px);
+        }
+
+    .reservation-summary .summary-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .reservation-summary p {
+        font-size: 0.85rem;
+        color: #718096;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .reservation-summary h3 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #2D3748;
+        margin: 0;
+    }
+
+.total-icon {
+    background: #FFF0D6;
+    color: #D68910;
+}
+
+.pending-icon {
+    background: #FFF4D6;
+    color: #D69E00;
+}
+
+.confirmed-icon {
+    background: #E2F5E9;
+    color: #269653;
+}
+
+.cancelled-icon {
+    background: #FCE8E8;
+    color: #DC3545;
+}
+
+/* ===== Reservation List Card ===== */
+
+.reservation-list-card {
+    width: 100%;
+    margin-top: 32px;
+    background: #FFFFFF;
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+/* Card Heading */
+
+.reservation-list-header {
+    padding: 25px 28px 18px;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+    .reservation-list-header h5 {
+        font-size: 1.15rem;
+        font-weight: 750;
+        color: #2D3748;
+        margin: 0 0 6px;
+    }
+
+    .reservation-list-header p {
+        color: #8A94A6;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+/* Search and Filters */
+
+.reservation-toolbar {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto auto;
+    gap: 15px;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+    .reservation-toolbar .payment-search-btn,
+    .reservation-toolbar .payment-reset-btn {
+        width: auto !important;
+        height: 46px;
+        min-height: 46px;
+        box-sizing: border-box;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        border-radius: 9px;
+        white-space: nowrap;
+    }
+
+/* Table */
+
+.reservations-table {
+    width: 100%;
+    min-width: 850px;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .reservations-table thead th {
+        background: #FFF7E9;
+        color: #526078;
+        font-size: 0.88rem;
+        font-weight: 700;
+        padding: 17px 16px;
+        border-bottom: 1px solid #F0E6D6;
+        white-space: nowrap;
+    }
+
+    .reservations-table tbody td {
+        padding: 19px 16px;
+        color: #526078;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #F0F0F0;
+        white-space: nowrap;
+    }
+
+    .reservations-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .reservations-table tbody tr:hover {
+        background: #FFFCF6;
+    }
+
+/* Status Labels */
+
+.reservation-status {
+    display: inline-block;
+    padding: 6px 13px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+    .reservation-status.confirmed {
+        background: #E4F5EA;
+        color: #26834B;
+    }
+
+    .reservation-status.pending {
+        background: #FFF2D6;
+        color: #B7791F;
+    }
+
+    .reservation-status.cancelled {
+        background: #FCE8E8;
+        color: #C53030;
+    }
+
+/* Action Buttons */
+
+.reservation-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.reservation-btn {
+    border: none;
+    border-radius: 7px;
+    padding: 7px 13px;
+    font-size: 0.8rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.view-btn {
+    background: #EDF1F7;
+    color: #45546B;
+}
+
+    .view-btn:hover {
+        background: #DCE4EF;
+    }
+
+.confirm-btn {
+    background: #E3F4E9;
+    color: #27834B;
+}
+
+    .confirm-btn:hover {
+        background: #CDEBD7;
+    }
+
+.cancel-btn {
+    background: #FCE8E8;
+    color: #C53030;
+}
+
+    .cancel-btn:hover {
+        background: #F8D4D4;
+    }
+
+
+
+/* ===== Staff Dashboard ===== */
+
+.staff-dashboard-heading {
+    margin-bottom: 35px;
+}
+
+    .staff-dashboard-heading h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #2D3748;
+        margin-bottom: 10px;
+    }
+
+    .staff-dashboard-heading p {
+        color: #718096;
+        font-size: 1.1rem;
+    }
+
+.staff-quick-title {
+    font-size: 1.5rem;
+    font-weight: 750;
+    color: #2D3748;
+    margin-bottom: 22px;
+}
+
+.staff-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.staff-quick-card {
+    background: #FFFFFF;
+    padding: 28px;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    min-height: 270px;
+}
+
+.staff-quick-icon {
+    width: 55px;
+    height: 55px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 22px;
+}
+
+.reservation-icon {
+    background: #FFF2DC;
+    color: #D68932;
+}
+
+.orders-icon {
+    background: #E7F5F1;
+    color: #429C83;
+}
+
+.payments-icon {
+    background: #EAF1FC;
+    color: #477DBB;
+}
+
+.staff-quick-card h4 {
+    color: #2D3748;
+    font-size: 1.35rem;
+    font-weight: 750;
+    margin-bottom: 10px;
+}
+
+.staff-quick-card p {
+    color: #718096;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 22px;
+    flex-grow: 1;
+}
+
+.staff-quick-btn {
+    display: block;
+    width: 85%;
+    margin: 0 auto;
+    padding: 13px;
+    border-radius: 11px;
+    background: #2D3748;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 650;
+    transition: 0.2s ease;
+}
+
+    .staff-quick-btn:hover {
+        background: #D68932;
+        color: white;
+    }
+
+@media (max-width: 900px) {
+    .staff-quick-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .staff-quick-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Payment Search Button */
+.payment-search-btn {
+    background-color: #8B5E3C;
+    color: white;
+    border: 1px solid #8B5E3C;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+    .payment-search-btn:hover {
+        background-color: #70472D;
+        color: white;
+        border-color: #70472D;
+    }
+
+/* Payment Reset Button */
+.payment-reset-btn {
+    background-color: #F8F0E3;
+    color: #8B5E3C;
+    border: 1px solid #D8C3A5;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+    .payment-reset-btn:hover {
+        background-color: #EADCC7;
+        color: #70472D;
+        border-color: #C9AD8C;
+    }
+
+
+
+

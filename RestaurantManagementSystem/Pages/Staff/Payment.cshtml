@@ -1,0 +1,259 @@
+﻿
+@page
+@model RestaurantManagementSystem.Pages.Staff.PaymentsModel
+
+@{
+    Layout = "_StaffLayout";
+    ViewData["Title"] = "Manage Payments";
+}
+
+<div class="staff-page-container staff-payments-page">
+
+    <!-- Page Heading -->
+    <div class="mb-4">
+        <h2 class="fw-bold">Manage Payments</h2>
+        <p class="text-muted">
+            View and monitor customer payment records.
+        </p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="reservation-summary">
+
+        <div class="summary-card">
+            <div class="summary-icon total-icon">
+                <i class="fa-solid fa-money-bill-transfer"></i>
+            </div>
+            <p>Total Payments</p>
+            <h3>@Model.TotalPayments</h3>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon confirmed-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <p>Paid</p>
+            <h3>@Model.PaidPayments</h3>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon pending-icon">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <p>Pending</p>
+            <h3>@Model.PendingPayments</h3>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon cancelled-icon">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+            <p>Failed</p>
+            <h3>@Model.FailedPayments</h3>
+        </div>
+
+    </div>
+
+    <!-- Payment Records -->
+    <div class="card reservation-list-card">
+
+        <div class="reservation-list-header">
+            <h5>Payment Records</h5>
+            <p>View and monitor all customer payment transactions</p>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Search and Filter -->
+            <form method="get">
+                <div class="row g-2 mb-3">
+
+                    <div class="col-md-3">
+                        <input type="text"
+                               name="SearchOrderId"
+                               class="form-control"
+                               placeholder="Search Order ID..."
+                               value="@Model.SearchOrderId" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <select name="SelectedStatus" class="form-select">
+                            <option value="">All Payment Status</option>
+                            <option value="Paid" selected="@(Model.SelectedStatus == "Paid")">Paid</option>
+                            <option value="Pending" selected="@(Model.SelectedStatus == "Pending")">Pending</option>
+                            <option value="Failed" selected="@(Model.SelectedStatus == "Failed")">Failed</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="SelectedPaymentMethod" class="form-select">
+                            <option value="">All Payment Methods</option>
+                            <option value="Credit Card" selected="@(Model.SelectedPaymentMethod == "Credit Card")">Credit Card</option>
+                            <option value="Debit Card" selected="@(Model.SelectedPaymentMethod == "Debit Card")">Debit Card</option>
+                            <option value="Online Banking" selected="@(Model.SelectedPaymentMethod == "Online Banking")">Online Banking</option>
+                            <option value="E-Wallet" selected="@(Model.SelectedPaymentMethod == "E-Wallet")">E-Wallet</option>
+                            <option value="Cash" selected="@(Model.SelectedPaymentMethod == "Cash")">Cash</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <input type="date"
+                               name="SelectedDate"
+                               class="form-control"
+                               value="@Model.SelectedDate?.ToString("yyyy-MM-dd")" />
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-center gap-3 mt-3">
+                            <button type="submit" class="btn payment-search-btn">
+                                <i class="fa-solid fa-magnifying-glass me-2"></i>
+                                Search
+                            </button>
+
+                            <a asp-page="/Staff/Payment"
+                               class="btn payment-reset-btn">
+                                <i class="fa-solid fa-rotate-left me-2"></i>
+                                Reset
+                            </a>
+                    </div>
+                                      
+                </div> 
+              </form>
+
+        <!-- Payment Table -->
+<div class="table-responsive">
+    <table class="table reservations-table align-middle">
+        <thead>
+            <tr>
+                <th>Payment ID</th>
+                <th>Order ID</th>
+                <th>Payment Date</th>
+                <th>Payment Method</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var payment in Model.Payments)
+            {
+                <tr>
+                    <td>@payment.PaymentId</td>
+                    <td>@payment.OrderId</td>
+                    <td>@payment.PaymentDate.ToString("dd MMM yyyy")</td>
+                    <td>@payment.PaymentMethod</td>
+                    <td>RM @payment.Amount.ToString("N2")</td>
+
+                    <td>
+                        @if (payment.Status == "Paid")
+                        {
+                            <span class="badge bg-success">Paid</span>
+                        }
+                        else if (payment.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        else if (payment.Status == "Failed")
+                        {
+                            <span class="badge bg-danger">Failed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@payment.Status</span>
+                        }
+                    </td>
+
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary"
+                                type="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#paymentDetails_@payment.PaymentId">
+                            View
+                        </button>
+                    </td>
+                </tr>
+            }
+
+            @if (!Model.Payments.Any())
+            {
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        No payment records found.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+    <!-- Payment Details Modals -->
+@foreach (var item in Model.Payments)
+{
+    <div class="modal fade"
+         id="paymentDetails_@item.PaymentId"
+         tabindex="-1"
+         aria-labelledby="paymentLabel_@item.PaymentId"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="paymentLabel_@item.PaymentId">
+                        Payment Details
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <p><strong>Payment ID:</strong> @item.PaymentId</p>
+                    <p><strong>Order ID:</strong> @item.OrderId</p>
+                    <p><strong>Payment Date:</strong> @item.PaymentDate.ToString("dd MMM yyyy")</p>
+                    <p><strong>Payment Method:</strong> @item.PaymentMethod</p>
+                    <p><strong>Amount:</strong> RM @item.Amount.ToString("N2")</p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        @if (item.Status == "Paid")
+                        {
+                            <span class="badge bg-success">Paid</span>
+                        }
+                        else if (item.Status == "Pending")
+                        {
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        }
+                        else if (item.Status == "Failed")
+                        {
+                            <span class="badge bg-danger">Failed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@item.Status</span>
+                        }
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+        </div> 
+    </div> 
+
+</div> 
+
