@@ -1,0 +1,564 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Admin.Reports.IndexModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Reports & Analytics";
+    ViewData["ActiveNav"] = "Reports";
+
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    string periodText =
+        (Model.DateFrom?.ToString("dd/MM/yyyy") ?? "Beginning")
+        + " - " +
+        (Model.DateTo?.ToString("dd/MM/yyyy") ?? "Latest");
+}
+
+<!-- Heading -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Reports &amp; Analytics</h3>
+        <span class="text-muted">Sales revenue, sales report, reservation statistics, popular menu items and served orders.</span>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-page="/Admin/Dashboard" class="btn btn-action" style="--accent: #2D3748;">
+            <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+        </a>
+        <button type="submit" form="exportForm" name="section" value="all" class="btn btn-orange">
+            <i class="fa-solid fa-file-pdf me-1"></i> Export Full Report (PDF)
+        </button>
+    </div>
+</div>
+
+<!-- Filter -->
+<div class="panel-card mb-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h5 class="panel-title"><i class="fa-solid fa-filter icon-accent me-2"></i>Filter by date</h5>
+        <span class="count-pill"><i class="fa-regular fa-calendar me-1"></i> @periodText</span>
+    </div>
+
+    <form method="get" id="filterForm">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="DateFrom" class="form-label">From</label>
+                <input type="date" id="DateFrom" name="DateFrom" class="form-control"
+                       value="@(Model.DateFrom?.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="col-md-4">
+                <label for="DateTo" class="form-label">To</label>
+                <input type="date" id="DateTo" name="DateTo" class="form-control"
+                       value="@(Model.DateTo?.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-orange flex-grow-1">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i> Apply
+                </button>
+                <a asp-page="/Admin/Reports/Index" class="btn btn-action" style="--accent: #718096;">Reset</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="chip-row mt-3">
+        <button type="button" class="range-chip" data-range="today">Today</button>
+        <button type="button" class="range-chip" data-range="7">Last 7 days</button>
+        <button type="button" class="range-chip" data-range="30">Last 30 days</button>
+        <button type="button" class="range-chip" data-range="month">This month</button>
+        <button type="button" class="range-chip" data-range="year">This year</button>
+    </div>
+
+    @if (Model.InvalidRange)
+    {
+        <div class="alert alert-danger rounded-4 mt-3 mb-0">
+            <i class="fa-solid fa-circle-exclamation me-1"></i> From date cannot be later than To date.
+        </div>
+    }
+</div>
+
+@if (!Model.InvalidRange)
+{
+    <!-- Summary -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #FFF3E0; color: #E67E22;"><i class="fa-solid fa-sack-dollar"></i></div>
+                <div>
+                    <div class="stat-value" style="font-size: 1.5rem;">RM @Model.TotalRevenue.ToString("N2")</div>
+                    <div class="stat-label">Sales Revenue</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #FFF3E0; color: #E67E22;"><i class="fa-solid fa-bell-concierge"></i></div>
+                <div>
+                    <div class="stat-value">@Model.TotalServedOrders</div>
+                    <div class="stat-label">Served Orders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #FFF3E0; color: #E67E22;"><i class="fa-solid fa-burger"></i></div>
+                <div>
+                    <div class="stat-value">@Model.TotalItemsSold</div>
+                    <div class="stat-label">Items Sold</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #FFF3E0; color: #E67E22;"><i class="fa-solid fa-calendar-check"></i></div>
+                <div>
+                    <div class="stat-value">@Model.TotalReservations</div>
+                    <div class="stat-label">Reservations</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Sales revenue -->
+    <div class="panel-card mb-4">
+        <div class="section-head">
+            <div class="action-icon" style="background: #E8F8F5; color: #16A085;"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div>
+                <h5 class="panel-title">Sales Revenue</h5>
+                <span class="text-muted small">Revenue from served orders, day by day.</span>
+            </div>
+            <button type="submit" form="exportForm" name="section" value="revenue" class="btn-edit ms-auto">
+                <i class="fa-solid fa-file-pdf me-1"></i> PDF
+            </button>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3"><div class="mini-stat"><div class="mini-label">Total revenue</div><div class="mini-value">RM @Model.TotalRevenue.ToString("N2")</div></div></div>
+            <div class="col-6 col-lg-3"><div class="mini-stat"><div class="mini-label">Served orders</div><div class="mini-value">@Model.TotalServedOrders</div></div></div>
+            <div class="col-6 col-lg-3"><div class="mini-stat"><div class="mini-label">Items sold</div><div class="mini-value">@Model.TotalItemsSold</div></div></div>
+            <div class="col-6 col-lg-3"><div class="mini-stat"><div class="mini-label">Average order value</div><div class="mini-value">RM @Model.AverageOrderValue.ToString("N2")</div></div></div>
+        </div>
+
+        @if (Model.DailyRevenue.Any())
+        {
+            <div class="chart-caption">Revenue per day (RM)</div>
+            <div class="chart-box"><canvas id="revenueChart"></canvas></div>
+        }
+        else
+        {
+            <div class="empty-state"><i class="fa-solid fa-chart-column"></i>No served orders in this period.</div>
+        }
+    </div>
+
+    <!-- 2. Sales report -->
+    <div class="panel-card mb-4">
+        <div class="section-head">
+            <div class="action-icon" style="background: #f7c1cc; color: #cf2b0a;"><i class="fa-solid fa-chart-pie"></i></div>
+            <div>
+                <h5 class="panel-title">Sales Report</h5>
+                <span class="text-muted small">Sales of every menu item and its share of total sales.</span>
+            </div>
+            <button type="submit" form="exportForm" name="section" value="sales" class="btn-edit ms-auto">
+                <i class="fa-solid fa-file-pdf me-1"></i> PDF
+            </button>
+        </div>
+
+        @if (Model.ItemsByAmount.Any())
+        {
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-7">
+                    <div class="table-scroll">
+                        <table class="table admin-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Menu Item</th>
+                                    <th class="text-end">Qty Sold</th>
+                                    <th class="text-end">Sales (RM)</th>
+                                    <th style="min-width: 130px;">Share</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (var i = 0; i < Model.ItemsByAmount.Count; i++)
+                                {
+                                    var item = Model.ItemsByAmount[i];
+                                    var pct = item.SharePercent.ToString("0.##", inv);
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td class="fw-semibold">@item.MenuName</td>
+                                        <td class="text-end">@item.Quantity</td>
+                                        <td class="text-end">@item.Amount.ToString("N2")</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="share-bar flex-grow-1"><span style="width:@(pct)%"></span></div>
+                                                <small class="text-muted">@(pct)%</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="chart-caption text-center">Share of sales (RM)</div>
+                    <div class="chart-box narrow"><canvas id="salesChart"></canvas></div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state"><i class="fa-solid fa-chart-pie"></i>No menu sales in this period.</div>
+        }
+    </div>
+
+    <!-- 3. Reservation statistics -->
+    <div class="panel-card mb-4">
+        <div class="section-head">
+            <div class="action-icon" style="background: #F3E8FF; color: #7E22CE;"><i class="fa-solid fa-calendar-check"></i></div>
+            <div>
+                <h5 class="panel-title">Reservation Statistics</h5>
+                <span class="text-muted small">Reservations by status and by day (filtered by reservation date).</span>
+            </div>
+            <button type="submit" form="exportForm" name="section" value="reservations" class="btn-edit ms-auto">
+                <i class="fa-solid fa-file-pdf me-1"></i> PDF
+            </button>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-4"><div class="mini-stat"><div class="mini-label">Total reservations</div><div class="mini-value">@Model.TotalReservations</div></div></div>
+            <div class="col-6 col-lg-4"><div class="mini-stat"><div class="mini-label">Total guests</div><div class="mini-value">@Model.TotalGuests</div></div></div>
+            <div class="col-12 col-lg-4"><div class="mini-stat"><div class="mini-label">Average party size</div><div class="mini-value">@Model.AveragePartySize.ToString("0.0")</div></div></div>
+        </div>
+
+        @if (Model.ReservationStatuses.Any())
+        {
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="chart-caption text-center">By status</div>
+                    <div class="chart-box narrow"><canvas id="reservationPie"></canvas></div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="chart-caption text-center">Reservations per day</div>
+                    <div class="chart-box"><canvas id="reservationBar"></canvas></div>
+                </div>
+            </div>
+
+            <div class="table-scroll mt-4">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th class="text-end">Reservations</th>
+                            <th class="text-end">Guests</th>
+                            <th class="text-end">Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.ReservationStatuses.Count; i++)
+                        {
+                            var s = Model.ReservationStatuses[i];
+                            <tr>
+                                <td>
+                                    <span class="status-dot" style="background:@(Model.Palette[i % Model.Palette.Length])"></span>@s.Status
+                                </td>
+                                <td class="text-end">@s.Count</td>
+                                <td class="text-end">@s.Guests</td>
+                                <td class="text-end">@s.SharePercent.ToString("0.#", inv)%</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state"><i class="fa-solid fa-calendar-xmark"></i>No reservations in this period.</div>
+        }
+    </div>
+
+    <!-- 4. Popular menu items -->
+    <div class="panel-card mb-4">
+        <div class="section-head">
+            <div class="action-icon" style="background: #FFF3E0; color: #E67E22;"><i class="fa-solid fa-fire"></i></div>
+            <div>
+                <h5 class="panel-title">Popular Menu Items</h5>
+                <span class="text-muted small">Top 10 most ordered items (served orders only).</span>
+            </div>
+            <button type="submit" form="exportForm" name="section" value="popular" class="btn-edit ms-auto">
+                <i class="fa-solid fa-file-pdf me-1"></i> PDF
+            </button>
+        </div>
+
+        @if (Model.PopularItems.Any())
+        {
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-7">
+                    <div class="chart-caption">Quantity sold</div>
+                    <div class="chart-box"><canvas id="popularChart"></canvas></div>
+                </div>
+                <div class="col-lg-5">
+                    <table class="table admin-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Menu Item</th>
+                                <th class="text-end">Qty</th>
+                                <th class="text-end">Sales (RM)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.PopularItems.Count; i++)
+                            {
+                                var item = Model.PopularItems[i];
+                                <tr>
+                                    <td>@(i + 1)</td>
+                                    <td class="fw-semibold">@item.MenuName</td>
+                                    <td class="text-end">@item.Quantity</td>
+                                    <td class="text-end">@item.Amount.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state"><i class="fa-solid fa-burger"></i>No menu sales in this period.</div>
+        }
+    </div>
+
+    <!-- 5. Served orders -->
+    <div class="panel-card mb-5">
+        <div class="section-head">
+            <div class="action-icon" style="background: #EBF5FB; color: #2980B9;"><i class="fa-solid fa-bell-concierge"></i></div>
+            <div>
+                <h5 class="panel-title">Served Orders</h5>
+                <span class="text-muted small">Every order marked as served in this period.</span>
+            </div>
+            <span class="count-pill ms-auto me-2">@Model.TotalServedOrders orders</span>
+            <button type="submit" form="exportForm" name="section" value="orders" class="btn-edit">
+                <i class="fa-solid fa-file-pdf me-1"></i> PDF
+            </button>
+        </div>
+
+        @if (Model.ServedOrders.Any())
+        {
+            <div class="orders-scroll">
+                <table class="table admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Table</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Items</th>
+                            <th class="text-end">Total (RM)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.ServedOrders)
+                        {
+                            <tr>
+                                <td class="fw-semibold">#@order.OrderId</td>
+                                <td>@(order.Table?.TableNumber ?? "N/A")</td>
+                                <td>@order.DineInDateTime.ToString("dd/MM/yyyy")</td>
+                                <td>@order.DineInDateTime.ToString("hh:mm tt")</td>
+                                <td>
+                                    @if (order.OrderItems != null && order.OrderItems.Any())
+                                    {
+                                        @foreach (var line in order.OrderItems)
+                                        {
+                                            <div class="small">@(line.Menu?.MenuName ?? "Unknown item") <span class="text-muted">x @line.Quantity</span></div>
+                                        }
+                                    }
+                                </td>
+                                <td class="text-end">@order.TotalAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td colspan="5">Total Revenue</td>
+                            <td class="text-end">@Model.TotalRevenue.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state"><i class="fa-solid fa-bell-concierge"></i>No served orders in this period.</div>
+        }
+    </div>
+}
+
+<!-- PDF export form: every PDF button above points here; chart pictures are filled in by script -->
+<form method="post" id="exportForm" asp-page-handler="ExportPdf">
+    <input type="hidden" name="DateFrom" value="@(Model.DateFrom?.ToString("yyyy-MM-dd"))" />
+    <input type="hidden" name="DateTo" value="@(Model.DateTo?.ToString("yyyy-MM-dd"))" />
+    <input type="hidden" asp-for="RevenueChartImage" />
+    <input type="hidden" asp-for="SalesChartImage" />
+    <input type="hidden" asp-for="ReservationPieImage" />
+    <input type="hidden" asp-for="ReservationBarImage" />
+    <input type="hidden" asp-for="PopularChartImage" />
+</form>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            // ---------- Date range shortcuts ----------
+            function fmt(d) {
+                var p = function (n) { return String(n).padStart(2, '0'); };
+                return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+            }
+
+            document.querySelectorAll('[data-range]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var today = new Date();
+                    var from = new Date(today);
+                    var kind = btn.getAttribute('data-range');
+
+                    if (kind === '7') from.setDate(today.getDate() - 6);
+                    else if (kind === '30') from.setDate(today.getDate() - 29);
+                    else if (kind === 'month') from = new Date(today.getFullYear(), today.getMonth(), 1);
+                    else if (kind === 'year') from = new Date(today.getFullYear(), 0, 1);
+
+                    document.getElementById('DateFrom').value = fmt(from);
+                    document.getElementById('DateTo').value = fmt(today);
+                    document.getElementById('filterForm').submit();
+                });
+            });
+
+            // ---------- Charts ----------
+            if (typeof Chart === 'undefined') return;
+
+            var data = @Json.Serialize(Model.ChartData);
+            var palette = data.palette;
+            var charts = {};
+
+            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            Chart.defaults.font.size = 12;
+            Chart.defaults.color = '#718096';
+
+            function rm(v) {
+                return 'RM ' + Number(v).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            var gridLine = { color: '#E3EEF5' };
+
+            function barChart(canvasId, labels, values, color, hover, label, opts) {
+                var el = document.getElementById(canvasId);
+                if (!el || !values.length) return null;
+
+                var config = {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: label,
+                            data: values,
+                            backgroundColor: color,
+                            hoverBackgroundColor: hover,
+                            borderRadius: 8,
+                            maxBarThickness: 46
+                        }]
+                    },
+                    options: Object.assign({
+                        aspectRatio: 2.4,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { beginAtZero: true, grid: gridLine, ticks: { precision: 0 } }
+                        }
+                    }, opts || {})
+                };
+
+                return new Chart(el, config);
+            }
+
+            function pieChart(canvasId, labels, values, money) {
+                var el = document.getElementById(canvasId);
+                if (!el || !values.length) return null;
+
+                return new Chart(el, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: labels.map(function (_, i) { return palette[i % palette.length]; }),
+                            borderColor: '#FFFFFF',
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        aspectRatio: 1.7,
+                        plugins: {
+                            legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 10, padding: 14 } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (ctx) {
+                                        var total = ctx.dataset.data.reduce(function (a, b) { return a + b; }, 0);
+                                        var pct = total ? (ctx.parsed / total * 100).toFixed(1) : '0.0';
+                                        var value = money ? rm(ctx.parsed) : ctx.parsed;
+                                        return ' ' + ctx.label + ': ' + value + ' (' + pct + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 1. Revenue per day (bar)
+            charts.revenue = barChart('revenueChart', data.revenue.labels, data.revenue.values,
+                '#4DA8DA', '#2E8BC0', 'Revenue', {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: function (c) { return ' ' + rm(c.parsed.y); } } }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, grid: gridLine, ticks: { callback: function (v) { return 'RM ' + v; } } }
+                }
+            });
+
+            // 2. Share of sales (pie)
+            charts.sales = pieChart('salesChart', data.salesShare.labels, data.salesShare.values, true);
+
+            // 3. Reservations by status (pie) and per day (bar)
+            charts.reservationPie = pieChart('reservationPie', data.reservationStatus.labels, data.reservationStatus.values, false);
+            charts.reservationBar = barChart('reservationBar', data.reservationDaily.labels, data.reservationDaily.values,
+                '#8E44AD', '#7E22CE', 'Reservations', { aspectRatio: 1.7 });
+
+            // 4. Popular items (horizontal bar)
+            charts.popular = barChart('popularChart', data.popular.labels, data.popular.values,
+                '#4DA8DA', '#2E8BC0', 'Quantity sold', {
+                indexAxis: 'y',
+                aspectRatio: 1.5,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: gridLine, ticks: { precision: 0 } },
+                    y: { grid: { display: false } }
+                }
+            });
+
+            // ---------- PDF: attach chart pictures before the form is sent ----------
+            function setImage(inputId, chart) {
+                var input = document.getElementById(inputId);
+                if (input) input.value = chart ? chart.toBase64Image('image/png', 1) : '';
+            }
+
+            var exportForm = document.getElementById('exportForm');
+
+            if (exportForm) {
+                exportForm.addEventListener('submit', function () {
+                    setImage('RevenueChartImage', charts.revenue);
+                    setImage('SalesChartImage', charts.sales);
+                    setImage('ReservationPieImage', charts.reservationPie);
+                    setImage('ReservationBarImage', charts.reservationBar);
+                    setImage('PopularChartImage', charts.popular);
+                });
+            }
+        })();
+    </script>
+}

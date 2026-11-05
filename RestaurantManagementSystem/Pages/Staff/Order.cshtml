@@ -1,0 +1,263 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Staff.OrdersModel
+
+@{
+    Layout = "_StaffLayout";
+    ViewData["Title"] = "Manage Orders";
+}
+
+<div class="staff-page-container staff-orders-page">
+
+    <!-- Page Heading -->
+    <div class="mb-4">
+        <h2 class="fw-bold">Manage Orders</h2>
+        <p class="text-muted">
+            View customer orders and manage their order status.
+        </p>
+    </div>
+
+<!-- Summary Cards -->
+<div class="reservation-summary">
+
+    <div class="summary-card">
+        <div class="summary-icon total-icon">
+            <i class="fa-solid fa-receipt"></i>
+        </div>
+        <p>Total Orders</p>
+        <h3>@Model.TotalOrders</h3>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-icon pending-icon">
+            <i class="fa-solid fa-clock"></i>
+        </div>
+        <p>Pending</p>
+        <h3>@Model.PendingOrders</h3>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-icon confirmed-icon">
+            <i class="fa-solid fa-fire-burner"></i>
+        </div>
+        <p>Preparing</p>
+        <h3>@Model.PreparingOrders</h3>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-icon cancelled-icon">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <p>Completed</p>
+        <h3>@Model.CompletedOrders</h3>
+    </div>
+
+</div>
+
+    <!-- Orders Table -->
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 fw-bold">Customer Orders</h5>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Search and Filter -->
+<form method="get">
+    <div class="row g-2 mb-3">
+
+        <div class="col-md-6">
+            <input type="text"
+                   name="SearchTerm"
+                   class="form-control"
+                   placeholder="Search Order ID or Table Number..."
+                   value="@Model.SearchTerm" />
+        </div>
+
+        <div class="col-md-3">
+            <select name="SelectedStatus" class="form-select">
+                <option value="">All Status</option>
+                <option value="Pending" selected="@(Model.SelectedStatus == "Pending")">Pending</option>
+                <option value="Preparing" selected="@(Model.SelectedStatus == "Preparing")">Preparing</option>
+                <option value="Ready" selected="@(Model.SelectedStatus == "Ready")">Ready</option>
+                <option value="Completed" selected="@(Model.SelectedStatus == "Completed")">Completed</option>
+                <option value="Cancelled" selected="@(Model.SelectedStatus == "Cancelled")">Cancelled</option>
+            </select>
+        </div>
+
+        <div class="col-md-auto">
+            <button type="submit" class="btn payment-search-btn">
+                <i class="fa-solid fa-magnifying-glass me-2"></i>
+                Search
+            </button>
+        </div>
+
+    </div>
+</form>
+
+            <!-- Orders Table -->
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Table</th>
+                            <th>Order Date</th>
+                            <th>Dine-in Date</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+    @if (Model.Orders.Any())
+    {
+        @foreach (var order in Model.Orders)
+        {
+            <tr>
+                <td>#@order.OrderId</td>
+
+                <td>@(order.Table?.TableNumber ?? "N/A")</td>
+
+                <td>@order.OrderDate.ToString("dd/MM/yyyy hh:mm tt")</td>
+
+                <td>@order.DineInDateTime.ToString("dd/MM/yyyy hh:mm tt")</td>
+
+                <td>RM @order.TotalAmount.ToString("N2")</td>
+
+                <td>
+                    @if (order.Status == "Pending")
+                    {
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    }
+                    else if (order.Status == "Preparing")
+                    {
+                        <span class="badge bg-primary">Preparing</span>
+                    }
+                    else if (order.Status == "Ready")
+                    {
+                        <span class="badge bg-info text-dark">Ready</span>
+                    }
+                    else if (order.Status == "Completed")
+                    {
+                        <span class="badge bg-success">Completed</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">@order.Status</span>
+                    }
+                </td>
+
+                <td>
+                    <button class="btn btn-sm btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#orderDetails@(order.OrderId)">
+                        View Details
+                    </button>
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="7" class="text-center py-4">
+                No orders found.
+            </td>
+        </tr>
+    }
+</tbody>
+
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@foreach (var order in Model.Orders)
+{
+    <div class="modal fade"
+         id="orderDetails@(order.OrderId)"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        Order Details - #@order.OrderId
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <p>
+                        <strong>Table:</strong>
+                        @(order.Table?.TableNumber ?? "N/A")
+                    </p>
+
+                    <p>
+                        <strong>Order Date:</strong>
+                        @order.OrderDate.ToString("dd/MM/yyyy hh:mm tt")
+                    </p>
+
+                    <p>
+                        <strong>Dine-in Date:</strong>
+                        @order.DineInDateTime.ToString("dd/MM/yyyy hh:mm tt")
+                    </p>
+
+                    <hr />
+
+                    <h6 class="fw-bold">Ordered Items</h6>
+
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <tr>
+                                    <td>@(item.Menu?.MenuName ?? "Unknown Item")</td>
+                                    <td>@item.Quantity</td>
+                                    <td>RM @item.Subtotal.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <h6 class="text-end fw-bold">
+                        Total: RM @order.TotalAmount.ToString("N2")
+                    </h6>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+

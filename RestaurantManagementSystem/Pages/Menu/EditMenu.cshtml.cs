@@ -30,7 +30,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             // Check admin login
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
             {
-                return RedirectToPage("/Admin/Login");
+                return RedirectToPage("/Index", new { login = "true" });
             }
 
             Menu = await _context.Menus
@@ -49,7 +49,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             // Check admin login
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
             {
-                return RedirectToPage("/Admin/Login");
+                return RedirectToPage("/Index", new { login = "true" });
             }
 
             // Check validation
@@ -71,6 +71,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             existingMenu.MenuName = Menu.MenuName;
             existingMenu.Description = Menu.Description;
             existingMenu.Price = Menu.Price;
+            existingMenu.Category = Menu.Category;
 
             // Check whether a new image was uploaded
             if (ImageFile != null)
@@ -130,7 +131,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             TempData["SuccessMessage"] =
                 "Menu updated successfully!";
 
-            return RedirectToPage("/Admin/Dashboard");
+            return RedirectToPage("/Admin/ManageMenu");
         }
     }
 }

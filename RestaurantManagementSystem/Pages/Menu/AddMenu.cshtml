@@ -2,44 +2,51 @@
 @model RestaurantManagementSystem.Pages.Menu.AddMenuModel
 
 @{
+    Layout = "_AdminLayout";
     ViewData["Title"] = "Add Menu";
+    ViewData["ActiveNav"] = "Menu";
 }
 
-<div class="container mt-4">
+@section Styles {
+    <link rel="stylesheet" href="~/MenuPages.css" asp-append-version="true" />
+}
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Add Menu</h2>
-
-        <a asp-page="/Admin/Dashboard"
-           class="btn btn-secondary">
-            Back to Dashboard
-        </a>
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Add Menu</h2>
+        <p class="text-muted mb-0">Create a new dish for your restaurant menu.</p>
     </div>
+    <a asp-page="/Admin/ManageMenu" class="btn btn-back">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Menu
+    </a>
+</div>
 
-    <div class="card">
-        <div class="card-body">
+<div class="form-card">
+    <form method="post" enctype="multipart/form-data">
 
-            <form method="post"
-                  enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="field-error mb-3"></div>
 
-                <div asp-validation-summary="ModelOnly"
-                     class="text-danger mb-3">
-                </div>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label asp-for="Menu.MenuName" class="form-label"></label>
+                <input asp-for="Menu.MenuName" class="form-control" placeholder="Enter menu name" />
+                <span asp-validation-for="Menu.MenuName" class="field-error"></span>
+            </div>
 
-                <!-- Menu Name -->
-                <div class="mb-3">
-                    <label asp-for="Menu.MenuName"
-                           class="form-label">
-                    </label>
-
-                    <input asp-for="Menu.MenuName"
-                           class="form-control"
-                           placeholder="Enter menu name" />
-
-                    <span asp-validation-for="Menu.MenuName"
-                          class="text-danger">
-                    </span>
-                </div>
+            <div class="col-md-4">
+                <label asp-for="Menu.Category" class="form-label"></label>
+                <select asp-for="Menu.Category" class="form-select">
+                    <option value="">-- Select Category --</option>
+                    <option value="Burgers">Burgers</option>
+                    <option value="Pizza">Pizza</option>
+                    <option value="Sushi">Sushi</option>
+                    <option value="Salads">Salads</option>
+                    <option value="Desserts">Desserts</option>
+                    <option value="Drinks">Drinks</option>
+                </select>
+                <span asp-validation-for="Menu.Category" class="field-error"></span>
+            </div>
 
                 <!-- Category -->
                 <div class="mb-3">
@@ -69,45 +76,31 @@
                           class="text-danger">
                     </span>
                 </div>
+            <div class="col-12">
+                <label asp-for="Menu.Description" class="form-label"></label>
+                <textarea asp-for="Menu.Description" class="form-control" rows="4" placeholder="Enter menu description"></textarea>
+                <span asp-validation-for="Menu.Description" class="field-error"></span>
+            </div>
 
-                <!-- Price -->
-                <div class="mb-3">
-                    <label asp-for="Menu.Price"
-                           class="form-label">
-                    </label>
-
-                    <div class="input-group">
-                        <span class="input-group-text">RM</span>
-
-                        <input asp-for="Menu.Price"
-                               type="number"
-                               step="0.01"
-                               min="0.01"
-                               class="form-control"
-                               placeholder="0.00" />
-                    </div>
-
-                    <span asp-validation-for="Menu.Price"
-                          class="text-danger">
-                    </span>
+            <div class="col-md-4">
+                <label asp-for="Menu.Price" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text">RM</span>
+                    <input asp-for="Menu.Price" type="number" step="0.01" min="0.01" class="form-control" placeholder="0.00" />
                 </div>
+                <span asp-validation-for="Menu.Price" class="field-error"></span>
+            </div>
 
-                <!-- Image -->
-                <div class="mb-3">
-                    <label asp-for="ImageFile"
-                           class="form-label">
-                        Menu Image
-                    </label>
+            <div class="col-md-8">
+                <label asp-for="ImageFile" class="form-label">Menu Image</label>
+                <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" id="imageInput" />
+                <span asp-validation-for="ImageFile" class="field-error"></span>
+            </div>
 
-                    <input asp-for="ImageFile"
-                           type="file"
-                           class="form-control"
-                           accept="image/*" />
-
-                    <span asp-validation-for="ImageFile"
-                          class="text-danger">
-                    </span>
-                </div>
+            <div class="col-12">
+                <img id="imagePreview" class="image-preview d-none" alt="Image preview" />
+            </div>
+        </div>
 
                 <button type="submit"
                         class="btn btn-primary">
@@ -124,3 +117,26 @@
         </div>
     </div>
 </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-orange">
+                <i class="fa-solid fa-check me-2"></i> Add Menu
+            </button>
+            <a asp-page="/Admin/ManageMenu" class="btn btn-back">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            var preview = document.getElementById('imagePreview');
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove('d-none');
+            } else {
+                preview.classList.add('d-none');
+            }
+        });
+    </script>
+}

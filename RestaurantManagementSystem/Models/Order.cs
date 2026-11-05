@@ -8,6 +8,9 @@ namespace RestaurantManagementSystem.Models
         [Key]
         public int OrderId { get; set; }
 
+        // Who placed the order (null for orders made before this was tracked)
+        public int? CustomerId { get; set; }
+
         [Required]
         public int TableId { get; set; }
 
@@ -30,6 +33,10 @@ namespace RestaurantManagementSystem.Models
         public string? SpecialRequest { get; set; }
 
         // Navigation property
+        // Navigation properties
+        [ForeignKey("CustomerId")]
+        public Customer? Customer { get; set; }
+
         public RestaurantTable? Table { get; set; }
 
         public ICollection<OrderItem> OrderItems { get; set; }

@@ -20,7 +20,7 @@ namespace RestaurantManagementSystem.Pages.Admin
         public IActionResult OnPost()
         {
             // Hardcoded admin credentials
-            if (Username == "admin" && Password == "Admin@123")
+            if (Username == "admin" && Password == "admin")
             {
                 // Store login information in Session
                 HttpContext.Session.SetString(

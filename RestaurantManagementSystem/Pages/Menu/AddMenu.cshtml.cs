@@ -29,7 +29,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             // Check admin login
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
             {
-                return RedirectToPage("/Admin/Login");
+                return RedirectToPage("/Index", new { login = "true" });
             }
 
             return Page();
@@ -40,7 +40,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             // Check admin login
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
             {
-                return RedirectToPage("/Admin/Login");
+                return RedirectToPage("/Index", new { login = "true" });
             }
 
             // Check validation
@@ -102,7 +102,7 @@ namespace RestaurantManagementSystem.Pages.Menu
             TempData["SuccessMessage"] =
                 "Menu added successfully!";
 
-            return RedirectToPage("/Admin/Dashboard");
+            return RedirectToPage("/Admin/ManageMenu");
         }
     }
 }

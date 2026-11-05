@@ -22,6 +22,35 @@ namespace RestaurantManagementSystem.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("RestaurantManagementSystem.Models.Announcement", b =>
+                {
+                    b.Property<int>("AnnouncementId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AnnouncementId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("AnnouncementId");
+
+                    b.ToTable("Announcements");
+                });
+
             modelBuilder.Entity("RestaurantManagementSystem.Models.CartItem", b =>
                 {
                     b.Property<int>("Id")
@@ -84,6 +113,9 @@ namespace RestaurantManagementSystem.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.HasKey("CustomerId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Customers");
                 });
@@ -184,6 +216,8 @@ namespace RestaurantManagementSystem.Migrations
 
                     b.HasKey("OrderId");
 
+                    b.HasIndex("CustomerId");
+
                     b.HasIndex("TableId");
 
                     b.ToTable("Orders");
@@ -223,6 +257,40 @@ namespace RestaurantManagementSystem.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("RestaurantManagementSystem.Models.Payment", b =>
+                {
+                    b.Property<int>("PaymentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("PaymentId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("RestaurantManagementSystem.Models.Reservation", b =>
@@ -305,7 +373,7 @@ namespace RestaurantManagementSystem.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -317,20 +385,32 @@ namespace RestaurantManagementSystem.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("Staffs");
                 });
 
             modelBuilder.Entity("RestaurantManagementSystem.Models.Order", b =>
                 {
+                    b.HasOne("RestaurantManagementSystem.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("RestaurantManagementSystem.Models.RestaurantTable", "Table")
                         .WithMany()
                         .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Customer");
 
                     b.Navigation("Table");
                 });
@@ -350,6 +430,17 @@ namespace RestaurantManagementSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Menu");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("RestaurantManagementSystem.Models.Payment", b =>
+                {
+                    b.HasOne("RestaurantManagementSystem.Models.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Order");
                 });

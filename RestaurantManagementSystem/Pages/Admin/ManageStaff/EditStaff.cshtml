@@ -1,0 +1,74 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Admin.ManageStaff.EditStaffModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Edit Staff";
+    ViewData["ActiveNav"] = "Staff";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/MenuPages.css" asp-append-version="true" />
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Edit Staff</h2>
+        <p class="text-muted mb-0">Update the staff account details below.</p>
+    </div>
+    <a asp-page="/Admin/ManageStaff/ManageStaff" class="btn btn-back">
+        <i class="fa-solid fa-arrow-left me-2"></i> Back to Staff
+    </a>
+</div>
+
+<div class="form-card">
+    <form method="post">
+
+        <input type="hidden" asp-for="Staff.Id" />
+
+        <div asp-validation-summary="ModelOnly" class="field-error mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Staff.FullName" class="form-label"></label>
+                <input asp-for="Staff.FullName" class="form-control" />
+                <span asp-validation-for="Staff.FullName" class="field-error"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Staff.Email" class="form-label"></label>
+                <input asp-for="Staff.Email" type="email" class="form-control" />
+                <span asp-validation-for="Staff.Email" class="field-error"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Staff.Username" class="form-label"></label>
+                <input asp-for="Staff.Username" class="form-control" />
+                <span asp-validation-for="Staff.Username" class="field-error"></span>
+            </div>
+
+            <div class="col-12">
+                <div class="report-hint">Leave the password fields empty to keep the current password.</div>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="NewPassword" class="form-label">New Password</label>
+                <input asp-for="NewPassword" type="password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="NewPassword" class="field-error"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ConfirmNewPassword" class="form-label">Confirm New Password</label>
+                <input asp-for="ConfirmNewPassword" type="password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmNewPassword" class="field-error"></span>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-orange">
+                <i class="fa-solid fa-check me-2"></i> Update Staff
+            </button>
+            <a asp-page="/Admin/ManageStaff" class="btn btn-back">Cancel</a>
+        </div>
+    </form>
+</div>
