@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +9,14 @@ namespace RestaurantManagementSystem.Pages.Customer
     public class RegisterModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPasswordHasher<RestaurantManagementSystem.Models.Customer> _hasher;
 
-        public RegisterModel(ApplicationDbContext context)
+        public RegisterModel(
+            ApplicationDbContext context,
+            IPasswordHasher<RestaurantManagementSystem.Models.Customer> hasher)
         {
             _context = context;
+            _hasher = hasher;
         }
 
         [BindProperty]
@@ -52,6 +57,9 @@ namespace RestaurantManagementSystem.Pages.Customer
             {
                 return Page();
             }
+
+            // Hash the password before saving
+            Customer.Password = _hasher.HashPassword(Customer, Customer.Password);
 
             // Add customer to database
             _context.Customers.Add(Customer);

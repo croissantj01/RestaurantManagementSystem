@@ -1,209 +1,193 @@
 ﻿@page
+@using Microsoft.AspNetCore.Http
 @model RestaurantManagementSystem.Pages.Customer.MyReservationModel
 
 @{
-    ViewData["Title"] = "My Reservations";
+    ViewData["Title"] = "My Bookings & Orders";
+    ViewData["ActivePage"] = "Bookings";
+    ViewData["CustomerName"] = Model.HttpContext.Session.GetString("CustomerName") ?? "Guest";
+    Layout = "_CustomerLayout";
 }
 
-<div class="container mt-5">
-
-    <!-- PAGE TITLE -->
-    <h1 class="fw-bold">
-        My Reservations
-    </h1>
-
-    <p class="text-muted">
-        View and manage your table reservations.
-    </p>
-
-
-    <!-- RESERVATION CARD -->
-    <div class="card mt-4">
-
-        <div class="card-body">
-
-            <h2 class="mb-4">
-                My Reservations
-            </h2>
-
-
-            @if (Model.Reservations.Count == 0)
-            {
-                <div class="alert alert-info">
-                    You do not have any reservations.
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-
-                    <table class="table table-bordered align-middle">
-
-                        <!-- TABLE HEADER -->
-                        <thead>
-                            <tr>
-
-                                <th>
-                                    Table
-                                </th>
-
-                                <th>
-                                    Dining Area
-                                </th>
-
-                                <th>
-                                    Dine-In Date
-                                </th>
-
-                                <th>
-                                    Time
-                                </th>
-
-                                <th>
-                                    Guests
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
-                            </tr>
-                        </thead>
-
-
-                        <!-- TABLE BODY -->
-                        <tbody>
-
-                            @foreach (var reservation in Model.Reservations)
-                            {
-                                <tr>
-
-                                    <!-- TABLE NUMBER -->
-                                    <td>
-                                        @reservation.RestaurantTable.TableNumber
-                                    </td>
-
-
-                                    <!-- DINING AREA -->
-                                    <td>
-                                        @reservation.RestaurantTable.DiningArea
-                                    </td>
-
-
-                                    <!-- DINE-IN DATE -->
-                                    <td>
-                                        @reservation.ReservationDate.ToString("dd/MM/yyyy")
-                                    </td>
-
-
-                                    <!-- TIME -->
-                                    <td>
-                                        @{
-                                            DateTime startDateTime =
-                                                DateTime.Today.Add(
-                                                    reservation.ReservationTime
-                                                );
-
-                                            DateTime endDateTime =
-                                                startDateTime.AddHours(2);
-                                        }
-
-                                        @startDateTime.ToString("hh:mm tt")
-                                        -
-                                        @endDateTime.ToString("hh:mm tt")
-                                    </td>
-
-
-                                    <!-- NUMBER OF GUESTS -->
-                                    <td>
-                                        @reservation.NumberOfGuests
-                                    </td>
-
-
-                                    <!-- STATUS -->
-                                    <td>
-
-                                        @if (reservation.Status == "Reserved")
-                                        {
-                                            <span class="badge bg-success">
-                                                Reserved
-                                            </span>
-                                        }
-                                        else if (reservation.Status == "Cancelled")
-                                        {
-                                            <span class="badge bg-danger">
-                                                Cancelled
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">
-                                                @reservation.Status
-                                            </span>
-                                        }
-
-                                    </td>
-
-
-                                    <!-- ACTION -->
-                                    <td>
-
-                                        @if (reservation.Status == "Reserved")
-                                        {
-                                            <form method="post"
-                                                  asp-page-handler="Cancel"
-                                                  asp-route-id="@reservation.ReservationId">
-
-                                                <button type="submit"
-                                                        class="btn btn-danger btn-sm"
-                                                        onclick="return confirm('Are you sure you want to cancel this reservation?');">
-                                                    Cancel
-                                                </button>
-
-                                            </form>
-                                        }
-                                        else
-                                        {
-                                            <span>
-                                                -
-                                            </span>
-                                        }
-
-                                    </td>
-
-                                </tr>
-                            }
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-            }
-
+<div class="my-4">
+    <!-- Page Header & Filter Section -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="page-header-title mb-1">My Bookings & Orders</h2>
+            <p class="text-muted mb-0">View table-only bookings and dine-in orders with food.</p>
         </div>
-
+        <div class="d-flex gap-2">
+            <a asp-page="/Customer/ReserveTable" class="btn btn-outline-primary rounded-pill px-3">
+                <i class="fa-solid fa-chair me-2"></i>Reserve Table Only
+            </a>
+            <a asp-page="/Customer/ViewMenu" class="btn btn-reserve" style="width: auto;">
+                <i class="fa-solid fa-utensils me-2"></i>Order Food & Dine-In
+            </a>
+        </div>
     </div>
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4 shadow-sm" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-    <!-- BUTTONS -->
-    <div class="mt-4">
-
-        <a asp-page="/Customer/ReserveTable"
-           class="btn btn-primary">
-            Reserve a New Table
-        </a>
-
-
-        <a asp-page="/Customer/Dashboard"
-           class="btn btn-secondary">
-            Back to Dashboard
-        </a>
-
+    <!-- Filter Status Pills Bar -->
+    <div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
+        <button class="btn btn-sm btn-dark rounded-pill px-4 py-2 fw-bold">All</button>
+        <button class="btn btn-sm btn-light rounded-pill px-4 py-2 text-muted fw-semibold bg-white shadow-sm">Active</button>
+        <button class="btn btn-sm btn-light rounded-pill px-4 py-2 text-muted fw-semibold bg-white shadow-sm">Completed</button>
+        <button class="btn btn-sm btn-light rounded-pill px-4 py-2 text-muted fw-semibold bg-white shadow-sm">Cancelled</button>
     </div>
 
+    @if (Model.Bookings == null || !Model.Bookings.Any())
+    {
+        <div class="data-card">
+            <div class="empty-state py-5">
+                <div><i class="fa-solid fa-calendar-xmark fs-1 text-muted mb-3"></i></div>
+                <h5 class="fw-bold" style="color: var(--text-main);">No bookings or food orders yet</h5>
+                <p class="text-muted mb-0">You do not have any active bookings. Reserve a table or order food to get started.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Modern Card Grid Layout matching the mockup -->
+        <div class="row g-4">
+            @foreach (var booking in Model.Bookings)
+            {
+                DateTime endDateTime = booking.StartTime.AddHours(2);
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm p-4 bg-white d-flex flex-column justify-content-between">
+                        <div>
+                            <!-- Card Header: Table Badge & Status -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center text-white fw-bold shadow-sm" style="width: 48px; height: 48px; background-color: var(--primary-color); font-size: 1.1rem;">
+                                        T@(booking.TableNumber)
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold m-0" style="color: var(--text-main);">Table @booking.TableNumber</h6>
+                                        <small class="text-muted">@booking.DiningArea</small>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    @if (booking.Status == "Reserved" || booking.Status == "Completed")
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-1.5 rounded-pill fw-bold" style="font-size: 11px;">
+                                            <i class="fa-solid fa-check me-1"></i> Active
+                                        </span>
+                                    }
+                                    else if (booking.Status == "Cancelled")
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-1.5 rounded-pill fw-bold" style="font-size: 11px;">
+                                            Cancelled
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-1.5 rounded-pill fw-bold" style="font-size: 11px;">
+                                            @booking.Status
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Date, Time & Type Subheader -->
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom text-muted" style="font-size: 12.5px;">
+                                <span><i class="fa-regular fa-calendar me-1"></i> @booking.Date.ToString("ddd, MMM dd, yyyy")</span>
+                                <span><i class="fa-regular fa-clock me-1"></i> @booking.StartTime.ToString("hh:mm tt")</span>
+                            </div>
+
+                            <!-- Booking Type Tag -->
+                            <div class="mb-3">
+                                @if (booking.Type == "Table + Food Order")
+                                {
+                                    <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill" style="font-size: 11px;">
+                                        <i class="fa-solid fa-utensils me-1"></i> Table + Food Order
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary px-2.5 py-1 rounded-pill" style="font-size: 11px;">
+                                        <i class="fa-solid fa-chair me-1"></i> Table Only Booking
+                                    </span>
+                                }
+                            </div>
+
+                            <!-- Order Items Mini Table / List -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between text-muted small fw-bold mb-2 border-bottom pb-1">
+                                    <span>Items</span>
+                                    <span>Qty</span>
+                                </div>
+
+                                @if (booking.OrderItems != null && booking.OrderItems.Any())
+                                {
+                                    <div style="max-height: 120px; overflow-y: auto;">
+                                        @foreach (var item in booking.OrderItems)
+                                        {
+                                            <div class="d-flex justify-content-between align-items-center py-1 small">
+                                                <span class="text-dark">@(item.Menu?.MenuName ?? "Item")</span>
+                                                <span class="text-muted">x@(item.Quantity)</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted small italic mb-0">No food pre-ordered for this table reservation.</p>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Card Footer: Total Amount & Action Button -->
+                        <div class="pt-3 border-top d-flex align-items-center justify-content-between mt-3">
+                            <div>
+                                <small class="text-muted d-block" style="font-size: 11px;">Total Amount</small>
+                                <span class="fw-bold fs-5" style="color: var(--primary-color);">RM @booking.TotalAmount.ToString("N2")</span>
+                            </div>
+
+                            <div>
+                                @if (booking.Status == "Reserved" || booking.Status == "Pending")
+                                {
+                                    <form method="post" asp-page-handler="Cancel" class="m-0 d-inline">
+                                        <input type="hidden" name="id" value="@booking.Id" />
+                                        <input type="hidden" name="type" value="@booking.Type" />
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-4 fw-bold" onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                            Cancel Booking
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">-</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
+
+@section Scripts {
+    <script>
+        // Optional filter button interaction logic
+        document.querySelectorAll('.btn-light, .btn-dark').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.btn-dark').forEach(b => {
+                    b.classList.remove('btn-dark', 'text-white');
+                    b.classList.add('btn-light', 'text-muted', 'bg-white', 'shadow-sm');
+                });
+                this.classList.remove('btn-light', 'text-muted', 'bg-white', 'shadow-sm');
+                this.classList.add('btn-dark', 'text-white');
+            });
+        });
+    </script>
+}

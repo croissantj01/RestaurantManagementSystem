@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestaurantManagementSystem.Models;
-using RestaurantManagementSystem.Data;
-using RestaurantManagementSystem.Models;
 
 namespace RestaurantManagementSystem.Data
 {
@@ -27,6 +25,22 @@ namespace RestaurantManagementSystem.Data
 
         public DbSet<Reservation> Reservations { get; set; }
 
-        public DbSet<RestaurantManagementSystem.Models.CartItem> CartItems { get; set; } = default!;
+        public DbSet<CartItem> CartItems { get; set; } = default!;
+
+        public DbSet<Notification> Notifications { get; set; }
+
+        // Helper method to add system notifications directly via DbContext
+        public async Task AddNotificationAsync(int customerId, string message)
+        {
+            Notifications.Add(new Notification
+            {
+                CustomerId = customerId,
+                Message = message,
+                CreatedAt = DateTime.Now,
+                IsRead = false
+            });
+
+            await SaveChangesAsync();
+        }
     }
 }

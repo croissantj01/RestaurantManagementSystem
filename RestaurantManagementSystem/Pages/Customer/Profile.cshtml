@@ -1,0 +1,180 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.ProfileModel
+
+@{
+    ViewData["Title"] = "My Profile";
+    ViewData["ActivePage"] = "Profile";
+    ViewData["CustomerName"] = Model.DisplayName;
+    Layout = "_CustomerLayout";
+
+    var initial = string.IsNullOrWhiteSpace(Model.DisplayName)
+        ? "?"
+        : Model.DisplayName.Trim().Substring(0, 1).ToUpper();
+}
+
+<div class="container py-4">
+
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4 shadow-sm" role="alert">
+            @Model.StatusMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- 2-Card Layout Matching Reference Image -->
+    <div class="row g-4 align-items-start">
+
+        <!-- ===================================================== -->
+        <!-- LEFT CARD: PROFILE AVATAR & NAVIGATION -->
+        <!-- ===================================================== -->
+        <div class="col-lg-4 col-xl-3">
+            <div class="bg-white rounded-5 p-4 text-center shadow-sm border-0 position-relative">
+                
+                <!-- Circular Avatar with Edit Badge -->
+                <div class="position-relative d-inline-block mx-auto mb-3">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold shadow-sm mx-auto" 
+                         style="width: 110px; height: 110px; background-color: var(--primary-color); font-size: 2.5rem; border: 4px solid #FFFFFF;">
+                        @initial
+                    </div>
+                    <button type="button" class="btn position-absolute bottom-0 end-0 rounded-circle p-0 d-flex align-items-center justify-content-center text-white shadow-sm" 
+                            style="width: 30px; height: 30px; background-color: var(--primary-color); border: 2px solid #FFFFFF;" aria-label="Edit Avatar">
+                        <i class="fa-solid fa-pen" style="font-size: 11px;"></i>
+                    </button>
+                </div>
+
+                <!-- User Details -->
+                <h4 class="fw-bold m-0" style="color: #2D3436;">@Model.DisplayName</h4>
+                <p class="text-muted small mt-1 mb-4">Customer</p>
+
+                <!-- Sidebar Pill Navigation -->
+                <div class="d-flex flex-column gap-2 text-start">
+                    <a href="#personal-info" class="d-flex align-items-center px-3 py-2.5 rounded-pill fw-bold text-decoration-none" 
+                       style="background-color: #FFF3E0; color: var(--primary-color);">
+                        <i class="fa-solid fa-user me-3"></i> Personal Information
+                    </a>
+
+                    <a href="#membership-info" class="d-flex align-items-center px-3 py-2.5 rounded-pill fw-semibold text-muted text-decoration-none hover-pill">
+                        <i class="fa-solid fa-id-card me-3"></i> Membership &amp; Perks
+                    </a>
+
+                    <a href="#passwordCollapse" class="d-flex align-items-center px-3 py-2.5 rounded-pill fw-semibold text-muted text-decoration-none hover-pill" 
+                       data-bs-toggle="collapse" role="button" aria-expanded="@(Model.PasswordError ? "true" : "false")">
+                        <i class="fa-solid fa-lock me-3"></i> Login &amp; Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================== -->
+        <!-- RIGHT CARD: PERSONAL INFORMATION FORM -->
+        <!-- ===================================================== -->
+        <div class="col-lg-8 col-xl-9">
+            
+            <!-- main Profile Form Card -->
+            <div class="bg-white rounded-5 p-4 p-md-5 shadow-sm border-0 mb-4" id="personal-info">
+                <h3 class="fw-bold mb-4" style="color: #2D3436; font-size: 1.5rem;">Personal Information</h3>
+
+                <form method="post" asp-page-handler="UpdateProfile">
+                    <div class="row g-3">
+
+                        <!-- Full Name Field -->
+                        <div class="col-md-12">
+                            <label asp-for="FullName" class="form-label fw-semibold small text-secondary">Full Name</label>
+                            <input asp-for="FullName" class="form-control profile-input-field" placeholder="Enter your full name" />
+                            <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="col-md-12">
+                            <label asp-for="Email" class="form-label fw-semibold small text-secondary">Email</label>
+                            <div class="position-relative">
+                                <input asp-for="Email" class="form-control profile-input-field pe-5" placeholder="you@example.com" />
+                                <span class="position-absolute end-0 top-50 translate-middle-y me-3 text-success small fw-bold d-flex align-items-center gap-1">
+                                    <i class="fa-solid fa-circle-check"></i> Verified
+                                </span>
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <!-- Phone Number Field -->
+                        <div class="col-md-12">
+                            <label asp-for="Phone" class="form-label fw-semibold small text-secondary">Phone Number</label>
+                            <input asp-for="Phone" class="form-control profile-input-field" placeholder="(012) 345-6789" />
+                            <span asp-validation-for="Phone" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <!-- Action Buttons matching Reference Image (Discard & Save) -->
+                        <div class="col-12 d-flex align-items-center gap-3 mt-4 pt-2">
+                            <button type="reset" class="btn btn-discard-custom flex-grow-1">
+                                Discard Changes
+                            </button>
+                            <button type="submit" class="btn btn-save-custom flex-grow-1">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Password Change Collapse Section -->
+            <div class="collapse @(Model.PasswordError ? "show" : "") mb-4" id="passwordCollapse">
+                <div class="bg-white rounded-5 p-4 p-md-5 shadow-sm border-0">
+                    <h4 class="fw-bold mb-3" style="color: #2D3436;">Change Password</h4>
+                    
+                    <form method="post" asp-page-handler="ChangePassword">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label asp-for="CurrentPassword" class="form-label fw-semibold small text-secondary">Current Password</label>
+                                <input asp-for="CurrentPassword" type="password" class="form-control profile-input-field" />
+                                <span asp-validation-for="CurrentPassword" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="NewPassword" class="form-label fw-semibold small text-secondary">New Password</label>
+                                <input asp-for="NewPassword" type="password" class="form-control profile-input-field" />
+                                <span asp-validation-for="NewPassword" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ConfirmNewPassword" class="form-label fw-semibold small text-secondary">Confirm New Password</label>
+                                <input asp-for="ConfirmNewPassword" type="password" class="form-control profile-input-field" />
+                                <span asp-validation-for="ConfirmNewPassword" class="text-danger small mt-1 d-block"></span>
+                            </div>
+
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-save-custom w-100 py-2.5">
+                                    Update Password
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Membership Section (Replaced Security) -->
+            <div class="bg-white rounded-5 p-4 p-md-5 shadow-sm border-0" id="membership-info">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <div>
+                        <h4 class="fw-bold m-0" style="color: #2D3436;">Membership &amp; Perks</h4>
+                        <p class="text-muted small m-0">Your active customer status and tier benefits</p>
+                    </div>
+                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold" style="font-size: 12px;">
+                        <i class="fa-solid fa-crown me-1"></i> Gold Tier Member
+                    </span>
+                </div>
+
+                <div class="p-3 rounded-4" style="background-color: #F8F9FA;">
+                    <div class="d-flex align-items-center justify-content-between small text-secondary mb-1">
+                        <span>Loyalty Points Progress</span>
+                        <span class="fw-bold text-dark">750 / 1000 pts</span>
+                    </div>
+                    <div class="progress rounded-pill" style="height: 8px; background-color: #E9ECEF;">
+                        <div class="progress-bar rounded-pill" role="progressbar" style="width: 75%; background-color: var(--primary-color);" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +9,14 @@ namespace RestaurantManagementSystem.Pages.Customer
     public class LoginModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPasswordHasher<RestaurantManagementSystem.Models.Customer> _hasher;
 
-        public LoginModel(ApplicationDbContext context)
+        public LoginModel(
+            ApplicationDbContext context,
+            IPasswordHasher<RestaurantManagementSystem.Models.Customer> hasher)
         {
             _context = context;
+            _hasher = hasher;
         }
 
         [BindProperty]
@@ -38,10 +43,11 @@ namespace RestaurantManagementSystem.Pages.Customer
             }
 
             var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.Email == Email &&
-                                          c.Password == Password);
+                .FirstOrDefaultAsync(c => c.Email == Email);
 
-            if (customer == null)
+            if (customer == null ||
+                _hasher.VerifyHashedPassword(customer, customer.Password, Password)
+                    == PasswordVerificationResult.Failed)
             {
                 ErrorMessage = "Invalid email or password.";
                 return Page();

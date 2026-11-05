@@ -1,174 +1,99 @@
 ﻿@page
+@using Microsoft.AspNetCore.Http
 @model RestaurantManagementSystem.Pages.Customer.ReserveTableModel
 
 @{
     ViewData["Title"] = "Reserve a Table";
+    ViewData["ActivePage"] = "Bookings";
+    ViewData["CustomerName"] = Model.HttpContext.Session.GetString("CustomerName") ?? "Guest";
+    Layout = "_CustomerLayout";
 }
 
-<div class="container mt-5">
+<div class="reserve-wrapper">
+    <div class="reserve-card">
 
-    <h1 class="fw-bold">
-        Reserve a Table
-    </h1>
+        <!-- Header -->
+        <div class="reserve-header">
+            <div class="reserve-header-icon"><i class="fa-solid fa-chair"></i></div>
+            <h2>Reserve a Table</h2>
+            <p>Pick your table, date and time. Each booking lasts 2 hours.</p>
+        </div>
 
-    <p class="text-muted">
-        Select your preferred table, date, time and number of guests.
-    </p>
+        <!-- Form -->
+        <div class="reserve-body">
 
-
-    <div class="card mt-4">
-
-        <div class="card-body">
-
-            <h2 class="mb-4">
-                Table Reservation
-            </h2>
-
-
-            <!-- ERROR MESSAGE -->
             @if (!ViewData.ModelState.IsValid)
             {
-                <div class="alert alert-danger">
-
+                <div class="alert alert-danger rounded-4">
                     <div asp-validation-summary="All"></div>
-
                 </div>
             }
 
-
             <form method="post">
 
-                <!-- TABLE -->
-
-                <div class="mb-3">
-
-                    <label asp-for="SelectedTableId"
-                           class="form-label">
-                        Select Table
-                    </label>
-
-                    <select asp-for="SelectedTableId"
-                            class="form-select">
-
-                        <option value="">
-                            -- Select Table --
-                        </option>
-
-                        @foreach (var table in Model.Tables)
-                        {
-                            <option value="@table.RestaurantTableId">
-
-                                @table.TableNumber
-                                -
-                                @table.DiningArea
-                                -
-                                Capacity: @table.Capacity
-
-                            </option>
-                        }
-
-                    </select>
+                <!-- Table -->
+                <div class="mb-4">
+                    <label asp-for="SelectedTableId" class="form-label">Table</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-chair"></i></span>
+                        <select asp-for="SelectedTableId" class="form-select">
+                            <option value="">Select a table</option>
+                            @foreach (var table in Model.Tables)
+                            {
+                                <option value="@table.RestaurantTableId">
+                                    @table.TableNumber · @table.DiningArea · Seats @table.Capacity
+                                </option>
+                            }
+                        </select>
+                    </div>
 
                     @if (Model.Tables.Count == 0)
                     {
-                        <div class="text-danger mt-2">
-                            No tables are available for the selected
-                            date and time.
+                        <div class="text-danger small mt-2">
+                            No tables are available for the selected date and time.
                         </div>
                     }
 
-                    <span asp-validation-for="SelectedTableId"
-                          class="text-danger">
-                    </span>
-
+                    <span asp-validation-for="SelectedTableId" class="text-danger small"></span>
                 </div>
 
+                <!-- Date & Time -->
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="ReservationDate" class="form-label">Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-calendar-days"></i></span>
+                            <input asp-for="ReservationDate" type="date" class="form-control" />
+                        </div>
+                        <span asp-validation-for="ReservationDate" class="text-danger small"></span>
+                    </div>
 
-                <!-- DINE-IN DATE -->
-
-                <div class="mb-3">
-
-                    <label asp-for="ReservationDate"
-                           class="form-label">
-                        Dine-In Date
-                    </label>
-
-                    <input asp-for="ReservationDate"
-                           type="date"
-                           class="form-control" />
-
-                    <span asp-validation-for="ReservationDate"
-                          class="text-danger">
-                    </span>
-
+                    <div class="col-md-6 mb-4">
+                        <label asp-for="ReservationTime" class="form-label">Time</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-clock"></i></span>
+                            <input asp-for="ReservationTime" type="time" class="form-control" />
+                        </div>
+                        <span asp-validation-for="ReservationTime" class="text-danger small"></span>
+                    </div>
                 </div>
 
-
-                <!-- DINE-IN TIME -->
-
-                <div class="mb-3">
-
-                    <label asp-for="ReservationTime"
-                           class="form-label">
-                        Dine-In Time
-                    </label>
-
-                    <input asp-for="ReservationTime"
-                           type="time"
-                           class="form-control" />
-
-                    <small class="text-muted">
-                        Each reservation is for 2 hours.
-                    </small>
-
-                    <span asp-validation-for="ReservationTime"
-                          class="text-danger">
-                    </span>
-
+                <!-- Guests -->
+                <div class="mb-4">
+                    <label asp-for="NumberOfGuests" class="form-label">Guests</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-users"></i></span>
+                        <input asp-for="NumberOfGuests" type="number" min="1" class="form-control" />
+                    </div>
+                    <div class="reserve-hint">Make sure the table you pick fits your group.</div>
+                    <span asp-validation-for="NumberOfGuests" class="text-danger small"></span>
                 </div>
 
-
-                <!-- NUMBER OF GUESTS -->
-
-                <div class="mb-3">
-
-                    <label asp-for="NumberOfGuests"
-                           class="form-label">
-                        Number of Guests
-                    </label>
-
-                    <input asp-for="NumberOfGuests"
-                           type="number"
-                           min="1"
-                           class="form-control" />
-
-                    <span asp-validation-for="NumberOfGuests"
-                          class="text-danger">
-                    </span>
-
-                </div>
-
-
-                <!-- BUTTONS -->
-
-                <div class="mt-4">
-
-                    <button type="submit"
-                            class="btn btn-primary">
-                        Reserve Table
-                    </button>
-
-                    <a asp-page="/Customer/Dashboard"
-                       class="btn btn-secondary">
-                        Back to Dashboard
-                    </a>
-
-                </div>
+                <button type="submit" class="btn btn-reserve">
+                    <i class="fa-solid fa-check me-2"></i>Confirm Reservation
+                </button>
 
             </form>
-
         </div>
-
     </div>
-
 </div>

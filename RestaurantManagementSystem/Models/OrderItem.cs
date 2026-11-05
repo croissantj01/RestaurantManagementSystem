@@ -1,5 +1,4 @@
-﻿using RestaurantManagementSystem.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RestaurantManagementSystem.Models
@@ -17,6 +16,8 @@ namespace RestaurantManagementSystem.Models
 
         [Required]
         public int Quantity { get; set; }
+
+        public string Size { get; set; } = "Small";
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }

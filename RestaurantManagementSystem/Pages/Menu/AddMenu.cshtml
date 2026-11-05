@@ -41,6 +41,19 @@
                     </span>
                 </div>
 
+                <!-- Category -->
+                <div class="mb-3">
+                    <label asp-for="Menu.Category" class="form-label">Category</label>
+                    <select asp-for="Menu.Category" class="form-select">
+                        <option value="">-- Select Category --</option>
+                        <option value="Main Course">Main Course</option>
+                        <option value="Appetizers">Appetizers</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Desserts">Desserts</option>
+                    </select>
+                    <span asp-validation-for="Menu.Category" class="text-danger"></span>
+                </div>
+
                 <!-- Description -->
                 <div class="mb-3">
                     <label asp-for="Menu.Description"
@@ -50,8 +63,7 @@
                     <textarea asp-for="Menu.Description"
                               class="form-control"
                               rows="4"
-                              placeholder="Enter menu description">
-                    </textarea>
+                              placeholder="Enter menu description"></textarea>
 
                     <span asp-validation-for="Menu.Description"
                           class="text-danger">
@@ -111,5 +123,4 @@
 
         </div>
     </div>
-
 </div>

@@ -1,0 +1,178 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject RestaurantManagementSystem.Data.ApplicationDbContext DbContext
+
+@{
+    int? currentCustomerId = Context.Session.GetInt32("CustomerId");
+
+    var userNotifications = currentCustomerId.HasValue
+        ? DbContext.Notifications
+            .Where(n => n.CustomerId == currentCustomerId.Value)
+            .OrderByDescending(n => n.CreatedAt)
+            .Take(6)
+            .ToList()
+        : new List<RestaurantManagementSystem.Models.Notification>();
+
+    int unreadCount = userNotifications.Count(n => !n.IsRead);
+}<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MyCafe</title>
+
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/StyleSheet.css" asp-append-version="true" /></head><body class="bg-light">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top bg-white border-bottom shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" asp-page="/Customer/Dashboard" style="color: var(--primary-color, #f39c12);">
+                <span><i class="fa-solid fa-utensils me-1"></i></span> MyCafe
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+                <!-- Navigation Links -->
+                <ul class="navbar-nav mx-auto align-items-lg-center">
+                    <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/Dashboard">Home</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/OrderPortal">Menu &amp; Order</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/MyReservation">My Bookings</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/Profile">Profile</a></li>
+                </ul>
+
+                <!-- Right Navbar Utilities: Notification Bell & User Info -->
+                <div class="d-flex align-items-center gap-3">
+
+                    <!-- Notification Bell Dropdown with High Z-Index -->
+                    <div class="dropdown position-relative" style="z-index: 1080;">
+                        <button class="btn btn-light rounded-circle position-relative p-0 d-flex align-items-center justify-content-center shadow-sm"
+                                type="button" id="notifBellDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                style="width: 42px; height: 42px; background-color: #FFF9F0; border: 1px solid #FFE0B2;">
+
+                            <i class="fa-solid fa-bell" style="color: var(--primary-color, #f39c12); font-size: 1.1rem;"></i>
+
+                            @if (unreadCount > 0)
+                            {
+                                <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" style="font-size: 10px;">
+                                    @unreadCount
+                                </span>
+                            }
+                        </button>
+
+                        <!-- Notification Dropdown List (Floating in front with z-index: 1090) -->
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-4 p-3 border-0 mt-2" 
+                            aria-labelledby="notifBellDropdown" 
+                            style="width: 320px; max-height: 400px; overflow-y: auto; z-index: 1090; position: absolute;">
+                            
+                            <li class="fw-bold mb-2 text-dark border-bottom pb-2 d-flex justify-content-between align-items-center">
+                                <span>Notifications</span>
+                                <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-2 py-1" style="font-size: 10px;">Recent</span>
+                            </li>
+
+                            <div id="notificationListContainer">
+                                @if (userNotifications.Any(n => !n.IsRead))
+                                {
+                                    @foreach (var notif in userNotifications.Where(n => !n.IsRead))
+                                    {
+                                        <li class="py-2.5 border-bottom notification-item" id="notif-row-@notif.Id" style="cursor: pointer;" onclick="dismissNotification(@notif.Id)">
+                                            <div class="d-flex align-items-start gap-2">
+                                                <div class="rounded-circle bg-warning bg-opacity-15 p-1.5 mt-1 text-warning d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; min-width: 24px;">
+                                                    <i class="fa-solid fa-circle-info" style="font-size: 11px;"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <p class="mb-1 small text-dark fw-bold" style="line-height: 1.3;">@notif.Message</p>
+                                                    <small class="text-muted d-block" style="font-size: 10.5px;">@notif.CreatedAt.ToString("MMM dd, hh:mm tt")</small>
+                                                </div>
+                                                <button type="button" class="btn-close fs-6 mt-1" style="transform: scale(0.7);" aria-label="Close"></button>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="text-center text-muted small py-4" id="noNotifMessage">
+                                        <i class="fa-regular fa-bell-slash d-block fs-4 mb-2 opacity-50"></i>
+                                        No new notifications.
+                                    </li>
+                                }
+                            </div>
+                        </ul>
+                    </div>
+
+                    <!-- User Greeting -->
+                    <div class="text-end">
+                        <span class="d-block text-muted" style="font-size: 0.8rem;">Welcome back,</span>
+                        <strong class="text-dark">@(ViewData["CustomerName"] ?? "Customer")</strong>
+                    </div>
+
+                    <!-- Logout Button -->
+                    <form method="post" asp-page="/Customer/Dashboard" asp-page-handler="Logout" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <div class="container my-5">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Click-to-Dismiss JavaScript -->
+    <script>
+        function dismissNotification(id) {
+            var row = document.getElementById('notif-row-' + id);
+            if (row) {
+                row.style.transition = "all 0.3s ease";
+                row.style.opacity = "0";
+                setTimeout(function() {
+                    row.remove();
+                    
+                    var container = document.getElementById('notificationListContainer');
+                    if (container && container.querySelectorAll('.notification-item').length === 0) {
+                        container.innerHTML = `
+                            <li class="text-center text-muted small py-4">
+                                <i class="fa-regular fa-bell-slash d-block fs-4 mb-2 opacity-50"></i>
+                                No new notifications.
+                            </li>`;
+                    }
+                }, 300);
+            }
+
+            var badge = document.getElementById('notifBadge');
+            if (badge) {
+                var currentCount = parseInt(badge.innerText) - 1;
+                if (currentCount > 0) {
+                    badge.innerText = currentCount;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            // Calls the global API endpoint to update the database permanently from any page
+            fetch(`/api/notifications/mark-read/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).catch(err => console.log('Notification update error:', err));
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)</body></html>

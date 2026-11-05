@@ -17,5 +17,7 @@ namespace RestaurantManagementSystem.Models
         public int Quantity { get; set; }
 
         public string Size { get; set; } = "Small";
+
+        public int CustomerId { get; set; }
     }
 }

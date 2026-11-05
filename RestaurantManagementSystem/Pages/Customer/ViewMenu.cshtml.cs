@@ -15,50 +15,81 @@ namespace RestaurantManagementSystem.Pages.Customer
             _context = context;
         }
 
-        public IList<RestaurantManagementSystem.Models.Menu> Menus { get; set; } = default!;
+        public IList<Models.Menu> Menus { get; set; } = new List<Models.Menu>();
+        public List<string> Categories { get; set; } = new List<string>();
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
-            if (_context.Menus != null)
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
             {
-                Menus = await _context.Menus.ToListAsync();
+                return RedirectToPage("/Customer/Login");
             }
+
+            Menus = await _context.Menus
+                .OrderBy(m => m.MenuName)
+                .ToListAsync();
+
+            // Extract unique categories (ignoring nulls/blanks)
+            Categories = Menus
+                .Where(m => !string.IsNullOrWhiteSpace(m.Category))
+                .Select(m => m.Category!)
+                .Distinct()
+                .OrderBy(c => c)
+                .ToList();
+
+            return Page();
         }
 
-        [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> OnPostAddToCartAsync([FromBody] CartRequestModel data)
+        public async Task<IActionResult> OnPostAddToCartAsync(int menuId, string? size, int quantity)
         {
-            if (data == null)
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null)
             {
-                return new JsonResult(new { success = false, message = "Invalid data." });
+                return RedirectToPage("/Customer/Login");
             }
 
-            var menuItem = await _context.Menus.FindAsync(data.MenuId);
-            if (menuItem == null)
+            var menu = await _context.Menus.FirstOrDefaultAsync(m => m.Id == menuId);
+            if (menu == null)
             {
-                return new JsonResult(new { success = false, message = "Menu item not found." });
+                TempData["ErrorMessage"] = "Selected menu item was not found.";
+                return RedirectToPage();
             }
 
-            var cartItem = new CartItem
-            {
-                MenuId = menuItem.Id,
-                MenuName = menuItem.MenuName,
-                Price = menuItem.Price,
-                Size = data.Size,
-                Quantity = data.Quantity
-            };
+            string selectedSize = string.IsNullOrWhiteSpace(size) ? "Regular" : size;
+            int itemQty = quantity > 0 ? quantity : 1;
+            decimal basePrice = menu.Price;
 
-            _context.CartItems.Add(cartItem);
+            if (selectedSize.Equals("Large", StringComparison.OrdinalIgnoreCase))
+            {
+                basePrice += 2.00m;
+            }
+
+            var existingCartItem = await _context.CartItems
+                .FirstOrDefaultAsync(c => c.CustomerId == customerId.Value && c.MenuId == menuId && c.Size == selectedSize);
+
+            if (existingCartItem != null)
+            {
+                existingCartItem.Quantity += itemQty;
+            }
+            else
+            {
+                var cartItem = new CartItem
+                {
+                    CustomerId = customerId.Value,
+                    MenuId = menu.Id,
+                    MenuName = menu.MenuName,
+                    Price = basePrice,
+                    Size = selectedSize,
+                    Quantity = itemQty
+                };
+                _context.CartItems.Add(cartItem);
+            }
+
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"{menu.MenuName} ({selectedSize}) added to your cart!";
 
-            return new JsonResult(new { success = true, message = "Item added to database cart!" });
+            return RedirectToPage();
         }
-    }
-
-    public class CartRequestModel
-    {
-        public int MenuId { get; set; }
-        public string Size { get; set; } = "Small";
-        public int Quantity { get; set; }
     }
 }

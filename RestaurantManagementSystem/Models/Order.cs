@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using RestaurantManagementSystem.Models;
 
 namespace RestaurantManagementSystem.Models
 {
@@ -11,6 +10,8 @@ namespace RestaurantManagementSystem.Models
 
         [Required]
         public int TableId { get; set; }
+
+        public int CustomerId { get; set; }
 
         // Date and time when the order is placed
         public DateTime OrderDate { get; set; } = DateTime.Now;
@@ -23,6 +24,10 @@ namespace RestaurantManagementSystem.Models
         public decimal TotalAmount { get; set; }
 
         public string Status { get; set; } = "Pending";
+
+        public string PaymentStatus { get; set; } = "Unpaid";   // Unpaid / Paid
+        public string? PaymentMethod { get; set; }
+        public string? SpecialRequest { get; set; }
 
         // Navigation property
         public RestaurantTable? Table { get; set; }

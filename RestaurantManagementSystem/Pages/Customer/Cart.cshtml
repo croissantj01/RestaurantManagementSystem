@@ -1,0 +1,116 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.CartModel
+
+@{
+    ViewData["Title"] = "My Shopping Cart";
+    Layout = "_CustomerLayout";
+    ViewData["ActivePage"] = "Cart";
+}
+
+<div class="order-wrapper">
+    <div class="reserve-card mb-5">
+        <div class="reserve-header">
+            <div class="reserve-header-icon">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </div>
+            <h2>Your Shopping Cart</h2>
+            <p>Review items added from the menu and confirm your table before payment.</p>
+        </div>
+
+        <div class="reserve-body">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger rounded-4 p-3 mb-4">@Model.ErrorMessage</div>
+            }
+
+            @if (Model.CartItems == null || !Model.CartItems.Any())
+            {
+                <div class="empty-state">
+                    <i class="fa-solid fa-cart-arrow-down"></i>
+                    <p class="mb-3">Your cart is empty. Add items from our menu first!</p>
+                    <a asp-page="/Customer/ViewMenu" class="btn-action text-decoration-none">Go to Menu</a>
+                </div>
+            }
+            else
+            {
+                <form method="post">
+                    <!-- ITEMS TABLE -->
+                    <div class="table-responsive mb-4">
+                        <table class="table res-table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Size</th>
+                                    <th>Price</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end">Subtotal</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.CartItems)
+                                {
+                                    <tr>
+                                        <td><strong style="color: var(--text-main);">@item.MenuName</strong></td>
+                                        <td><span class="badge bg-light text-dark border">@item.Size</span></td>
+                                        <td>RM @item.Price.ToString("N2")</td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end text-primary fw-bold">RM @((item.Price * item.Quantity).ToString("N2"))</td>
+                                        <td class="text-center">
+                                            <button type="submit" asp-page-handler="Remove" asp-route-id="@item.Id" class="btn-cancel">
+                                                <i class="fa-solid fa-trash-can"></i> Remove
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr class="my-4 text-muted opacity-25" />
+
+                    <!-- DINE IN DETAILS -->
+                    <h5 class="fw-bold mb-3" style="color: var(--text-main);">Select Table & Time</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="TableId" class="form-label">Table Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-chair"></i></span>
+                                <select asp-for="TableId" class="form-select" asp-items="Model.Tables" required>
+                                    <option value="">-- Choose Table --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="DineInDateTime" class="form-label">Dine-In Date & Time</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-calendar-days"></i></span>
+                                <input asp-for="DineInDateTime" type="datetime-local" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="SpecialRequest" class="form-label">Special Requests (Optional)</label>
+                            <input asp-for="SpecialRequest" class="form-control rounded-3" placeholder="e.g. Less spicy, allergy notes..." style="border: 1px solid #E2E8F0; background: var(--cream-bg); padding: 12px;" />
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM BAR -->
+                    <div class="order-bar">
+                        <div>
+                            <span class="total-label">Total Amount:</span>
+                            <div class="total-value">RM @Model.Total.ToString("N2")</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a asp-page="/Customer/ViewMenu" class="btn btn-outline-secondary rounded-pill px-4 fw-semibold border-0">Add More Food</a>
+                            <button type="submit" asp-page-handler="PlaceOrder" class="btn-reserve" style="width: auto; padding: 12px 32px;">
+                                Proceed to Payment <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>

@@ -3,147 +3,78 @@
 
 @{
     ViewData["Title"] = "Customer Registration";
+    Layout = "_AuthLayout";
 }
 
-<div class="container mt-5">
+<div class="auth-shell">
 
-    <div class="row justify-content-center">
+    <!-- Left food photo -->
+    <div class="auth-side">
+        <div class="auth-side-text">
+            <h3><i class="fa-solid fa-utensils"></i>MyCafe</h3>
+            <p>Join us to reserve tables and order your favourite meals.</p>
+        </div>
+    </div>
 
-        <div class="col-md-5">
+    <!-- Right form panel -->
+    <div class="auth-main">
+        <div class="auth-main-body">
 
-            <div class="card shadow">
+            <div class="auth-icon"><i class="fa-solid fa-user-plus"></i></div>
+            <h2 class="auth-title">SIGN UP</h2>
 
-                <div class="card-body">
+            <form method="post" class="auth-form">
 
-                    <h2 class="text-center mb-4">
-                        Customer Registration
-                    </h2>
-
-                    <form method="post">
-
-                        <!-- Full Name -->
-                        <div class="mb-3">
-
-                            <label asp-for="Customer.FullName"
-                                   class="form-label">
-                                Full Name
-                            </label>
-
-                            <input asp-for="Customer.FullName"
-                                   class="form-control"
-                                   placeholder="Enter your full name" />
-
-                            <span asp-validation-for="Customer.FullName"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Email -->
-                        <div class="mb-3">
-
-                            <label asp-for="Customer.Email"
-                                   class="form-label">
-                                Email
-                            </label>
-
-                            <input asp-for="Customer.Email"
-                                   class="form-control"
-                                   placeholder="Enter your email" />
-
-                            <span asp-validation-for="Customer.Email"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Phone -->
-                        <div class="mb-3">
-
-                            <label asp-for="Customer.Phone"
-                                   class="form-label">
-                                Phone
-                            </label>
-
-                            <input asp-for="Customer.Phone"
-                                   class="form-control"
-                                   placeholder="Enter your phone number" />
-
-                            <span asp-validation-for="Customer.Phone"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Password -->
-                        <div class="mb-3">
-
-                            <label asp-for="Customer.Password"
-                                   class="form-label">
-                                Password
-                            </label>
-
-                            <input asp-for="Customer.Password"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="Enter your password" />
-
-                            <span asp-validation-for="Customer.Password"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Confirm Password -->
-                        <div class="mb-3">
-
-                            <label asp-for="ConfirmPassword"
-                                   class="form-label">
-                                Confirm Password
-                            </label>
-
-                            <input asp-for="ConfirmPassword"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="Confirm your password" />
-
-                            <span asp-validation-for="ConfirmPassword"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Register Button -->
-                        <button type="submit"
-                                class="btn btn-primary w-100">
-                            Register
-                        </button>
-
-                    </form>
-
-
-                    <!-- Login Link -->
-                    <div class="text-center mt-3">
-
-                        Already have an account?
-
-                        <a asp-page="/Customer/Login">
-                            Login
-                        </a>
-
+                <div class="auth-field">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                        <input asp-for="Customer.FullName" class="form-control" placeholder="Full name" />
                     </div>
-
+                    <span asp-validation-for="Customer.FullName" class="text-danger small"></span>
                 </div>
 
-            </div>
+                <div class="auth-field">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                        <input asp-for="Customer.Email" class="form-control" placeholder="Email" />
+                    </div>
+                    <span asp-validation-for="Customer.Email" class="text-danger small"></span>
+                </div>
 
+                <div class="auth-field">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                        <input asp-for="Customer.Phone" class="form-control" placeholder="Phone number" />
+                    </div>
+                    <span asp-validation-for="Customer.Phone" class="text-danger small"></span>
+                </div>
+
+                <div class="auth-field">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input asp-for="Customer.Password" type="password" class="form-control" placeholder="Password" />
+                    </div>
+                    <span asp-validation-for="Customer.Password" class="text-danger small"></span>
+                </div>
+
+                <div class="auth-field">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm password" />
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-auth">REGISTER</button>
+                </div>
+
+            </form>
         </div>
 
+        <div class="auth-bottom">
+            Already have an account? <a asp-page="/Customer/Login">Login</a>
+        </div>
     </div>
 
 </div>

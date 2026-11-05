@@ -3,114 +3,68 @@
 
 @{
     ViewData["Title"] = "Customer Login";
+    Layout = "_AuthLayout";
 }
 
-<div class="container mt-5">
+<div class="auth-shell">
 
-    <div class="row justify-content-center">
+    <!-- Left food photo -->
+    <div class="auth-side">
+        <div class="auth-side-text">
+            <h3><i class="fa-solid fa-utensils"></i>MyCafe</h3>
+            <p>Great food and easy table reservations, all in one place.</p>
+        </div>
+    </div>
 
-        <div class="col-md-5">
+    <!-- Right form panel -->
+    <div class="auth-main">
+        <div class="auth-main-body">
 
-            <div class="card shadow">
+            <div class="auth-icon"><i class="fa-regular fa-user"></i></div>
+            <h2 class="auth-title">LOGIN</h2>
 
-                <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success rounded-4">
+                    <strong>Registration successful!</strong> @Model.SuccessMessage
+                </div>
+            }
 
-                    <h2 class="text-center mb-4">
-                        Customer Login
-                    </h2>
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger rounded-4">
+                    @Model.ErrorMessage
+                </div>
+            }
 
+            <form method="post" class="auth-form">
 
-                    <!-- Registration Success Message -->
-                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
-                    {
-                        <div class="alert alert-success">
-
-                            <strong>Registration successful!</strong>
-
-                            @Model.SuccessMessage
-
-                        </div>
-                    }
-
-
-                    <!-- Login Error Message -->
-                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-                    {
-                        <div class="alert alert-danger">
-
-                            @Model.ErrorMessage
-
-                        </div>
-                    }
-
-
-                    <form method="post">
-
-                        <!-- Email -->
-                        <div class="mb-3">
-
-                            <label asp-for="Email"
-                                   class="form-label">
-                                Email
-                            </label>
-
-                            <input asp-for="Email"
-                                   class="form-control"
-                                   placeholder="Enter your email" />
-
-                            <span asp-validation-for="Email"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Password -->
-                        <div class="mb-3">
-
-                            <label asp-for="Password"
-                                   class="form-label">
-                                Password
-                            </label>
-
-                            <input asp-for="Password"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="Enter your password" />
-
-                            <span asp-validation-for="Password"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Login Button -->
-                        <button type="submit"
-                                class="btn btn-primary w-100">
-                            Login
-                        </button>
-
-                    </form>
-
-
-                    <!-- Register Link -->
-                    <div class="text-center mt-3">
-
-                        Don't have an account?
-
-                        <a asp-page="/Customer/Register">
-                            Register
-                        </a>
-
+                <div class="auth-field">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-circle-user"></i></span>
+                        <input asp-for="Email" class="form-control" placeholder="Email" />
                     </div>
-
+                    <span asp-validation-for="Email" class="text-danger small"></span>
                 </div>
 
-            </div>
+                <div class="auth-field">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
 
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-auth">LOGIN</button>
+                </div>
+
+            </form>
         </div>
 
+        <div class="auth-bottom">
+            Don't have an account? <a asp-page="/Customer/Register">Sign up</a>
+        </div>
     </div>
 
 </div>

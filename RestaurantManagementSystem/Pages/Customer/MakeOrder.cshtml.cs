@@ -5,7 +5,7 @@ using RestaurantManagementSystem.Models;
 using RestaurantManagementSystem.Data;
 using RestaurantManagementSystem.Models;
 
-namespace RestaurantManagementSystem.Pages.Orders
+namespace RestaurantManagementSystem.Pages.Customer
 {
     public class MakeOrderModel : PageModel
     {
@@ -17,8 +17,8 @@ namespace RestaurantManagementSystem.Pages.Orders
         }
 
         // MENU LIST
-        public IList<RestaurantManagementSystem.Models.Menu> Menus { get; set; }
-            = new List<RestaurantManagementSystem.Models.Menu>();
+        public IList<Models.Menu> Menus { get; set; }
+            = new List<Models.Menu>();
 
         // AVAILABLE TABLE LIST
         public IList<RestaurantTable> Tables { get; set; }
