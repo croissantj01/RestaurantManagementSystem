@@ -36,6 +36,12 @@ namespace RestaurantManagementSystem.Pages.Customer
         [BindProperty]
         public string? Phone { get; set; }
 
+        // ----- Membership & Loyalty Properties -----
+        public bool IsMember { get; set; }
+        public string MembershipTier { get; set; } = "Bronze";
+        public int LoyaltyPoints { get; set; }
+        public DateTime? MemberSince { get; set; }
+
         // ----- Change password form -----
         [BindProperty]
         public string CurrentPassword { get; set; } = "";
@@ -65,6 +71,12 @@ namespace RestaurantManagementSystem.Pages.Customer
             FullName = customer.FullName;
             Email = customer.Email;
             Phone = customer.Phone;
+
+            // Load Loyalty & Membership Data
+            IsMember = customer.IsMember;
+            MembershipTier = string.IsNullOrEmpty(customer.MembershipTier) ? "Bronze" : customer.MembershipTier;
+            LoyaltyPoints = customer.LoyaltyPoints;
+            MemberSince = customer.MemberSince;
 
             return Page();
         }
@@ -122,6 +134,10 @@ namespace RestaurantManagementSystem.Pages.Customer
 
             if (!ModelState.IsValid)
             {
+                IsMember = customer.IsMember;
+                MembershipTier = customer.MembershipTier;
+                LoyaltyPoints = customer.LoyaltyPoints;
+                MemberSince = customer.MemberSince;
                 return Page();
             }
 
@@ -132,7 +148,7 @@ namespace RestaurantManagementSystem.Pages.Customer
 
             await _context.SaveChangesAsync();
 
-            // Keep the session name in sync
+            // Keep session in sync
             HttpContext.Session.SetString("CustomerName", customer.FullName);
 
             StatusMessage = "Your profile has been updated.";
@@ -154,11 +170,15 @@ namespace RestaurantManagementSystem.Pages.Customer
                 return RedirectToPage("/Customer/Login");
             }
 
-            // Re-fill the basic info form with saved values
+            // Re-fill form values
             DisplayName = customer.FullName;
             FullName = customer.FullName;
             Email = customer.Email;
             Phone = customer.Phone;
+            IsMember = customer.IsMember;
+            MembershipTier = customer.MembershipTier;
+            LoyaltyPoints = customer.LoyaltyPoints;
+            MemberSince = customer.MemberSince;
 
             if (customer.Password != CurrentPassword)
             {

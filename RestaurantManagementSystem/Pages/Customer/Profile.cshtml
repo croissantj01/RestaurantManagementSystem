@@ -22,7 +22,6 @@
         </div>
     }
 
-    <!-- 2-Card Layout Matching Reference Image -->
     <div class="row g-4 align-items-start">
 
         <!-- ===================================================== -->
@@ -31,7 +30,6 @@
         <div class="col-lg-4 col-xl-3">
             <div class="bg-white rounded-5 p-4 text-center shadow-sm border-0 position-relative">
                 
-                <!-- Circular Avatar with Edit Badge -->
                 <div class="position-relative d-inline-block mx-auto mb-3">
                     <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold shadow-sm mx-auto" 
                          style="width: 110px; height: 110px; background-color: var(--primary-color); font-size: 2.5rem; border: 4px solid #FFFFFF;">
@@ -43,11 +41,9 @@
                     </button>
                 </div>
 
-                <!-- User Details -->
                 <h4 class="fw-bold m-0" style="color: #2D3436;">@Model.DisplayName</h4>
                 <p class="text-muted small mt-1 mb-4">Customer</p>
 
-                <!-- Sidebar Pill Navigation -->
                 <div class="d-flex flex-column gap-2 text-start">
                     <a href="#personal-info" class="d-flex align-items-center px-3 py-2.5 rounded-pill fw-bold text-decoration-none" 
                        style="background-color: #FFF3E0; color: var(--primary-color);">
@@ -67,25 +63,22 @@
         </div>
 
         <!-- ===================================================== -->
-        <!-- RIGHT CARD: PERSONAL INFORMATION FORM -->
+        <!-- RIGHT CARD: FORMS & MEMBERSHIP DASHBOARD -->
         <!-- ===================================================== -->
         <div class="col-lg-8 col-xl-9">
             
-            <!-- main Profile Form Card -->
+            <!-- Personal Info Card -->
             <div class="bg-white rounded-5 p-4 p-md-5 shadow-sm border-0 mb-4" id="personal-info">
                 <h3 class="fw-bold mb-4" style="color: #2D3436; font-size: 1.5rem;">Personal Information</h3>
 
                 <form method="post" asp-page-handler="UpdateProfile">
                     <div class="row g-3">
-
-                        <!-- Full Name Field -->
                         <div class="col-md-12">
                             <label asp-for="FullName" class="form-label fw-semibold small text-secondary">Full Name</label>
                             <input asp-for="FullName" class="form-control profile-input-field" placeholder="Enter your full name" />
                             <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
                         </div>
 
-                        <!-- Email Field -->
                         <div class="col-md-12">
                             <label asp-for="Email" class="form-label fw-semibold small text-secondary">Email</label>
                             <div class="position-relative">
@@ -97,27 +90,21 @@
                             <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
                         </div>
 
-                        <!-- Phone Number Field -->
                         <div class="col-md-12">
                             <label asp-for="Phone" class="form-label fw-semibold small text-secondary">Phone Number</label>
                             <input asp-for="Phone" class="form-control profile-input-field" placeholder="(012) 345-6789" />
                             <span asp-validation-for="Phone" class="text-danger small mt-1 d-block"></span>
                         </div>
 
-                        <!-- Action Buttons matching Reference Image (Discard & Save) -->
                         <div class="col-12 d-flex align-items-center gap-3 mt-4 pt-2">
-                            <button type="reset" class="btn btn-discard-custom flex-grow-1">
-                                Discard Changes
-                            </button>
-                            <button type="submit" class="btn btn-save-custom flex-grow-1">
-                                Save Changes
-                            </button>
+                            <button type="reset" class="btn btn-discard-custom flex-grow-1">Discard Changes</button>
+                            <button type="submit" class="btn btn-save-custom flex-grow-1">Save Changes</button>
                         </div>
                     </div>
                 </form>
             </div>
 
-            <!-- Password Change Collapse Section -->
+            <!-- Password Change Section -->
             <div class="collapse @(Model.PasswordError ? "show" : "") mb-4" id="passwordCollapse">
                 <div class="bg-white rounded-5 p-4 p-md-5 shadow-sm border-0">
                     <h4 class="fw-bold mb-3" style="color: #2D3436;">Change Password</h4>
@@ -143,36 +130,104 @@
                             </div>
 
                             <div class="col-12 mt-4">
-                                <button type="submit" class="btn btn-save-custom w-100 py-2.5">
-                                    Update Password
-                                </button>
+                                <button type="submit" class="btn btn-save-custom w-100 py-2.5">Update Password</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <!-- Membership Section (Replaced Security) -->
+            <!-- Membership & Perks Section -->
             <div class="bg-white rounded-5 p-4 p-md-5 shadow-sm border-0" id="membership-info">
                 <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                     <div>
                         <h4 class="fw-bold m-0" style="color: #2D3436;">Membership &amp; Perks</h4>
                         <p class="text-muted small m-0">Your active customer status and tier benefits</p>
                     </div>
-                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold" style="font-size: 12px;">
-                        <i class="fa-solid fa-crown me-1"></i> Gold Tier Member
-                    </span>
+
+                    @if (Model.IsMember)
+                    {
+                        string badgeClass = Model.MembershipTier switch
+                        {
+                            "Gold" => "bg-warning text-dark",
+                            "Silver" => "bg-secondary text-white",
+                            _ => "bg-danger text-white"
+                        };
+
+                        <span class="badge @badgeClass px-3 py-2 rounded-pill fw-bold shadow-sm" style="font-size: 12px;">
+                            <i class="fa-solid fa-crown me-1"></i> @Model.MembershipTier Tier Member
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-light text-muted border px-3 py-2 rounded-pill fw-semibold" style="font-size: 12px;">
+                            Standard Customer
+                        </span>
+                    }
                 </div>
 
-                <div class="p-3 rounded-4" style="background-color: #F8F9FA;">
-                    <div class="d-flex align-items-center justify-content-between small text-secondary mb-1">
-                        <span>Loyalty Points Progress</span>
-                        <span class="fw-bold text-dark">750 / 1000 pts</span>
+                @if (Model.IsMember)
+                {
+                    int targetPoints = Model.MembershipTier switch
+                    {
+                        "Bronze" => 1000,
+                        "Silver" => 2500,
+                        _ => 2500
+                    };
+
+                    int currentPts = Model.LoyaltyPoints;
+                    int progressPercent = Model.MembershipTier == "Gold" 
+                        ? 100 
+                        : Math.Min(100, (int)((double)currentPts / targetPoints * 100));
+
+                    <div class="p-3 rounded-4" style="background-color: #F8F9FA;">
+                        <div class="d-flex align-items-center justify-content-between small text-secondary mb-1">
+                            <span>Loyalty Points Progress (@Model.MembershipTier Tier)</span>
+                            <span class="fw-bold text-dark">
+                                @if (Model.MembershipTier == "Gold")
+                                {
+                                    <span>@currentPts pts <strong class="text-success">(Max Tier Reached!)</strong></span>
+                                }
+                                else
+                                {
+                                    <span>@currentPts / @targetPoints pts</span>
+                                }
+                            </span>
+                        </div>
+                        
+                        <div class="progress rounded-pill mb-3" style="height: 8px; background-color: #E9ECEF;">
+                            <div class="progress-bar rounded-pill" role="progressbar" 
+                                 style="width: @progressPercent%; background-color: var(--primary-color);" 
+                                 aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center text-muted small mt-2 pt-2 border-top">
+                            <span>
+                                <i class="fa-solid fa-calendar-days me-1"></i> Member Since: @(Model.MemberSince?.ToString("dd MMM yyyy") ?? "N/A")
+                            </span>
+                            <span class="text-success fw-semibold">
+                                <i class="fa-solid fa-check-circle me-1"></i> Earning Points Active
+                            </span>
+                        </div>
                     </div>
-                    <div class="progress rounded-pill" style="height: 8px; background-color: #E9ECEF;">
-                        <div class="progress-bar rounded-pill" role="progressbar" style="width: 75%; background-color: var(--primary-color);" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                }
+                else
+                {
+                    <div class="p-4 rounded-4 text-center border border-warning border-opacity-25" style="background-color: #FFF9E6;">
+                        <div class="text-warning mb-2" style="font-size: 1.5rem;">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1">Unlock Exclusive Perks &amp; Rewards!</h5>
+                        <p class="text-muted small mb-3">
+                            Place an order containing <strong>10 or more items</strong> in a single receipt to get 
+                            <strong class="text-success">FREE Bronze Membership</strong> (RM5 fee waived)! 
+                            Otherwise, pay just RM5 at checkout to unlock membership perks immediately.
+                        </p>
+                        <a asp-page="/Customer/OrderPortal" class="btn btn-sm text-white fw-bold px-4 py-2 rounded-pill shadow-sm" style="background-color: var(--primary-color);">
+                            Browse Menu &amp; Start Order
+                        </a>
                     </div>
-                </div>
+                }
             </div>
 
         </div>

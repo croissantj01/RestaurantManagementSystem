@@ -39,11 +39,13 @@
             </button>
 
             <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
-                <!-- Navigation Links -->
+                <!-- Navigation Links (Icons Removed) -->
                 <ul class="navbar-nav mx-auto align-items-lg-center">
                     <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/Dashboard">Home</a></li>
                     <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/OrderPortal">Menu &amp; Order</a></li>
                     <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/MyReservation">My Bookings</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/ReserveTable">Reserve Table</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/RedeemRewards">Rewards</a></li>
                     <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/Profile">Profile</a></li>
                 </ul>
 
@@ -66,7 +68,7 @@
                             }
                         </button>
 
-                        <!-- Notification Dropdown List (Floating in front with z-index: 1090) -->
+                        <!-- Notification Dropdown List -->
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-4 p-3 border-0 mt-2" 
                             aria-labelledby="notifBellDropdown" 
                             style="width: 320px; max-height: 400px; overflow-y: auto; z-index: 1090; position: absolute;">
@@ -165,7 +167,7 @@
                 }
             }
 
-            // Calls the global API endpoint to update the database permanently from any page
+            // Calls global API endpoint to update the database permanently
             fetch(`/api/notifications/mark-read/${id}`, {
                 method: 'POST',
                 headers: {
