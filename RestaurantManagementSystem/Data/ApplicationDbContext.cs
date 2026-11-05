@@ -5,8 +5,7 @@ namespace RestaurantManagementSystem.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(
-            DbContextOptions<ApplicationDbContext> options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
@@ -21,14 +20,7 @@ namespace RestaurantManagementSystem.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<CartItem> CartItems { get; set; } = default!;
         public DbSet<Announcement> Announcements { get; set; } = default!;
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-        public DbSet<CartItem> CartItems { get; set; } = default!;
-
-        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Notification> Notifications { get; set; } = default!;
 
         // Helper method to add system notifications directly via DbContext
         public async Task AddNotificationAsync(int customerId, string message)
@@ -43,6 +35,11 @@ namespace RestaurantManagementSystem.Data
 
             await SaveChangesAsync();
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Staff>().HasIndex(s => s.Email).IsUnique();
             modelBuilder.Entity<Staff>().HasIndex(s => s.Username).IsUnique();
             modelBuilder.Entity<Customer>().HasIndex(c => c.Email).IsUnique();

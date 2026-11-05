@@ -24,7 +24,6 @@
 
 <div class="form-card">
     <form method="post" enctype="multipart/form-data">
-
         <div asp-validation-summary="ModelOnly" class="field-error mb-3"></div>
 
         <div class="row g-3">
@@ -38,44 +37,19 @@
                 <label asp-for="Menu.Category" class="form-label"></label>
                 <select asp-for="Menu.Category" class="form-select">
                     <option value="">-- Select Category --</option>
+                    <option value="Main Course">Main Course</option>
+                    <option value="Appetizers">Appetizers</option>
                     <option value="Burgers">Burgers</option>
                     <option value="Pizza">Pizza</option>
                     <option value="Sushi">Sushi</option>
                     <option value="Salads">Salads</option>
+                    <option value="Beverages">Beverages</option>
                     <option value="Desserts">Desserts</option>
                     <option value="Drinks">Drinks</option>
                 </select>
                 <span asp-validation-for="Menu.Category" class="field-error"></span>
             </div>
 
-                <!-- Category -->
-                <div class="mb-3">
-                    <label asp-for="Menu.Category" class="form-label">Category</label>
-                    <select asp-for="Menu.Category" class="form-select">
-                        <option value="">-- Select Category --</option>
-                        <option value="Main Course">Main Course</option>
-                        <option value="Appetizers">Appetizers</option>
-                        <option value="Beverages">Beverages</option>
-                        <option value="Desserts">Desserts</option>
-                    </select>
-                    <span asp-validation-for="Menu.Category" class="text-danger"></span>
-                </div>
-
-                <!-- Description -->
-                <div class="mb-3">
-                    <label asp-for="Menu.Description"
-                           class="form-label">
-                    </label>
-
-                    <textarea asp-for="Menu.Description"
-                              class="form-control"
-                              rows="4"
-                              placeholder="Enter menu description"></textarea>
-
-                    <span asp-validation-for="Menu.Description"
-                          class="text-danger">
-                    </span>
-                </div>
             <div class="col-12">
                 <label asp-for="Menu.Description" class="form-label"></label>
                 <textarea asp-for="Menu.Description" class="form-control" rows="4" placeholder="Enter menu description"></textarea>
@@ -102,22 +76,7 @@
             </div>
         </div>
 
-                <button type="submit"
-                        class="btn btn-primary">
-                    Add Menu
-                </button>
-
-                <a asp-page="/Admin/Dashboard"
-                   class="btn btn-secondary">
-                    Cancel
-                </a>
-
-            </form>
-
-        </div>
-    </div>
-</div>
-        <div class="form-actions">
+        <div class="form-actions mt-4">
             <button type="submit" class="btn btn-orange">
                 <i class="fa-solid fa-check me-2"></i> Add Menu
             </button>

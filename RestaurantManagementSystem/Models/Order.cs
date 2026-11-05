@@ -14,8 +14,6 @@ namespace RestaurantManagementSystem.Models
         [Required]
         public int TableId { get; set; }
 
-        public int CustomerId { get; set; }
-
         // Date and time when the order is placed
         public DateTime OrderDate { get; set; } = DateTime.Now;
 
@@ -32,7 +30,6 @@ namespace RestaurantManagementSystem.Models
         public string? PaymentMethod { get; set; }
         public string? SpecialRequest { get; set; }
 
-        // Navigation property
         // Navigation properties
         [ForeignKey("CustomerId")]
         public Customer? Customer { get; set; }
