@@ -29,24 +29,21 @@
         <!-- ===================================================== -->
         <div class="col-lg-4 col-xl-3">
             <div class="bg-white rounded-5 p-4 text-center shadow-sm border-0 position-relative">
-                
+
                 <div class="position-relative d-inline-block mx-auto mb-3">
-                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold shadow-sm mx-auto" 
-                         style="width: 110px; height: 110px; background-color: var(--primary-color); font-size: 2.5rem; border: 4px solid #FFFFFF;">
+                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold shadow-sm mx-auto profile-avatar-circle">
                         @initial
                     </div>
-                    <button type="button" class="btn position-absolute bottom-0 end-0 rounded-circle p-0 d-flex align-items-center justify-content-center text-white shadow-sm" 
-                            style="width: 30px; height: 30px; background-color: var(--primary-color); border: 2px solid #FFFFFF;" aria-label="Edit Avatar">
-                        <i class="fa-solid fa-pen" style="font-size: 11px;"></i>
+                    <button type="button" class="btn position-absolute bottom-0 end-0 rounded-circle p-0 d-flex align-items-center justify-content-center text-white shadow-sm profile-avatar-edit-btn" aria-label="Edit Avatar">
+                        <i class="fa-solid fa-pen profile-avatar-edit-icon"></i>
                     </button>
                 </div>
 
-                <h4 class="fw-bold m-0" style="color: #2D3436;">@Model.DisplayName</h4>
+                <h4 class="fw-bold m-0 profile-title-dark">@Model.DisplayName</h4>
                 <p class="text-muted small mt-1 mb-4">Customer</p>
 
                 <div class="d-flex flex-column gap-2 text-start">
-                    <a href="#personal-info" class="d-flex align-items-center px-3 py-2.5 rounded-pill fw-bold text-decoration-none" 
-                       style="background-color: #FFF3E0; color: var(--primary-color);">
+                    <a href="#personal-info" class="d-flex align-items-center px-3 py-2.5 rounded-pill fw-bold text-decoration-none profile-nav-active">
                         <i class="fa-solid fa-user me-3"></i> Personal Information
                     </a>
 
@@ -54,7 +51,7 @@
                         <i class="fa-solid fa-id-card me-3"></i> Membership &amp; Perks
                     </a>
 
-                    <a href="#passwordCollapse" class="d-flex align-items-center px-3 py-2.5 rounded-pill fw-semibold text-muted text-decoration-none hover-pill" 
+                    <a href="#passwordCollapse" class="d-flex align-items-center px-3 py-2.5 rounded-pill fw-semibold text-muted text-decoration-none hover-pill"
                        data-bs-toggle="collapse" role="button" aria-expanded="@(Model.PasswordError ? "true" : "false")">
                         <i class="fa-solid fa-lock me-3"></i> Login &amp; Password
                     </a>
@@ -66,10 +63,10 @@
         <!-- RIGHT CARD: FORMS & MEMBERSHIP DASHBOARD -->
         <!-- ===================================================== -->
         <div class="col-lg-8 col-xl-9">
-            
+
             <!-- Personal Info Card -->
             <div class="bg-white rounded-5 p-4 p-md-5 shadow-sm border-0 mb-4" id="personal-info">
-                <h3 class="fw-bold mb-4" style="color: #2D3436; font-size: 1.5rem;">Personal Information</h3>
+                <h3 class="fw-bold mb-4 profile-section-title">Personal Information</h3>
 
                 <form method="post" asp-page-handler="UpdateProfile">
                     <div class="row g-3">
@@ -107,8 +104,29 @@
             <!-- Password Change Section -->
             <div class="collapse @(Model.PasswordError ? "show" : "") mb-4" id="passwordCollapse">
                 <div class="bg-white rounded-5 p-4 p-md-5 shadow-sm border-0">
-                    <h4 class="fw-bold mb-3" style="color: #2D3436;">Change Password</h4>
-                    
+                    <h4 class="fw-bold mb-3 profile-title-dark">Change Password</h4>
+
+                    <!-- Password Complexity Requirements Box -->
+                    <div class="p-3 mb-4 rounded-4 border bg-light">
+                        <p class="fw-bold text-secondary small mb-2">
+                            <i class="fa-solid fa-shield-halved me-1 text-primary"></i> Password Requirements:
+                        </p>
+                        <div class="row g-2 small text-muted">
+                            <div class="col-sm-6">
+                                <i class="fa-solid fa-circle-check text-success me-1"></i> At least 6 characters long
+                            </div>
+                            <div class="col-sm-6">
+                                <i class="fa-solid fa-circle-check text-success me-1"></i> At least 1 uppercase letter (A-Z)
+                            </div>
+                            <div class="col-sm-6">
+                                <i class="fa-solid fa-circle-check text-success me-1"></i> At least 1 lowercase letter (a-z)
+                            </div>
+                            <div class="col-sm-6">
+                                <i class="fa-solid fa-circle-check text-success me-1"></i> At least 1 number (0-9) &amp; 1 special char (!@@#$%^&amp;*)
+                            </div>
+                        </div>
+                    </div>
+
                     <form method="post" asp-page-handler="ChangePassword">
                         <div class="row g-3">
                             <div class="col-md-12">
@@ -141,7 +159,7 @@
             <div class="bg-white rounded-5 p-4 p-md-5 shadow-sm border-0" id="membership-info">
                 <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                     <div>
-                        <h4 class="fw-bold m-0" style="color: #2D3436;">Membership &amp; Perks</h4>
+                        <h4 class="fw-bold m-0 profile-title-dark">Membership &amp; Perks</h4>
                         <p class="text-muted small m-0">Your active customer status and tier benefits</p>
                     </div>
 
@@ -154,13 +172,13 @@
                             _ => "bg-danger text-white"
                         };
 
-                        <span class="badge @badgeClass px-3 py-2 rounded-pill fw-bold shadow-sm" style="font-size: 12px;">
+                        <span class="badge @badgeClass px-3 py-2 rounded-pill fw-bold shadow-sm profile-badge-size">
                             <i class="fa-solid fa-crown me-1"></i> @Model.MembershipTier Tier Member
                         </span>
                     }
                     else
                     {
-                        <span class="badge bg-light text-muted border px-3 py-2 rounded-pill fw-semibold" style="font-size: 12px;">
+                        <span class="badge bg-light text-muted border px-3 py-2 rounded-pill fw-semibold profile-badge-size">
                             Standard Customer
                         </span>
                     }
@@ -176,11 +194,11 @@
                     };
 
                     int currentPts = Model.LoyaltyPoints;
-                    int progressPercent = Model.MembershipTier == "Gold" 
-                        ? 100 
+                    int progressPercent = Model.MembershipTier == "Gold"
+                        ? 100
                         : Math.Min(100, (int)((double)currentPts / targetPoints * 100));
 
-                    <div class="p-3 rounded-4" style="background-color: #F8F9FA;">
+                    <div class="p-3 rounded-4 profile-loyalty-box">
                         <div class="d-flex align-items-center justify-content-between small text-secondary mb-1">
                             <span>Loyalty Points Progress (@Model.MembershipTier Tier)</span>
                             <span class="fw-bold text-dark">
@@ -194,10 +212,10 @@
                                 }
                             </span>
                         </div>
-                        
-                        <div class="progress rounded-pill mb-3" style="height: 8px; background-color: #E9ECEF;">
-                            <div class="progress-bar rounded-pill" role="progressbar" 
-                                 style="width: @progressPercent%; background-color: var(--primary-color);" 
+
+                        <div class="progress rounded-pill mb-3 profile-progress-bg">
+                            <div class="progress-bar rounded-pill profile-progress-fill" role="progressbar"
+                                 style="width: @progressPercent%;"
                                  aria-valuenow="@progressPercent" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
 
@@ -213,23 +231,23 @@
                 }
                 else
                 {
-                    <div class="p-4 rounded-4 text-center border border-warning border-opacity-25" style="background-color: #FFF9E6;">
-                        <div class="text-warning mb-2" style="font-size: 1.5rem;">
+                    <div class="p-4 rounded-4 text-center border border-warning border-opacity-25 profile-non-member-box">
+                        <div class="text-warning mb-2 profile-gift-icon-size">
                             <i class="fa-solid fa-gift"></i>
                         </div>
                         <h5 class="fw-bold text-dark mb-1">Unlock Exclusive Perks &amp; Rewards!</h5>
                         <p class="text-muted small mb-3">
-                            Place an order containing <strong>10 or more items</strong> in a single receipt to get 
-                            <strong class="text-success">FREE Bronze Membership</strong> (RM5 fee waived)! 
+                            Place an order containing <strong>10 or more items</strong> in a single receipt to get
+                            <strong class="text-success">FREE Bronze Membership</strong> (RM5 fee waived)!
                             Otherwise, pay just RM5 at checkout to unlock membership perks immediately.
                         </p>
-                        <a asp-page="/Customer/OrderPortal" class="btn btn-sm text-white fw-bold px-4 py-2 rounded-pill shadow-sm" style="background-color: var(--primary-color);">
+                        <a asp-page="/Customer/OrderPortal" class="btn btn-sm text-white fw-bold px-4 py-2 rounded-pill shadow-sm profile-bg-primary">
                             Browse Menu &amp; Start Order
                         </a>
                     </div>
                 }
             </div>
 
-        </div>
+        </div> <!-- End of right-column col-lg-8 col-xl-9 -->
     </div>
 </div>

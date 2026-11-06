@@ -94,7 +94,7 @@ namespace RestaurantManagementSystem.Pages.Customer
                 SpecialRequest = SpecialRequest,
                 TotalAmount = Total,
                 Status = "Pending",
-                PaymentStatus = "Unpaid",
+                PaymentStatus = "Pending",
                 OrderDate = DateTime.Now,
                 OrderItems = CartItems.Select(c => new OrderItem
                 {
@@ -115,7 +115,6 @@ namespace RestaurantManagementSystem.Pages.Customer
 
         private async Task LoadCartDataAsync(int customerId)
         {
-            // Fetch cart items belonging specifically to this customer
             CartItems = await _context.CartItems
                 .Where(c => c.CustomerId == customerId)
                 .ToListAsync();

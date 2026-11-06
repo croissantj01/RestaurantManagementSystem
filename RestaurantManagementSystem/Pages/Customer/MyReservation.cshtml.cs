@@ -30,19 +30,26 @@ namespace RestaurantManagementSystem.Pages.Customer
             // 1. Fetch standard Table Reservations (Table-Only)
             var reservations = await _context.Reservations
                 .Include(r => r.RestaurantTable)
-                .Where(r => r.CustomerId == customerId.Value)
+                .Where(r => r.CustomerId == customerId.Value && r.Status != "Hidden") // Skip hidden ones if desired, or handle via a boolean flag
                 .ToListAsync();
 
             foreach (var r in reservations)
             {
+                // Skip if hidden
+                if (r.Status == "Hidden") continue;
+
+                DateTime reservationDateTime = (r.ReservationDate != default && r.ReservationDate.Year > 1)
+                    ? r.ReservationDate.Date.Add(r.ReservationTime)
+                    : (r.CreatedAt != default && r.CreatedAt.Year > 1 ? r.CreatedAt : DateTime.Now);
+
                 Bookings.Add(new ReservationViewModel
                 {
                     Id = r.ReservationId,
                     Type = "Table Only",
                     TableNumber = r.RestaurantTable != null ? r.RestaurantTable.TableNumber.ToString() : "N/A",
                     DiningArea = r.RestaurantTable?.DiningArea ?? "N/A",
-                    Date = r.ReservationDate,
-                    StartTime = r.ReservationDate.Date.Add(r.ReservationTime),
+                    Date = reservationDateTime.Date,
+                    StartTime = reservationDateTime,
                     Guests = r.NumberOfGuests,
                     Status = r.Status,
                     OrderItems = new List<OrderItem>()
@@ -59,16 +66,29 @@ namespace RestaurantManagementSystem.Pages.Customer
 
             foreach (var o in orders)
             {
+                // Skip if hidden
+                if (o.Status == "Hidden") continue;
+
+                DateTime orderDateTime = (o.DineInDateTime != default && o.DineInDateTime.Year > 1)
+                    ? o.DineInDateTime
+                    : (o.OrderDate != default && o.OrderDate.Year > 1 ? o.OrderDate : DateTime.Now);
+
+                string displayStatus = o.Status;
+                if (o.Status != "Cancelled")
+                {
+                    displayStatus = (o.Status == "Completed" || o.PaymentStatus == "Paid") ? "Reserved" : o.Status;
+                }
+
                 Bookings.Add(new ReservationViewModel
                 {
                     Id = o.OrderId,
                     Type = "Table + Food Order",
                     TableNumber = o.Table != null ? o.Table.TableNumber.ToString() : "N/A",
                     DiningArea = o.Table?.DiningArea ?? "N/A",
-                    Date = o.DineInDateTime.Date,
-                    StartTime = o.DineInDateTime,
+                    Date = orderDateTime.Date,
+                    StartTime = orderDateTime,
                     Guests = 2,
-                    Status = (o.Status == "Completed" || o.PaymentStatus == "Paid") ? "Reserved" : o.Status,
+                    Status = displayStatus,
                     TotalAmount = o.TotalAmount,
                     OrderItems = o.OrderItems.ToList()
                 });
@@ -89,7 +109,7 @@ namespace RestaurantManagementSystem.Pages.Customer
                 var reservation = await _context.Reservations
                     .FirstOrDefaultAsync(r => r.ReservationId == id && r.CustomerId == customerId.Value);
 
-                if (reservation != null && reservation.Status == "Reserved")
+                if (reservation != null && reservation.Status != "Cancelled")
                 {
                     reservation.Status = "Cancelled";
                     await _context.SaveChangesAsync();
@@ -100,14 +120,51 @@ namespace RestaurantManagementSystem.Pages.Customer
                 var order = await _context.Orders
                     .FirstOrDefaultAsync(o => o.OrderId == id && o.CustomerId == customerId.Value);
 
-                if (order != null && (order.Status == "Pending" || order.Status == "Completed"))
+                if (order != null && order.Status != "Cancelled")
                 {
                     order.Status = "Cancelled";
+
                     if (order.TableId != null)
                     {
                         var table = await _context.RestaurantTables.FindAsync(order.TableId);
-                        if (table != null) table.Status = "Available";
+                        if (table != null)
+                        {
+                            table.Status = "Available";
+                        }
                     }
+
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            return RedirectToPage();
+        }
+
+        // Handler to hide cancelled bookings using the trash can button
+        public async Task<IActionResult> OnPostHideAsync(int id, string type)
+        {
+            int? customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null) return RedirectToPage("/Customer/Login");
+
+            if (type == "Table Only")
+            {
+                var reservation = await _context.Reservations
+                    .FirstOrDefaultAsync(r => r.ReservationId == id && r.CustomerId == customerId.Value);
+
+                if (reservation != null)
+                {
+                    reservation.Status = "Hidden"; // Mark status as hidden so it filters out
+                    await _context.SaveChangesAsync();
+                }
+            }
+            else if (type == "Table + Food Order")
+            {
+                var order = await _context.Orders
+                    .FirstOrDefaultAsync(o => o.OrderId == id && o.CustomerId == customerId.Value);
+
+                if (order != null)
+                {
+                    order.Status = "Hidden"; // Mark status as hidden
                     await _context.SaveChangesAsync();
                 }
             }

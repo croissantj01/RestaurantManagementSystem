@@ -1,0 +1,54 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.PaymentSuccessModel
+
+@{
+    ViewData["Title"] = "Payment Successful";
+    Layout = "_CustomerLayout";
+}
+
+<div class="container py-5 text-center">
+    <div class="card border-0 shadow-sm rounded-5 p-5 mx-auto bg-white" style="max-width: 550px;">
+        
+        <!-- Success Icon -->
+        <div class="mb-4">
+            <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center text-success shadow-sm" style="width: 90px; height: 90px; font-size: 2.5rem;">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+        </div>
+
+        <h2 class="fw-bold text-dark mb-1">Payment Successful!</h2>
+        <p class="text-muted">Thank you for your order. Your transaction has been completed successfully via Stripe.</p>
+
+        <!-- Order & Points Details Box -->
+        <div class="p-4 mb-4 rounded-4 text-start bg-light border">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Order Reference:</span>
+                <span class="fw-bold text-dark">#ORD-@Model.Order?.OrderId.ToString("D5")</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Assigned Table:</span>
+                <span class="fw-bold text-dark">Table @(Model.Order?.Table?.TableNumber.ToString() ?? "N/A") (@(Model.Order?.Table?.DiningArea ?? "Standard"))</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small">Total Paid:</span>
+                <span class="fw-bold text-success">RM @Model.Order?.TotalAmount.ToString("N2")</span>
+            </div>
+            <hr class="my-2 text-muted opacity-25" />
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="small text-muted"><i class="fa-solid fa-crown text-warning me-1"></i> Loyalty Points Earned:</span>
+                <span class="badge bg-success text-white fw-bold px-3 py-1.5 rounded-pill">+@Model.PointsEarned pts</span>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="d-grid gap-2">
+            <a asp-page="/Customer/MyReservation" class="btn btn-dark rounded-pill py-3 fw-bold shadow-sm">
+                <i class="fa-solid fa-calendar-check me-2"></i> View My Bookings &amp; Orders
+            </a>
+            <a asp-page="/Customer/RedeemRewards" class="btn btn-outline-warning text-dark rounded-pill py-2 fw-bold border-warning">
+                <i class="fa-solid fa-crown me-2"></i> Go to Rewards Store
+            </a>
+        </div>
+
+    </div>
+</div>

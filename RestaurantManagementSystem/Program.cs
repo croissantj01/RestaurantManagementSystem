@@ -2,14 +2,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RestaurantManagementSystem.Data;
 using RestaurantManagementSystem.Models;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Stripe API Secret Key globally (Removed ApiVersion since it's read-only)
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 QuestPDF.Settings.License =
     QuestPDF.Infrastructure.LicenseType.Community;
 
 builder.Services.AddRazorPages();
-builder.Services.AddControllers(); // <--- ADDED: Enables API controllers for global endpoints like Notifications
+builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
@@ -22,7 +26,8 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddScoped<IPasswordHasher<Customer>, PasswordHasher<Customer>>();
+// Explicitly disambiguated 'Customer' to prevent conflicts with Stripe.Customer
+builder.Services.AddScoped<IPasswordHasher<RestaurantManagementSystem.Models.Customer>, PasswordHasher<RestaurantManagementSystem.Models.Customer>>();
 
 var app = builder.Build();
 
@@ -31,7 +36,6 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
-
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -42,6 +46,6 @@ app.UseSession();
 app.UseAuthorization();
 
 app.MapRazorPages();
-app.MapControllers(); // <--- ADDED: Maps routes for API controllers so /api/notifications/... works
+app.MapControllers();
 
 app.Run();

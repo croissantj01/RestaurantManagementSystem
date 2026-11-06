@@ -1,0 +1,107 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.AnnouncementsModel
+
+@{
+    ViewData["Title"] = "Latest Announcements";
+    Layout = "_CustomerLayout";
+}
+
+<div class="container py-4">
+
+    <!-- Hero Header -->
+    <div class="hero-section mb-5 shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="status-badge status-available mb-3 px-3 py-2 rounded-pill">
+                    <i class="fa-solid fa-bullhorn me-1"></i> Customer News Feed
+                </span>
+                <h1 class="hero-title display-5 fw-bold mb-2">Restaurant <span>Announcements</span></h1>
+                <p class="text-muted lead mb-0 announcement-lead-text">
+                    Stay up to date with our latest operational hours, menu launches, and exclusive member updates.
+                </p>
+            </div>
+            <div class="col-lg-4 text-center d-none d-lg-block">
+                <div class="rounded-circle bg-white shadow-sm d-inline-flex align-items-center justify-content-center p-4 announcement-icon-box">
+                    <i class="fa-solid fa-bell text-warning display-5"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Messages -->
+    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4 shadow-sm border-0 bg-success bg-opacity-10 text-success" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> @Model.StatusMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Announcements List -->
+    <div class="row g-4">
+        @if (Model.Announcements == null || !Model.Announcements.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <div class="form-card py-5 border-0 shadow-sm rounded-4">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center text-muted mb-3 announcement-empty-box">
+                        <i class="fa-solid fa-inbox opacity-50"></i>
+                    </div>
+                    <h4 class="fw-bold text-main mb-1">No Active Announcements</h4>
+                    <p class="text-muted small mb-0">You're all caught up! Check back later for new notices and updates.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var announcement in Model.Announcements)
+            {
+                <div class="col-12">
+                    <div class="form-card border-0 shadow-sm position-relative rounded-4 p-4 p-md-4 announcement-card-transition">
+
+                        <div class="row g-4 align-items-center">
+                            <!-- Image Column (Left, Smaller) -->
+                            @if (!string.IsNullOrEmpty(announcement.ImagePath))
+                            {
+                                <div class="col-md-3 text-center">
+                                    <img src="@announcement.ImagePath" alt="@announcement.Title" class="img-fluid rounded-3 border shadow-sm" style="width: 100%; height: 140px; object-fit: cover;" />
+                                </div>
+                            }
+
+                            <!-- Content Column (Right) -->
+                            <div class="@(!string.IsNullOrEmpty(announcement.ImagePath) ? "col-md-9" : "col-12")">
+                                <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span class="status-badge status-available">
+                                                <i class="fa-regular fa-clock me-1"></i> @announcement.CreatedAt.ToString("MMM dd, yyyy \\a\\t h:mm tt")
+                                            </span>
+                                        </div>
+                                        <h3 class="fw-bold fs-4 mb-0" style="color: var(--text-main);">@announcement.Title</h3>
+                                    </div>
+
+                                    <!-- Interactive Trash Can Icon to Hide Announcement -->
+                                    <form method="post" asp-page-handler="Hide" asp-route-id="@announcement.AnnouncementId" class="flex-shrink-0">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-light rounded-circle shadow-sm border-0 d-flex align-items-center justify-content-center announcement-trash-btn"
+                                                title="Hide this announcement"
+                                                onclick="return confirm('Hide this announcement from your feed?');">
+                                            <i class="fa-solid fa-trash-can text-danger opacity-75"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Message Body -->
+                                <div class="mt-2 pt-2 border-top border-light">
+                                    <p class="text-muted mb-0 announcement-message-body">
+                                        @announcement.Message
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

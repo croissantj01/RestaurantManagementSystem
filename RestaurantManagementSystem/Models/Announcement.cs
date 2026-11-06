@@ -14,6 +14,8 @@ namespace RestaurantManagementSystem.Models
         [StringLength(1000)]
         public string Message { get; set; } = string.Empty;
 
+        public string? ImagePath { get; set; } // Added to support announcement images
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // Only active announcements are shown to customers

@@ -34,5 +34,9 @@ namespace RestaurantManagementSystem.Models
         [Required]
         [StringLength(20)]
         public string Status { get; set; } = "Reserved";
+
+        // Automatically record when the reservation was created
+        [Required]
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

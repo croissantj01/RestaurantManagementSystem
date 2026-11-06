@@ -28,7 +28,7 @@
         <div class="panel-card">
             <h5 class="panel-title mb-3"><i class="fa-solid fa-bullhorn me-2 icon-accent"></i>New Announcement</h5>
 
-            <form method="post" asp-page-handler="Add">
+            <form method="post" asp-page-handler="Add" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label asp-for="Title" class="form-label">Title</label>
                     <input asp-for="Title" class="form-control" placeholder="e.g. Closed on Public Holiday" />
@@ -37,8 +37,18 @@
 
                 <div class="mb-3">
                     <label asp-for="Message" class="form-label">Message</label>
-                    <textarea asp-for="Message" class="form-control" rows="5" placeholder="Write your announcement here..."></textarea>
+                    <textarea asp-for="Message" class="form-control" rows="4" placeholder="Write your announcement here..."></textarea>
                     <span asp-validation-for="Message" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ImageFile" class="form-label">Announcement Image (Max 15MB)</label>
+                    <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" id="imageInput" />
+                    <span asp-validation-for="ImageFile" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <img id="imagePreview" class="image-preview d-none img-fluid rounded border" alt="Image preview" style="max-height: 150px;" />
                 </div>
 
                 <button type="submit" class="btn btn-orange w-100">
@@ -59,9 +69,10 @@
             @if (Model.AnnouncementList.Any())
             {
                 <div class="table-scroll">
-                    <table class="table admin-table">
+                    <table class="table admin-table align-middle">
                         <thead>
                             <tr>
+                                <th>Image</th>
                                 <th>Posted</th>
                                 <th>Announcement</th>
                                 <th>Status</th>
@@ -72,6 +83,18 @@
                             @foreach (var a in Model.AnnouncementList)
                             {
                                 <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(a.ImagePath))
+                                        {
+                                            <img src="@a.ImagePath" alt="@a.Title" class="rounded" style="width: 45px; height: 45px; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded bg-light text-muted d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                                                <i class="fa-solid fa-image"></i>
+                                            </div>
+                                        }
+                                    </td>
                                     <td class="text-nowrap">@a.CreatedAt.ToString("dd MMM yyyy")<br /><small class="text-muted">@a.CreatedAt.ToString("h:mm tt")</small></td>
                                     <td>
                                         <strong>@a.Title</strong>
@@ -116,3 +139,24 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            var preview = document.getElementById('imagePreview');
+            if (file) {
+                if (file.size > 15 * 1024 * 1024) {
+                    alert("File is too large! Please choose an image under 15MB.");
+                    this.value = "";
+                    preview.classList.add('d-none');
+                    return;
+                }
+                preview.src = URL.createObjectURL(file);
+                preview.classList.remove('d-none');
+            } else {
+                preview.classList.add('d-none');
+            }
+        });
+    </script>
+}

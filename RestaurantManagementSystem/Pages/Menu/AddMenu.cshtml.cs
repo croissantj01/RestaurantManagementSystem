@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using RestaurantManagementSystem.Data;
 using MenuModel = RestaurantManagementSystem.Models.Menu;
 
@@ -10,9 +11,7 @@ namespace RestaurantManagementSystem.Pages.Menu
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
 
-        public AddMenuModel(
-            ApplicationDbContext context,
-            IWebHostEnvironment environment)
+        public AddMenuModel(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
             _environment = environment;
@@ -26,82 +25,82 @@ namespace RestaurantManagementSystem.Pages.Menu
 
         public IActionResult OnGet()
         {
-            // Check admin login
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
             {
-                return RedirectToPage("/Index", new { login = "true" });
+                return RedirectToPage("/Admin/Login");
             }
-
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Check admin login
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
             {
-                return RedirectToPage("/Index", new { login = "true" });
+                return RedirectToPage("/Admin/Login");
             }
 
-            // Check validation
+            string trimmedName = (Menu?.MenuName ?? "").Trim();
+
+            // 1. GLOBAL DUPLICATE NAME CHECK (Case-insensitive)
+            bool itemExists = await _context.Menus
+                .AnyAsync(m => m.MenuName.ToLower() == trimmedName.ToLower());
+
+            if (itemExists)
+            {
+                ModelState.AddModelError("Menu.MenuName", $"The menu item '{trimmedName}' already exists. Duplicate names are not allowed.");
+            }
+
+            // 2. IMAGE FILE VALIDATION CONSTRAINTS (Max 15MB)
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                // Constraint A: Verify file type is an image
+                if (!ImageFile.ContentType.StartsWith("image/"))
+                {
+                    ModelState.AddModelError("ImageFile", "Please upload a valid image file (e.g., JPG, PNG, WEBP).");
+                }
+
+                // Constraint B: Verify file size does not exceed 15MB
+                long maxFileSize = 15 * 1024 * 1024; // 15 MB
+                if (ImageFile.Length > maxFileSize)
+                {
+                    ModelState.AddModelError("ImageFile", "The image file is too large. Maximum allowed size is 15MB.");
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            // Check image
-            if (ImageFile == null)
+            // 3. PROCESS & SAVE IMAGE FILE SAFELY
+            if (ImageFile != null && ImageFile.Length > 0)
             {
-                ModelState.AddModelError(
-                    "ImageFile",
-                    "Please select a menu image.");
+                // Safe fallback for WebRootPath to prevent loading exceptions
+                string webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                string uploadsFolder = Path.Combine(webRootPath, "images", "menu");
 
-                return Page();
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(ImageFile.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(fileStream);
+                }
+
+                Menu.ImagePath = "/images/menu/" + uniqueFileName;
             }
 
-            // Create image folder
-            string imageFolder = Path.Combine(
-                _environment.WebRootPath,
-                "images",
-                "menu");
-
-            if (!Directory.Exists(imageFolder))
-            {
-                Directory.CreateDirectory(imageFolder);
-            }
-
-            // Get file extension
-            string fileExtension =
-                Path.GetExtension(ImageFile.FileName);
-
-            // Create unique file name
-            string fileName =
-                Guid.NewGuid().ToString() + fileExtension;
-
-            string filePath =
-                Path.Combine(imageFolder, fileName);
-
-            // Save image
-            using (var stream = new FileStream(
-                filePath,
-                FileMode.Create))
-            {
-                await ImageFile.CopyToAsync(stream);
-            }
-
-            // Store image path in database
-            Menu.ImagePath =
-                "/images/menu/" + fileName;
-
-            // Add menu
+            // 4. SAVE TO DATABASE
+            Menu.MenuName = trimmedName;
             _context.Menus.Add(Menu);
-
-            // Save to database
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] =
-                "Menu added successfully!";
-
+            TempData["SuccessMessage"] = $"Menu item '{trimmedName}' added successfully.";
             return RedirectToPage("/Admin/ManageMenu");
         }
     }

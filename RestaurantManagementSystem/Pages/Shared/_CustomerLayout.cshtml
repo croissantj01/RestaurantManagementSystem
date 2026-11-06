@@ -39,12 +39,13 @@
             </button>
 
             <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
-                <!-- Navigation Links (Icons Removed) -->
+                <!-- Rearranged Navigation Links -->
                 <ul class="navbar-nav mx-auto align-items-lg-center">
                     <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/Dashboard">Home</a></li>
                     <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/OrderPortal">Menu &amp; Order</a></li>
-                    <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/MyReservation">My Bookings</a></li>
                     <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/ReserveTable">Reserve Table</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/MyReservation">My Bookings</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/Announcements">Announcements</a></li>
                     <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/RedeemRewards">Rewards</a></li>
                     <li class="nav-item"><a class="nav-link px-3" asp-page="/Customer/Profile">Profile</a></li>
                 </ul>
@@ -115,7 +116,7 @@
                     </div>
 
                     <!-- Logout Button -->
-                    <form method="post" asp-page="/Customer/Dashboard" asp-page-handler="Logout" class="m-0">
+                    <form method="post" asp-page="/Index" asp-page-handler="Logout" class="m-0">
                         <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2">
                             <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
                         </button>
@@ -167,7 +168,6 @@
                 }
             }
 
-            // Calls global API endpoint to update the database permanently
             fetch(`/api/notifications/mark-read/${id}`, {
                 method: 'POST',
                 headers: {

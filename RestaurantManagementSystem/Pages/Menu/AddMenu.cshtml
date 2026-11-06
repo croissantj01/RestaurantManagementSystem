@@ -66,7 +66,7 @@
             </div>
 
             <div class="col-md-8">
-                <label asp-for="ImageFile" class="form-label">Menu Image</label>
+                <label asp-for="ImageFile" class="form-label">Menu Image (Max 15MB)</label>
                 <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" id="imageInput" />
                 <span asp-validation-for="ImageFile" class="field-error"></span>
             </div>
@@ -91,6 +91,13 @@
             var file = e.target.files[0];
             var preview = document.getElementById('imagePreview');
             if (file) {
+                // Client-side quick size check (15MB limit)
+                if (file.size > 15 * 1024 * 1024) {
+                    alert("File is too large! Please choose an image under 15MB.");
+                    this.value = "";
+                    preview.classList.add('d-none');
+                    return;
+                }
                 preview.src = URL.createObjectURL(file);
                 preview.classList.remove('d-none');
             } else {

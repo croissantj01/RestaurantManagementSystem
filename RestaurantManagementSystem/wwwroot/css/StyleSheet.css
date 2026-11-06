@@ -1276,3 +1276,109 @@ body {
     background-color: #F8F9FA !important;
     color: var(--primary-color) !important;
 }
+
+/* ==========================================================
+   Profile Page Styles
+   ========================================================== */
+
+.profile-avatar-circle {
+    width: 110px;
+    height: 110px;
+    background-color: var(--primary-color);
+    font-size: 2.5rem;
+    border: 4px solid #FFFFFF;
+}
+
+.profile-avatar-edit-btn {
+    width: 30px;
+    height: 30px;
+    background-color: var(--primary-color);
+    border: 2px solid #FFFFFF;
+}
+
+.profile-avatar-edit-icon {
+    font-size: 11px;
+}
+
+.profile-title-dark {
+    color: #2D3436;
+}
+
+.profile-section-title {
+    color: #2D3436;
+    font-size: 1.5rem;
+}
+
+.profile-nav-active {
+    background-color: #FFF3E0;
+    color: var(--primary-color);
+}
+
+.profile-badge-size {
+    font-size: 12px;
+}
+
+.profile-progress-bg {
+    height: 8px;
+    background-color: #E9ECEF;
+}
+
+.profile-progress-fill {
+    background-color: var(--primary-color);
+}
+
+.profile-loyalty-box {
+    background-color: #F8F9FA;
+}
+
+.profile-non-member-box {
+    background-color: #FFF9E6;
+}
+
+.profile-gift-icon-size {
+    font-size: 1.5rem;
+}
+
+.profile-bg-primary {
+    background-color: var(--primary-color);
+}
+
+/* ==========================================================
+   Announcements Page Styles
+   ========================================================== */
+
+.announcement-lead-text {
+    font-size: 1.055rem;
+}
+
+.announcement-icon-box {
+    width: 110px;
+    height: 110px;
+}
+
+.announcement-empty-box {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+}
+
+.announcement-card-transition {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.announcement-trash-btn {
+    width: 40px;
+    height: 40px;
+    transition: background-color 0.2s;
+}
+
+.announcement-message-body {
+    line-height: 1.7;
+    font-size: 1rem;
+    white-space: pre-line;
+}
+
+.form-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06) !important;
+    transform: translateY(-2px);
+}

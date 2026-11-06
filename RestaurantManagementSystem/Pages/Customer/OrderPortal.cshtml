@@ -8,7 +8,6 @@
 }
 
 <style>
-    /* Custom Theme Yellow/Orange Overrides */
     .btn-outline-custom {
         border-color: #d97706 !important;
         color: #d97706 !important;
@@ -93,7 +92,7 @@
                 <h4 class="fw-bold" style="color: var(--text-main);">Food Items</h4>
             </div>
 
-            <!-- MENU GRID (3 COLUMNS PER ROW WITH LARGER IMAGES) -->
+            <!-- MENU GRID -->
             <div class="row g-3" id="menuGrid">
                 @foreach (var menu in Model.Menus)
                 {
@@ -103,7 +102,6 @@
                     <div class="col-md-4 menu-card-item" data-category="@itemCat" data-name="@menu.MenuName.ToLower()" data-popular="@(isPopular ? "true" : "false")">
                         <div class="card h-100 p-3 shadow-sm rounded-4 border-0 bg-white">
                             <div class="d-flex flex-column gap-2 mb-2">
-                                <!-- BIGGER FOOD IMAGE -->
                                 <img src="@(string.IsNullOrEmpty(menu.ImagePath) ? "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=300&q=80" : menu.ImagePath)" 
                                      alt="@menu.MenuName" class="rounded-3 object-fit-cover w-100" style="height: 150px;" />
                                 <div>
@@ -119,13 +117,11 @@
                                 </div>
                             </div>
 
-                            <!-- ADD TO CART FORM WITH S/L BUTTONS -->
                             <form method="post" asp-page-handler="AddToCart" class="mt-auto pt-2 border-top">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="menuId" value="@menu.Id" />
 
                                 <div class="d-flex align-items-center justify-content-between gap-1 mb-2">
-                                    <!-- SIZE ICON RADIO PILLS -->
                                     <div class="btn-group btn-group-sm flex-grow-1" role="group">
                                         <input type="radio" class="btn-check" name="size" id="sizeReg_@menu.Id" value="Regular" checked>
                                         <label class="btn btn-outline-secondary rounded-start-pill py-1 px-1 fw-bold" style="font-size: 0.75rem;" for="sizeReg_@menu.Id">S</label>
@@ -134,7 +130,6 @@
                                         <label class="btn btn-outline-secondary rounded-end-pill py-1 px-1 fw-bold" style="font-size: 0.75rem;" for="sizeLg_@menu.Id">L (+2)</label>
                                     </div>
 
-                                    <!-- SERVINGS STEPPER -->
                                     <div class="input-group input-group-sm" style="width: 90px;">
                                         <button type="button" class="btn btn-outline-secondary px-1 decrement-btn">-</button>
                                         <input type="number" name="quantity" value="1" min="1" class="form-control text-center qty-input p-1" readonly />
@@ -192,12 +187,49 @@
                     }
                 </div>
 
-                <!-- SUBTOTAL & TOTAL -->
+                <!-- PROMO / REWARD CODE INPUT SECTION -->
+                <div class="mb-3 pt-2 border-top">
+                    <label class="form-label small fw-bold"><i class="fa-solid fa-ticket text-warning me-1"></i> Reward Promo Code</label>
+                    @if (string.IsNullOrEmpty(Model.AppliedPromoCode))
+                    {
+                        <form method="post" asp-page-handler="ApplyPromoCode" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="text" name="promoCode" class="form-control form-control-sm rounded-3" placeholder="Enter code (e.g. DRINK-123)" required />
+                            <button type="submit" class="btn btn-warning btn-sm text-dark fw-bold rounded-3 px-3">Apply</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded-3 border">
+                            <div>
+                                <span class="badge bg-success me-1">Code Active</span>
+                                <strong class="small">@Model.AppliedPromoCode</strong>
+                            </div>
+                            <form method="post" asp-page-handler="RemovePromoCode" class="m-0">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm text-danger p-0 border-0 bg-transparent" title="Remove Code">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </div>
+
+                <!-- SUBTOTAL, DISCOUNT & TOTAL -->
                 <div class="border-top pt-3 mb-3">
                     <div class="d-flex justify-content-between text-muted small mb-1">
                         <span>Subtotal</span>
                         <span>RM @Model.Subtotal.ToString("N2")</span>
                     </div>
+
+                    @if (Model.DiscountAmount > 0)
+                    {
+                        <div class="d-flex justify-content-between text-success small mb-1 fw-bold">
+                            <span>Reward Discount (@Model.DiscountDescription)</span>
+                            <span>- RM @Model.DiscountAmount.ToString("N2")</span>
+                        </div>
+                    }
+
                     <div class="d-flex justify-content-between text-muted small mb-2">
                         <span>SST (6%)</span>
                         <span>RM @Model.Tax.ToString("N2")</span>
@@ -208,14 +240,22 @@
                     </div>
                 </div>
 
-                <!-- ORDER CONFIRMATION FORM -->
-                <form method="post" asp-page-handler="ConfirmOrder">
+                <!-- ORDER CONFIRMATION FORM WITH PAX FILTERING -->
+                <form method="get" id="paxFilterForm">
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Number of Pax (Guests)</label>
+                        <input type="number" id="paxInput" name="pax" value="@Model.SelectedPax" min="1" max="20" class="form-control form-control-sm rounded-3" placeholder="Enter guests..." />
+                    </div>
+                </form>
+
+                <form method="post" asp-page-handler="ConfirmOrder" class="mt-2">
                     @Html.AntiForgeryToken()
+                    <input type="hidden" name="SelectedPax" value="@Model.SelectedPax" />
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Select Dine-In Table</label>
                         <select asp-for="TableId" asp-items="Model.Tables" class="form-select form-select-sm rounded-3" required>
-                            <option value="">-- Choose Table --</option>
+                            <option value="">-- Choose Available Table --</option>
                         </select>
                     </div>
 
@@ -296,7 +336,22 @@
                 });
             });
 
-            searchInput.addEventListener('input', filterMenu);
+            if (searchInput) {
+                searchInput.addEventListener('input', filterMenu);
+            }
+
+            // 3. Auto-submit or reload tables when Pax changes
+            const paxInput = document.getElementById('paxInput');
+            if (paxInput) {
+                let timeout = null;
+                paxInput.addEventListener('input', function () {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        const paxVal = this.value || 1;
+                        window.location.href = `?pax=${paxVal}`;
+                    }, 600);
+                });
+            }
         });
     </script>
 }

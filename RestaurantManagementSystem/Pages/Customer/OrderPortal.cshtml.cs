@@ -21,19 +21,45 @@ namespace RestaurantManagementSystem.Pages.Customer
         public List<string> Categories { get; set; } = new List<string>();
         public List<CartItem> CartItems { get; set; } = new List<CartItem>();
         public SelectList? Tables { get; set; }
+
         public decimal Subtotal { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public string DiscountDescription { get; set; } = "";
         public decimal Tax { get; set; }
         public decimal Total { get; set; }
+
+        public string? AppliedPromoCode { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public int SelectedPax { get; set; } = 1;
 
         [BindProperty]
         public int TableId { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(int? pax, string? code)
         {
             var customerId = HttpContext.Session.GetInt32("CustomerId");
             if (customerId == null) return RedirectToPage("/Customer/Login");
 
-            // Fixed: Using customer.FullName instead of customer.Name
+            if (pax.HasValue && pax.Value > 0)
+            {
+                SelectedPax = pax.Value;
+            }
+
+            if (!string.IsNullOrWhiteSpace(code))
+            {
+                string cleanCode = code.Trim().ToUpper();
+
+                var voucher = await _context.RedeemedVouchers
+                    .FirstOrDefaultAsync(v => v.PromoCode == cleanCode && v.CustomerId == customerId.Value && !v.IsUsed);
+
+                if (voucher != null)
+                {
+                    HttpContext.Session.SetString("ActivePromoCode", cleanCode);
+                    TempData["SuccessMessage"] = $"Promo code '{cleanCode}' applied automatically!";
+                }
+            }
+
             var customer = await _context.Customers.FindAsync(customerId.Value);
             if (customer != null)
             {
@@ -85,12 +111,9 @@ namespace RestaurantManagementSystem.Pages.Customer
                 }
 
                 await _context.SaveChangesAsync();
-
-                // Trigger notification after item is saved
-                await _context.AddNotificationAsync(customerId.Value, $"Added {menu.MenuName} (x{itemQty}) to your cart.");
             }
 
-            return RedirectToPage();
+            return RedirectToPage(new { pax = SelectedPax });
         }
 
         public async Task<IActionResult> OnPostRemoveCartItemAsync(int cartItemId)
@@ -101,15 +124,52 @@ namespace RestaurantManagementSystem.Pages.Customer
             var item = await _context.CartItems.FirstOrDefaultAsync(c => c.Id == cartItemId && c.CustomerId == customerId.Value);
             if (item != null)
             {
-                string itemName = item.MenuName;
                 _context.CartItems.Remove(item);
                 await _context.SaveChangesAsync();
-
-                // Trigger notification after item is removed
-                await _context.AddNotificationAsync(customerId.Value, $"Removed {itemName} from your cart.");
             }
 
-            return RedirectToPage();
+            return RedirectToPage(new { pax = SelectedPax });
+        }
+
+        public async Task<IActionResult> OnPostApplyPromoCodeAsync(string promoCode)
+        {
+            var customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null) return RedirectToPage("/Customer/Login");
+
+            if (string.IsNullOrWhiteSpace(promoCode))
+            {
+                TempData["ErrorMessage"] = "Please enter a valid promo code.";
+                return RedirectToPage(new { pax = SelectedPax });
+            }
+
+            string cleanCode = promoCode.Trim().ToUpper();
+
+            var voucher = await _context.RedeemedVouchers
+                .FirstOrDefaultAsync(v => v.PromoCode == cleanCode && v.CustomerId == customerId.Value);
+
+            if (voucher == null)
+            {
+                TempData["ErrorMessage"] = "Invalid promo code or this code does not belong to your account.";
+                return RedirectToPage(new { pax = SelectedPax });
+            }
+
+            if (voucher.IsUsed)
+            {
+                TempData["ErrorMessage"] = "This promo code has already been used on a previous order.";
+                return RedirectToPage(new { pax = SelectedPax });
+            }
+
+            HttpContext.Session.SetString("ActivePromoCode", cleanCode);
+            TempData["SuccessMessage"] = $"Promo code '{cleanCode}' applied successfully!";
+
+            return RedirectToPage(new { pax = SelectedPax });
+        }
+
+        public async Task<IActionResult> OnPostRemovePromoCodeAsync()
+        {
+            HttpContext.Session.Remove("ActivePromoCode");
+            TempData["SuccessMessage"] = "Promo code removed.";
+            return RedirectToPage(new { pax = SelectedPax });
         }
 
         public async Task<IActionResult> OnPostConfirmOrderAsync()
@@ -121,13 +181,28 @@ namespace RestaurantManagementSystem.Pages.Customer
             if (!cart.Any())
             {
                 TempData["ErrorMessage"] = "Your cart is empty. Please add items to proceed.";
-                return RedirectToPage();
+                return RedirectToPage(new { pax = SelectedPax });
             }
 
             if (TableId <= 0)
             {
-                TempData["ErrorMessage"] = "Please select a dine-in table.";
-                return RedirectToPage();
+                TempData["ErrorMessage"] = "Please select a valid dine-in table.";
+                return RedirectToPage(new { pax = SelectedPax });
+            }
+
+            await LoadDataAsync(customerId.Value);
+
+            string? activeCode = HttpContext.Session.GetString("ActivePromoCode");
+            if (!string.IsNullOrEmpty(activeCode))
+            {
+                var voucher = await _context.RedeemedVouchers
+                    .FirstOrDefaultAsync(v => v.PromoCode == activeCode && v.CustomerId == customerId.Value && !v.IsUsed);
+
+                if (voucher != null)
+                {
+                    voucher.IsUsed = true;
+                    _context.RedeemedVouchers.Update(voucher);
+                }
             }
 
             HttpContext.Session.SetInt32("SelectedTableId", TableId);
@@ -139,7 +214,7 @@ namespace RestaurantManagementSystem.Pages.Customer
                 OrderDate = DateTime.Now,
                 Status = "Pending",
                 PaymentStatus = "Unpaid",
-                TotalAmount = cart.Sum(c => c.Price * c.Quantity) + (cart.Sum(c => c.Price * c.Quantity) * 0.06m),
+                TotalAmount = Total,
                 OrderItems = cart.Select(c => new OrderItem
                 {
                     MenuId = c.MenuId,
@@ -151,30 +226,14 @@ namespace RestaurantManagementSystem.Pages.Customer
 
             _context.Orders.Add(newOrder);
             _context.CartItems.RemoveRange(cart);
+
+            HttpContext.Session.Remove("ActivePromoCode");
+
             await _context.SaveChangesAsync();
 
-            // Trigger notification for order placement
-            await _context.AddNotificationAsync(customerId.Value, $"Order #{newOrder.OrderId} created successfully! Please proceed to payment.");
+            await _context.AddNotificationAsync(customerId.Value, $"Order #{newOrder.OrderId} created successfully!");
 
             return RedirectToPage("/Customer/PaymentCheckout", new { orderId = newOrder.OrderId });
-        }
-
-        // Handler to mark individual notifications as read when clicked in the bell dropdown
-        public async Task<IActionResult> OnPostMarkSingleNotificationAsync(int id)
-        {
-            var customerId = HttpContext.Session.GetInt32("CustomerId");
-            if (customerId != null)
-            {
-                var notification = await _context.Notifications
-                    .FirstOrDefaultAsync(n => n.Id == id && n.CustomerId == customerId.Value);
-
-                if (notification != null)
-                {
-                    notification.IsRead = true;
-                    await _context.SaveChangesAsync();
-                }
-            }
-            return new JsonResult(new { success = true });
         }
 
         private async Task LoadDataAsync(int customerId)
@@ -206,14 +265,81 @@ namespace RestaurantManagementSystem.Pages.Customer
             PopularMenus = Menus.Where(m => topMenuIds.Contains(m.Id)).ToList();
 
             Subtotal = CartItems.Sum(c => c.Price * c.Quantity);
-            Tax = Subtotal * 0.06m;
-            Total = Subtotal + Tax;
 
-            var tables = await _context.RestaurantTables.Where(t => t.Status == "Available").OrderBy(t => t.TableNumber).ToListAsync();
+            AppliedPromoCode = HttpContext.Session.GetString("ActivePromoCode");
+            DiscountAmount = 0m;
+            DiscountDescription = "";
+
+            if (!string.IsNullOrEmpty(AppliedPromoCode) && CartItems.Any())
+            {
+                var voucherCheck = await _context.RedeemedVouchers
+                    .FirstOrDefaultAsync(v => v.PromoCode == AppliedPromoCode && v.CustomerId == customerId && !v.IsUsed);
+
+                if (voucherCheck == null)
+                {
+                    HttpContext.Session.Remove("ActivePromoCode");
+                    AppliedPromoCode = null;
+                }
+                else if (AppliedPromoCode.StartsWith("DRINK-"))
+                {
+                    var drinkItem = CartItems.FirstOrDefault(c =>
+                    {
+                        var menu = Menus.FirstOrDefault(m => m.Id == c.MenuId);
+                        return menu != null && !string.IsNullOrEmpty(menu.Category) &&
+                               (menu.Category.Contains("Beverage", StringComparison.OrdinalIgnoreCase) ||
+                                menu.Category.Contains("Drink", StringComparison.OrdinalIgnoreCase));
+                    });
+
+                    if (drinkItem != null)
+                    {
+                        DiscountAmount = drinkItem.Price;
+                        DiscountDescription = "Free Drink";
+                    }
+                    else
+                    {
+                        DiscountDescription = "Add a drink to use code";
+                    }
+                }
+                else if (AppliedPromoCode.StartsWith("DESSERT-"))
+                {
+                    var dessertItem = CartItems.FirstOrDefault(c =>
+                    {
+                        var menu = Menus.FirstOrDefault(m => m.Id == c.MenuId);
+                        return menu != null && !string.IsNullOrEmpty(menu.Category) &&
+                               menu.Category.Contains("Dessert", StringComparison.OrdinalIgnoreCase);
+                    });
+
+                    if (dessertItem != null)
+                    {
+                        DiscountAmount = dessertItem.Price;
+                        DiscountDescription = "Free Dessert";
+                    }
+                    else
+                    {
+                        DiscountDescription = "Add a dessert to use code";
+                    }
+                }
+                else if (AppliedPromoCode.StartsWith("VOUCHER10-"))
+                {
+                    DiscountAmount = 10.00m;
+                    DiscountDescription = "RM10 Off Voucher";
+                }
+            }
+
+            decimal discountedSubtotal = Math.Max(0m, Subtotal - DiscountAmount);
+            Tax = discountedSubtotal * 0.06m;
+            Total = discountedSubtotal + Tax;
+
+            var tables = await _context.RestaurantTables
+                .Where(t => t.Status == "Available" && t.Capacity >= SelectedPax)
+                .OrderBy(t => t.Capacity)
+                .ThenBy(t => t.TableNumber)
+                .ToListAsync();
+
             Tables = new SelectList(tables.Select(t => new
             {
                 t.RestaurantTableId,
-                DisplayText = $"Table {t.TableNumber} ({t.DiningArea})"
+                DisplayText = $"Table {t.TableNumber} ({t.DiningArea} - {t.Capacity} Seats)"
             }), "RestaurantTableId", "DisplayText");
         }
     }

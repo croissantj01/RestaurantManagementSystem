@@ -1,260 +1,67 @@
-﻿@page
+﻿@page "{orderId:int}"
 @model RestaurantManagementSystem.Pages.Customer.PaymentCheckoutModel
+
 @{
-    ViewData["Title"] = "Secure Payment Gateway";
+    ViewData["Title"] = "Stripe Payment Gateway";
     Layout = "_CustomerLayout";
-    ViewData["ActivePage"] = "Cart";
 
-    decimal subtotal = Model.Order?.OrderItems?.Sum(i => i.Price * i.Quantity) ?? 0m;
-    decimal tax = subtotal * 0.06m;
+    // Estimate loyalty points to be earned (1 point per RM 1 spent)
+    int estimatedPoints = Model.Order != null ? (int)Math.Floor(Model.Order.TotalAmount) : 0;
 }
 
-<div class="order-wrapper mt-4">
-    <div class="row g-4">
-        <!-- LEFT COLUMN: ITEMS & ORDER SUMMARY -->
-        <div class="col-lg-7">
-            <div class="data-card mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3 pt-3">
-                    <h5 class="fw-bold m-0">Order Items (@(Model.Order?.OrderItems?.Sum(i => i.Quantity) ?? 0) items)</h5>
-                    <span class="text-muted small">#ORD-@Model.OrderId.ToString("D5")</span>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-5 p-4 p-md-5 bg-white text-center">
+                
+                <!-- Stripe Branding Header -->
+                <div class="mb-4">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center text-primary mb-3 shadow-sm" style="width: 85px; height: 85px;">
+                        <i class="fa-brands fa-stripe display-4" style="color: #635bff;"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">Stripe Payment Gateway</h3>
+                    <p class="text-muted small mb-0">Order Reference: <strong class="text-dark">#ORD-@Model.OrderId.ToString("D5")</strong></p>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table res-table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th class="text-center">Qty</th>
-                                <th class="text-end">Price</th>
-                                <th class="text-end">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.Order != null && Model.Order.OrderItems != null)
-                            {
-                                @foreach (var item in Model.Order.OrderItems)
-                                {
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div style="width: 64px; height: 64px; min-width: 64px; border-radius: 12px; overflow: hidden; background-color: #FFF9F0;">
-                                                    @if (item.Menu != null && !string.IsNullOrEmpty(item.Menu.ImagePath))
-                                                    {
-                                                        <img src="@item.Menu.ImagePath" alt="@item.Menu.MenuName" style="width: 100%; height: 100%; object-fit: cover;" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center text-warning">
-                                                            <i class="fa-solid fa-utensils fs-4"></i>
-                                                        </div>
-                                                    }
-                                                </div>
-                                                <div>
-                                                    <div class="fw-bold">@(item.Menu?.MenuName ?? $"Item #{item.MenuId}")</div>
-                                                    <small class="text-muted">Size: @item.Size</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">@item.Quantity</td>
-                                        <td class="text-end">RM @item.Price.ToString("N2")</td>
-                                        <td class="text-end">RM @((item.Price * item.Quantity).ToString("N2"))</td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                <!-- Payment & Rewards Summary Box -->
+                <div class="p-3 mb-4 rounded-4 text-start" style="background-color: #f8f9fa; border: 1px dashed #dee2e6;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">Total Amount Payable</span>
+                        <span class="fw-bold fs-4" style="color: #d97706;">RM @(Model.Order?.TotalAmount.ToString("N2") ?? "0.00")</span>
+                    </div>
+                    
+                    <hr class="my-2 text-muted opacity-25" />
 
-            <div class="data-card">
-                <h5 class="fw-bold mb-3 pt-2">Order Summary</h5>
-                <div class="order-item-row">
-                    <span>Subtotal</span>
-                    <span>RM @subtotal.ToString("N2")</span>
-                </div>
-                <div class="order-item-row">
-                    <span>Tax (6%)</span>
-                    <span>RM @tax.ToString("N2")</span>
-                </div>
-                <div class="order-total-row">
-                    <span>Total Amount Due</span>
-                    <span class="amount">RM @Model.Order?.TotalAmount.ToString("N2")</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT COLUMN: PAYMENT CHECKOUT FORM -->
-        <div class="col-lg-5">
-            <div class="reserve-card h-100 mb-0 p-4">
-                <div class="mb-4 pt-2">
-                    <h4 class="fw-bold m-0" style="color: var(--text-main);">Checkout</h4>
+                    <div class="d-flex justify-content-between align-items-center pt-1">
+                        <span class="small text-muted">
+                            <i class="fa-solid fa-crown text-warning me-1"></i> Loyalty Points You'll Earn:
+                        </span>
+                        <span class="badge bg-success bg-opacity-10 text-success fw-bold rounded-pill px-3 py-1">
+                            +@estimatedPoints pts
+                        </span>
+                    </div>
                 </div>
 
-                <div class="reserve-body p-0">
-                    @if (Model.Order != null)
-                    {
-                        <form method="post" asp-page-handler="ProcessPayment">
-                            <input type="hidden" asp-for="OrderId" />
+                <!-- Post to backend handler to initiate Stripe API Session -->
+                <form method="post" asp-page-handler="ProcessPayment" asp-route-orderId="@Model.OrderId">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn text-white w-100 rounded-pill py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mb-3" style="background-color: #635bff; border: none; font-size: 1.05rem;">
+                        <i class="fa-solid fa-lock me-1"></i> Pay with Stripe Gateway &rarr;
+                    </button>
+                </form>
 
-                            <div class="mb-3">
-                                <label class="form-label">Payment Method</label>
-                                <select asp-for="PaymentMethod" class="form-select">
-                                    <option value="Credit Card">Credit / Debit Card</option>
-                                    <option value="Online Banking (FPX)">FPX Online Banking</option>
-                                    <option value="E-Wallet">Touch 'n Go / GrabPay E-Wallet</option>
-                                </select>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Account / Card Holder Name</label>
-                                <input type="text" class="form-control" placeholder="e.g. Alex Tan" required />
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label">Card Details</label>
-                                <input type="text" class="form-control mb-2" placeholder="4000 1234 5678 9010" />
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <input type="text" class="form-control" placeholder="MM/YY" />
-                                    </div>
-                                    <div class="col-6">
-                                        <input type="text" class="form-control" placeholder="CVC" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn-reserve py-3 fw-bold">
-                                Pay RM @Model.Order.TotalAmount.ToString("N2") Now
-                            </button>
-                        </form>
-                    }
+                <div class="text-muted small mb-3">
+                    <i class="fa-solid fa-shield-halved text-muted me-1"></i> You will be redirected to Stripe's secure portal to enter your card details.
                 </div>
+
+                <!-- Return link -->
+                <div>
+                    <a asp-page="/Customer/OrderPortal" class="text-muted text-decoration-none small d-inline-flex align-items-center gap-1">
+                        <i class="fa-solid fa-arrow-left"></i> Return to Menu &amp; Cart
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
-
-<!-- ===================================================== -->
-<!-- PRINTABLE RECEIPT MODAL -->
-<!-- ===================================================== -->
-<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4" id="printableReceipt">
-                <div class="text-center mb-4">
-                    <h2 class="fw-bold m-0" style="color: var(--text-main);">Restaurant Management System</h2>
-                    <p class="text-muted small">Official Payment Receipt & Tax Invoice</p>
-                    <hr />
-                </div>
-
-                <div class="row mb-3 fs-6">
-                    <div class="col-6">
-                        <span class="text-muted d-block small">Order Reference:</span>
-                        <strong>#ORD-@Model.OrderId.ToString("D5")</strong>
-                    </div>
-                    <div class="col-6 text-end">
-                        <span class="text-muted d-block small">Date & Time:</span>
-                        <strong>@DateTime.Now.ToString("g")</strong>
-                    </div>
-                </div>
-
-                <div class="row mb-4 fs-6">
-                    <div class="col-6">
-                        <span class="text-muted d-block small">Payment Method:</span>
-                        <strong id="selectedPayMethod">@Model.PaymentMethod</strong>
-                    </div>
-                    <div class="col-6 text-end">
-                        <span class="text-muted d-block small">Payment Status:</span>
-                        <span class="status-pill status-reserved">PAID</span>
-                    </div>
-                </div>
-
-                <table class="table res-table align-middle mb-3">
-                    <thead>
-                        <tr>
-                            <th>Item Description</th>
-                            <th class="text-center">Qty</th>
-                            <th class="text-end">Price</th>
-                            <th class="text-end">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model.Order != null && Model.Order.OrderItems != null)
-                        {
-                            @foreach (var item in Model.Order.OrderItems)
-                            {
-                                <tr>
-                                    <td>
-                                        <div class="fw-bold">@(item.Menu?.MenuName ?? $"Item #{item.MenuId}")</div>
-                                        <small class="text-muted">Size: @item.Size</small>
-                                    </td>
-                                    <td class="text-center">@item.Quantity</td>
-                                    <td class="text-end">RM @item.Price.ToString("N2")</td>
-                                    <td class="text-end">RM @((item.Price * item.Quantity).ToString("N2"))</td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
-
-                <hr />
-
-                <div class="d-flex justify-content-between align-items-center fs-5 fw-bold mt-3">
-                    <span>Total Paid:</span>
-                    <span style="color: var(--primary-color);">RM @Model.Order?.TotalAmount.ToString("N2")</span>
-                </div>
-
-                <div class="text-center mt-4 text-muted small">
-                    <p class="mb-0">Thank you for dining with us!</p>
-                </div>
-            </div>
-
-            <div class="modal-footer border-0 pt-0 d-print-none pb-4 px-4">
-                <a asp-page="/Customer/Dashboard" class="btn btn-secondary rounded-pill px-4">Done / Dashboard</a>
-                <button type="button" onclick="printReceiptPDF()" class="btn-filter px-4">
-                    🖨️ Print / Save as PDF
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <style>
-        @@media print {
-            body * {
-                visibility: hidden !important;
-            }
-            #printableReceipt, #printableReceipt * {
-                visibility: visible !important;
-            }
-            #printableReceipt {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 20px !important;
-            }
-        }
-    </style>
-
-    <script>
-        function printReceiptPDF() {
-            window.print();
-        }
-    </script>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                var receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
-                receiptModal.show();
-            });
-        </script>
-    }
-}

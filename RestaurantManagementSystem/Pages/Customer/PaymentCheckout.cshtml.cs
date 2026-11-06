@@ -3,16 +3,20 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using RestaurantManagementSystem.Data;
 using RestaurantManagementSystem.Models;
+using Stripe;
+using Stripe.Checkout;
 
 namespace RestaurantManagementSystem.Pages.Customer
 {
     public class PaymentCheckoutModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public PaymentCheckoutModel(ApplicationDbContext context)
+        public PaymentCheckoutModel(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -20,26 +24,20 @@ namespace RestaurantManagementSystem.Pages.Customer
 
         public Order? Order { get; set; }
 
-        [BindProperty]
-        public string PaymentMethod { get; set; } = "Credit Card";
-
         public async Task<IActionResult> OnGetAsync(int orderId)
         {
-            var customerId = HttpContext.Session.GetInt32("CustomerId");
-            if (customerId == null)
-            {
-                return RedirectToPage("/Customer/Login");
-            }
+            int? customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null) return RedirectToPage("/Customer/Login");
 
             OrderId = orderId;
             Order = await _context.Orders
                 .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Menu)
-                .FirstOrDefaultAsync(o => o.OrderId == orderId && o.CustomerId == customerId.Value);
+                .FirstOrDefaultAsync(o => o.OrderId == OrderId && o.CustomerId == customerId.Value);
 
             if (Order == null)
             {
-                return RedirectToPage("/Customer/Dashboard");
+                TempData["ErrorMessage"] = "Order not found.";
+                return RedirectToPage("/Customer/OrderPortal");
             }
 
             return Page();
@@ -47,78 +45,53 @@ namespace RestaurantManagementSystem.Pages.Customer
 
         public async Task<IActionResult> OnPostProcessPaymentAsync(int orderId)
         {
-            var customerId = HttpContext.Session.GetInt32("CustomerId");
-            if (customerId == null)
+            int? customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null) return RedirectToPage("/Customer/Login");
+
+            var order = await _context.Orders
+                .Include(o => o.Table)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId && o.CustomerId == customerId.Value);
+
+            if (order == null)
             {
-                return RedirectToPage("/Customer/Login");
+                TempData["ErrorMessage"] = "Order not found.";
+                return RedirectToPage("/Customer/OrderPortal");
             }
 
-            OrderId = orderId;
-            Order = await _context.Orders
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Menu)
-                .Include(o => o.Customer)
-                .FirstOrDefaultAsync(o => o.OrderId == OrderId && o.CustomerId == customerId.Value);
+            // Set your Secret Key from appsettings.json
+            StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"] ?? "sk_test_51P...";
 
-            if (Order != null && Order.Customer != null)
+            var domain = $"{Request.Scheme}://{Request.Host}";
+            var successUrl = $"{domain}/Customer/PaymentSuccess?orderId={order.OrderId}";
+            var cancelUrl = $"{domain}/Customer/PaymentCheckout/{order.OrderId}";
+
+            var options = new SessionCreateOptions
             {
-                Order.PaymentStatus = "Paid";
-                Order.PaymentMethod = PaymentMethod;
-                Order.Status = "Completed";
-
-                var customer = Order.Customer;
-                int totalItemCount = Order.OrderItems.Sum(oi => oi.Quantity);
-
-                // 1. Auto-trigger membership: 10+ items waives RM5 fee (FREE upgrade)
-                if (!customer.IsMember && totalItemCount >= 10)
+                LineItems = new List<SessionLineItemOptions>
                 {
-                    customer.IsMember = true;
-                    customer.MemberSince = DateTime.Now;
-                    customer.MembershipTier = "Bronze";
-
-                    await _context.AddNotificationAsync(customer.CustomerId,
-                        "Congratulations! You unlocked FREE Bronze Membership for ordering 10+ items!");
-                }
-
-                // 2. Loyalty Points calculation based on tier multipliers
-                if (customer.IsMember)
-                {
-                    // Gold: RM1.00 = 1 pt | Silver: RM1.50 = 1 pt | Bronze: RM2.00 = 1 pt
-                    decimal multiplier = customer.MembershipTier switch
+                    new SessionLineItemOptions
                     {
-                        "Gold" => 1.00m,
-                        "Silver" => 1.50m,
-                        _ => 2.00m
-                    };
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long)(order.TotalAmount * 100),
+                            Currency = "myr",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = $"Restaurant Order #ORD-{order.OrderId:D5}",
+                            },
+                        },
+                        Quantity = 1,
+                    },
+                },
+                Mode = "payment",
+                SuccessUrl = successUrl,
+                CancelUrl = cancelUrl,
+            };
 
-                    int earnedPoints = (int)(Order.TotalAmount / multiplier);
-                    customer.LoyaltyPoints += earnedPoints;
+            var service = new SessionService();
+            Session session = await service.CreateAsync(options);
 
-                    // 3. Tier Upgrade evaluation thresholds
-                    if (customer.MembershipTier == "Bronze" && customer.LoyaltyPoints >= 1000)
-                    {
-                        customer.MembershipTier = "Silver";
-                        await _context.AddNotificationAsync(customer.CustomerId,
-                            "You've been upgraded to Silver Tier! Enjoy earning points faster (1 pt / RM1.50).");
-                    }
-                    else if (customer.MembershipTier == "Silver" && customer.LoyaltyPoints >= 2500)
-                    {
-                        customer.MembershipTier = "Gold";
-                        await _context.AddNotificationAsync(customer.CustomerId,
-                            "You've reached Gold Tier! You now earn 1 pt for every RM1.00 spent.");
-                    }
-
-                    await _context.AddNotificationAsync(customer.CustomerId,
-                        $"You earned {earnedPoints} loyalty points from Order #ORD-{Order.OrderId:D5}!");
-                }
-
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"Payment successful for Order #ORD-{Order.OrderId:D5}!";
-                return RedirectToPage("/Customer/Dashboard");
-            }
-
-            return Page();
+            return Redirect(session.Url);
         }
     }
 }

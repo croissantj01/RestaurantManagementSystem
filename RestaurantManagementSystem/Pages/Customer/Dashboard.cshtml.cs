@@ -33,13 +33,12 @@ namespace RestaurantManagementSystem.Pages.Customer
             }
 
             // Get customer name from Session
-            CustomerName = HttpContext.Session.GetString("CustomerName")
-                ?? "Customer";
+            CustomerName = HttpContext.Session.GetString("CustomerName") ?? "Customer";
 
             // 1. Fetch Featured Menus for the hero section
             FeaturedMenus = await _context.Menus.Take(4).ToListAsync();
 
-            // 2. Safely query top ordered menu IDs first, then fetch the menus to avoid LINQ projection errors
+            // 2. Query top ordered menu IDs globally across ALL customer orders
             var popularMenuIds = await _context.OrderItems
                 .GroupBy(oi => oi.MenuId)
                 .OrderByDescending(g => g.Sum(oi => oi.Quantity))
@@ -51,13 +50,13 @@ namespace RestaurantManagementSystem.Pages.Customer
                 .Where(m => popularMenuIds.Contains(m.Id))
                 .ToListAsync();
 
-            // Sort them to match the exact order of popularity
+            // Sort them to match the exact order of global popularity
             PopularMenus = popularMenuIds
                 .Select(id => PopularMenus.FirstOrDefault(m => m.Id == id))
                 .Where(m => m != null)
                 .ToList()!;
 
-            // Fallback: If no orders have been placed yet, grab the first 3 menus as popular items
+            // Fallback: If no orders have been placed globally yet, grab the first 3 menus as popular items
             if (!PopularMenus.Any())
             {
                 PopularMenus = await _context.Menus.Take(3).ToListAsync();

@@ -10,10 +10,12 @@ namespace RestaurantManagementSystem.Pages.Admin
     public class AnnouncementsModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public AnnouncementsModel(ApplicationDbContext context)
+        public AnnouncementsModel(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         public List<Announcement> AnnouncementList { get; set; } = new();
@@ -27,6 +29,9 @@ namespace RestaurantManagementSystem.Pages.Admin
         [Required(ErrorMessage = "Please enter a message.")]
         [StringLength(1000, ErrorMessage = "Message can be up to 1000 characters.")]
         public string Message { get; set; } = string.Empty;
+
+        [BindProperty]
+        public IFormFile? ImageFile { get; set; }
 
         private bool IsAdmin =>
             HttpContext.Session.GetString("AdminLoggedIn") == "true";
@@ -51,22 +56,82 @@ namespace RestaurantManagementSystem.Pages.Admin
         {
             if (!IsAdmin) return RedirectToPage("/Admin/Login");
 
+            // 1. IMAGE FILE VALIDATION CONSTRAINTS (Max 15MB)
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                if (!ImageFile.ContentType.StartsWith("image/"))
+                {
+                    ModelState.AddModelError("ImageFile", "Please upload a valid image file (e.g., JPG, PNG, WEBP).");
+                }
+
+                long maxFileSize = 15 * 1024 * 1024; // 15 MB
+                if (ImageFile.Length > maxFileSize)
+                {
+                    ModelState.AddModelError("ImageFile", "The image file is too large. Maximum allowed size is 15MB.");
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 await LoadAsync();
                 return Page();
             }
 
-            _context.Announcements.Add(new Announcement
+            string cleanTitle = Title.Trim();
+            string cleanMessage = Message.Trim();
+            string? imagePath = null;
+
+            // 2. PROCESS & SAVE IMAGE FILE SAFELY
+            if (ImageFile != null && ImageFile.Length > 0)
             {
-                Title = Title.Trim(),
-                Message = Message.Trim(),
+                string webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                string uploadsFolder = Path.Combine(webRootPath, "images", "announcements");
+
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(ImageFile.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ImageFile.CopyToAsync(fileStream);
+                }
+
+                imagePath = "/images/announcements/" + uniqueFileName;
+            }
+
+            // 3. Save the new Announcement
+            var announcement = new Announcement
+            {
+                Title = cleanTitle,
+                Message = cleanMessage,
+                ImagePath = imagePath,
                 CreatedAt = DateTime.Now,
                 IsActive = true
-            });
+            };
+            _context.Announcements.Add(announcement);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Announcement posted.";
+            // 4. Fetch all registered customer IDs
+            var customerIds = await _context.Customers
+                .Select(c => c.CustomerId)
+                .ToListAsync();
+
+            // 5. Send notification to every customer
+            foreach (var customerId in customerIds)
+            {
+                await _context.AddNotificationAsync(
+                    customerId,
+                    $"📢 Announcement: {cleanTitle}"
+                );
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Announcement posted and notification sent to all customers.";
             return RedirectToPage();
         }
 

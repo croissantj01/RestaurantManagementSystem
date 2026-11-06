@@ -143,7 +143,7 @@
                             </div>
 
                             <div>
-                                @if (booking.Status == "Reserved" || booking.Status == "Pending")
+                                @if (booking.Status != "Cancelled")
                                 {
                                     <form method="post" asp-page-handler="Cancel" class="m-0 d-inline">
                                         <input type="hidden" name="id" value="@booking.Id" />
@@ -155,7 +155,18 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted small">-</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-1 rounded-pill" style="font-size: 11px;">Cancelled</span>
+                                        
+                                        <!-- Trash Can Button to Hide Cancelled Bookings -->
+                                        <form method="post" asp-page-handler="Hide" class="m-0 d-inline">
+                                            <input type="hidden" name="id" value="@booking.Id" />
+                                            <input type="hidden" name="type" value="@booking.Type" />
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;" title="Hide from list" onclick="return confirm('Do you want to remove this from your list?');">
+                                                <i class="fa-solid fa-trash-can" style="font-size: 12px;"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 }
                             </div>
                         </div>

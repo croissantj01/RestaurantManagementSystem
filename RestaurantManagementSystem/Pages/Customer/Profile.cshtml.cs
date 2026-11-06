@@ -1,5 +1,6 @@
 using System.Net.Mail;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -11,16 +12,17 @@ namespace RestaurantManagementSystem.Pages.Customer
     public class ProfileModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPasswordHasher<CustomerModel> _hasher;
 
-        public ProfileModel(ApplicationDbContext context)
+        public ProfileModel(
+            ApplicationDbContext context,
+            IPasswordHasher<CustomerModel> hasher)
         {
             _context = context;
+            _hasher = hasher;
         }
 
-        // Name shown in the navbar and avatar (always from the database)
         public string DisplayName { get; set; } = "";
-
-        // Set to true when the password form has errors so it stays open
         public bool PasswordError { get; set; }
 
         [TempData]
@@ -55,10 +57,7 @@ namespace RestaurantManagementSystem.Pages.Customer
         public async Task<IActionResult> OnGetAsync()
         {
             int? customerId = HttpContext.Session.GetInt32("CustomerId");
-            if (customerId == null)
-            {
-                return RedirectToPage("/Customer/Login");
-            }
+            if (customerId == null) return RedirectToPage("/Customer/Login");
 
             var customer = await _context.Customers.FindAsync(customerId.Value);
             if (customer == null)
@@ -72,7 +71,6 @@ namespace RestaurantManagementSystem.Pages.Customer
             Email = customer.Email;
             Phone = customer.Phone;
 
-            // Load Loyalty & Membership Data
             IsMember = customer.IsMember;
             MembershipTier = string.IsNullOrEmpty(customer.MembershipTier) ? "Bronze" : customer.MembershipTier;
             LoyaltyPoints = customer.LoyaltyPoints;
@@ -84,25 +82,16 @@ namespace RestaurantManagementSystem.Pages.Customer
         public async Task<IActionResult> OnPostUpdateProfileAsync()
         {
             int? customerId = HttpContext.Session.GetInt32("CustomerId");
-            if (customerId == null)
-            {
-                return RedirectToPage("/Customer/Login");
-            }
+            if (customerId == null) return RedirectToPage("/Customer/Login");
 
             var customer = await _context.Customers.FindAsync(customerId.Value);
-            if (customer == null)
-            {
-                HttpContext.Session.Clear();
-                return RedirectToPage("/Customer/Login");
-            }
+            if (customer == null) return RedirectToPage("/Customer/Login");
 
             DisplayName = customer.FullName;
-
             FullName = (FullName ?? "").Trim();
             Email = (Email ?? "").Trim();
             Phone = (Phone ?? "").Trim();
 
-            // ----- Validation -----
             if (string.IsNullOrWhiteSpace(FullName))
             {
                 ModelState.AddModelError(nameof(FullName), "Please enter your name.");
@@ -118,9 +107,7 @@ namespace RestaurantManagementSystem.Pages.Customer
             }
             else if (!string.Equals(Email, customer.Email, StringComparison.OrdinalIgnoreCase))
             {
-                bool emailTaken = await _context.Customers
-                    .AnyAsync(c => c.Email == Email);
-
+                bool emailTaken = await _context.Customers.AnyAsync(c => c.Email == Email);
                 if (emailTaken)
                 {
                     ModelState.AddModelError(nameof(Email), "That email is already used by another account.");
@@ -141,14 +128,11 @@ namespace RestaurantManagementSystem.Pages.Customer
                 return Page();
             }
 
-            // ----- Save -----
             customer.FullName = FullName;
             customer.Email = Email;
             customer.Phone = Phone;
 
             await _context.SaveChangesAsync();
-
-            // Keep session in sync
             HttpContext.Session.SetString("CustomerName", customer.FullName);
 
             StatusMessage = "Your profile has been updated.";
@@ -158,10 +142,7 @@ namespace RestaurantManagementSystem.Pages.Customer
         public async Task<IActionResult> OnPostChangePasswordAsync()
         {
             int? customerId = HttpContext.Session.GetInt32("CustomerId");
-            if (customerId == null)
-            {
-                return RedirectToPage("/Customer/Login");
-            }
+            if (customerId == null) return RedirectToPage("/Customer/Login");
 
             var customer = await _context.Customers.FindAsync(customerId.Value);
             if (customer == null)
@@ -170,7 +151,11 @@ namespace RestaurantManagementSystem.Pages.Customer
                 return RedirectToPage("/Customer/Login");
             }
 
-            // Re-fill form values
+            // Ignore profile fields during password change validation
+            ModelState.Remove(nameof(FullName));
+            ModelState.Remove(nameof(Email));
+            ModelState.Remove(nameof(Phone));
+
             DisplayName = customer.FullName;
             FullName = customer.FullName;
             Email = customer.Email;
@@ -180,14 +165,24 @@ namespace RestaurantManagementSystem.Pages.Customer
             LoyaltyPoints = customer.LoyaltyPoints;
             MemberSince = customer.MemberSince;
 
-            if (customer.Password != CurrentPassword)
+            // Verify current password hash against user input using injected hasher
+            var verifyResult = _hasher.VerifyHashedPassword(customer, customer.Password, CurrentPassword);
+            if (verifyResult == PasswordVerificationResult.Failed)
             {
                 ModelState.AddModelError(nameof(CurrentPassword), "Current password is incorrect.");
             }
 
+            // Standard Password Constraints Validation
             if (string.IsNullOrEmpty(NewPassword) || NewPassword.Length < 6)
             {
                 ModelState.AddModelError(nameof(NewPassword), "New password must be at least 6 characters.");
+            }
+            else if (!Regex.IsMatch(NewPassword, @"[A-Z]") ||
+                     !Regex.IsMatch(NewPassword, @"[a-z]") ||
+                     !Regex.IsMatch(NewPassword, @"[0-9]") ||
+                     !Regex.IsMatch(NewPassword, @"[\W_]"))
+            {
+                ModelState.AddModelError(nameof(NewPassword), "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
             }
             else if (NewPassword == CurrentPassword)
             {
@@ -205,10 +200,11 @@ namespace RestaurantManagementSystem.Pages.Customer
                 return Page();
             }
 
-            customer.Password = NewPassword;
+            // Hash the new password using the exact same dependency-injected hasher
+            customer.Password = _hasher.HashPassword(customer, NewPassword);
             await _context.SaveChangesAsync();
 
-            StatusMessage = "Your password has been changed.";
+            StatusMessage = "Your password has been changed successfully.";
             return RedirectToPage();
         }
 
@@ -221,7 +217,6 @@ namespace RestaurantManagementSystem.Pages.Customer
         private static bool IsValidEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
-
             try
             {
                 var addr = new MailAddress(email);
