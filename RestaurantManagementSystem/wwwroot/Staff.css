@@ -605,6 +605,237 @@ body {
         border-color: #C9AD8C;
     }
 
+/* Staff Dashboard Hero */
+.staff-dashboard-hero {
+    display: grid;
+    grid-template-columns: 1.5fr 0.8fr;
+    align-items: center;
+    gap: 30px;
+    background: linear-gradient(135deg, #FFF1E2 0%, #FFD0A3 100%);
+    border-radius: 20px;
+    padding: 45px 50px;
+    margin: 20px 0 35px;
+    min-height: 300px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.staff-hero-content h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.3;
+    color: #2D3748;
+    margin-bottom: 12px;
+}
+
+    .staff-hero-content h1 span {
+        color: #F28C28;
+    }
+
+.staff-hero-content p {
+    color: #718096;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+
+.staff-hero-btn {
+    display: inline-block;
+    background-color: #F28C28;
+    color: white;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+    .staff-hero-btn:hover {
+        background-color: #D96B0B;
+        color: white;
+    }
+
+.staff-hero-image-wrapper {
+    width: 260px;
+    height: 260px;
+    justify-self: center;
+    border: 10px solid #FFFFFF !important;
+    border-radius: 50%;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    background-color: #FFFFFF;
+    box-shadow: 0 0 0 2px #EADCC7, 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.staff-dashboard-hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .staff-dashboard-hero {
+        grid-template-columns: 1fr;
+        padding: 25px;
+    }
+
+    .staff-hero-content h1 {
+        font-size: 1.7rem;
+    }
+
+    .staff-hero-image-wrapper {
+        max-width: 100%;
+        height: 160px;
+    }
+}
+
+
+/* Staff Profile Page */
+.staff-profile-container {
+    padding: 30px 40px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.staff-profile-heading {
+    margin-bottom: 30px;
+}
+
+    .staff-profile-heading h2 {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .staff-profile-heading p {
+        color: #777;
+        margin: 0;
+    }
+
+/* Profile Card */
+.staff-profile-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 40px 50px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    box-shadow: 0 4px 18px rgba(0,0,0,.06);
+}
+
+.staff-profile-card-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.staff-profile-avatar {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    background: #fff1e2;
+    color: #e58b43;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.staff-profile-card-header h4 {
+    margin: 0 0 5px;
+    font-weight: 700;
+}
+
+.staff-profile-card-header p {
+    margin: 0;
+    color: #888;
+}
+
+.staff-profile-section-title {
+    font-weight: 700;
+    margin: 30px 0 25px;
+    color: #333;
+}
+
+.staff-profile-form-group {
+    margin-bottom: 24px;
+}
+
+    .staff-profile-form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #444;
+    }
+
+    .staff-profile-form-group .form-control {
+        min-height: 52px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        padding: 12px 16px;
+        font-size: 1rem;
+    }
+
+        .staff-profile-form-group .form-control:focus {
+            border-color: #e58b43;
+            box-shadow: 0 0 0 3px rgba(229,139,67,.12);
+        }
+
+.staff-profile-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 30px;
+}
+
+.staff-profile-save-btn {
+    background: #e58b43;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    padding: 14px 30px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .staff-profile-save-btn:hover {
+        background: #d4772e;
+    }
+
+@media (max-width: 768px) {
+    .staff-profile-container {
+        padding: 20px 15px;
+    }
+
+    .staff-profile-card {
+        padding: 25px 20px;
+    }
+
+    .staff-profile-actions {
+        justify-content: stretch;
+    }
+
+    .staff-profile-save-btn {
+        width: 100%;
+    }
+}
+
+/* Four Staff Quick Action Cards */
+.staff-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 25px;
+}
+
+.profile-icon {
+    background-color: #f3eafa;
+    color: #9870b5;
+}
+
 
 
 

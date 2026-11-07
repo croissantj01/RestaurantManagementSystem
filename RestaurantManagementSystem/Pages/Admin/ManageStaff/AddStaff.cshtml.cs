@@ -64,7 +64,7 @@ namespace RestaurantManagementSystem.Pages.Admin.ManageStaff
 
             TempData["SuccessMessage"] = "Staff account created successfully!";
 
-            return RedirectToPage("/Admin/ManageStaffManageStaff");
+            return RedirectToPage("/Admin/ManageStaff/ManageStaff");
         }
     }
 }

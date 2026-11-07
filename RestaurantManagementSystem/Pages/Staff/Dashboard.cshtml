@@ -6,9 +6,36 @@
 
 <div class="staff-page-container">
 
+    <!-- Staff Hero Section -->
+    <div class="staff-dashboard-hero">
+        <div class="staff-hero-content">
+            <h1>
+                Welcome to the
+                <span>Staff Panel</span>
+            </h1>
+
+            <p>
+                Manage your profile, restaurant reservations, customer orders,
+                and payment records all in one place.
+            </p>
+
+            <div>
+                <a asp-page="/Staff/Profile" class="staff-hero-btn">
+                    <i class="fa-solid fa-user-gear"></i>
+                    Manage Profile
+                </a>
+            </div>
+        </div>
+
+        <div class="staff-hero-image-wrapper">
+            <img src="~/images/restaurant3.jpg"
+                 alt="Restaurant"
+                 class="staff-dashboard-hero-image" />
+        </div>
+    </div>
+
     <div class="staff-dashboard-heading">
-        <h2>Welcome Back, Staff!</h2>
-        <p>Manage your restaurant operations with ease.</p>
+        <h2>Navigations</h2>
     </div>
 
     <h3 class="staff-quick-title">Staff Quick Actions</h3>
@@ -20,8 +47,10 @@
             <div class="staff-quick-icon reservation-icon">
                 <i class="fa-solid fa-calendar-check"></i>
             </div>
+
             <h4>Manage Reservations</h4>
             <p>View and manage customer table reservations.</p>
+
             <a asp-page="/Staff/Reservation" class="staff-quick-btn">
                 Manage Reservations
             </a>
@@ -32,8 +61,10 @@
             <div class="staff-quick-icon orders-icon">
                 <i class="fa-solid fa-utensils"></i>
             </div>
+
             <h4>Manage Orders</h4>
             <p>View and manage customer food orders.</p>
+
             <a asp-page="/Staff/Order" class="staff-quick-btn">
                 View Orders
             </a>
@@ -44,13 +75,30 @@
             <div class="staff-quick-icon payments-icon">
                 <i class="fa-solid fa-credit-card"></i>
             </div>
+
             <h4>Manage Payments</h4>
             <p>View and monitor customer payment records.</p>
+
             <a asp-page="/Staff/Payment" class="staff-quick-btn">
                 View Payments
+            </a>
+        </div>
+
+        <!-- Manage Profile -->
+        <div class="staff-quick-card">
+            <div class="staff-quick-icon profile-icon">
+                <i class="fa-solid fa-user-gear"></i>
+            </div>
+
+            <h4>Manage Profile</h4>
+            <p>View and update your personal account information.</p>
+
+            <a asp-page="/Staff/Profile" class="staff-quick-btn">
+                Manage Profile
             </a>
         </div>
 
     </div>
 
 </div>
+

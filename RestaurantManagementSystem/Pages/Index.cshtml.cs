@@ -11,7 +11,9 @@ namespace RestaurantManagementSystem.Pages
         private readonly ApplicationDbContext _context;
         private readonly IPasswordHasher<RestaurantManagementSystem.Models.Customer> _hasher;
 
-        public IndexModel(ApplicationDbContext context, IPasswordHasher<RestaurantManagementSystem.Models.Customer> hasher)
+        public IndexModel(
+            ApplicationDbContext context,
+            IPasswordHasher<RestaurantManagementSystem.Models.Customer> hasher)
         {
             _context = context;
             _hasher = hasher;
@@ -51,37 +53,74 @@ namespace RestaurantManagementSystem.Pages
             {
                 HttpContext.Session.Clear();
                 HttpContext.Session.SetString("AdminLoggedIn", "true");
+
                 return RedirectToPage("/Admin/Dashboard");
             }
 
             // 2. Staff Login (email or username)
-            var staff = await _context.Staffs.AsNoTracking()
+            var staff = await _context.Staffs
                 .FirstOrDefaultAsync(s =>
-                    (s.Email == input || s.Username == input)
-                    && s.Password == password);
+                    s.Email == input || s.Username == input);
 
             if (staff != null)
             {
-                HttpContext.Session.Clear();
-                HttpContext.Session.SetString("StaffLoggedIn", "true");
-                HttpContext.Session.SetInt32("StaffId", staff.Id);
-                HttpContext.Session.SetString("StaffName", staff.FullName);
-                return RedirectToPage("/Staff/Dashboard");
+                var staffHasher = new PasswordHasher<RestaurantManagementSystem.Models.Staff>();
+
+                bool passwordCorrect;
+
+                // Check whether password is hashed
+                if (staff.Password.StartsWith("AQAAAA"))
+                {
+                    var result = staffHasher.VerifyHashedPassword(
+                        staff,
+                        staff.Password,
+                        password);
+
+                    passwordCorrect =
+                        result != PasswordVerificationResult.Failed;
+                }
+                else
+                {
+                    // Support existing plain-text staff passwords
+                    passwordCorrect = staff.Password == password;
+
+                    // Upgrade existing password to hashed format
+                    if (passwordCorrect)
+                    {
+                        staff.Password = staffHasher.HashPassword(staff, password);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                if (passwordCorrect)
+                {
+                    HttpContext.Session.Clear();
+                    HttpContext.Session.SetString("StaffLoggedIn", "true");
+                    HttpContext.Session.SetInt32("StaffId", staff.Id);
+                    HttpContext.Session.SetString("StaffName", staff.FullName);
+
+                    return RedirectToPage("/Staff/Dashboard");
+                }
             }
 
-            // 3. Customer Login (Using PasswordHasher to verify hashed passwords securely)
+            // 3. Customer Login
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(c => c.Email == input);
 
             if (customer != null)
             {
-                var result = _hasher.VerifyHashedPassword(customer, customer.Password, password);
-                if (result == PasswordVerificationResult.Success)
+                var result = _hasher.VerifyHashedPassword(
+                    customer,
+                    customer.Password,
+                    password);
+
+                if (result != PasswordVerificationResult.Failed)
                 {
                     HttpContext.Session.Clear();
                     HttpContext.Session.SetString("CustomerLoggedIn", "true");
                     HttpContext.Session.SetInt32("CustomerId", customer.CustomerId);
                     HttpContext.Session.SetString("CustomerName", customer.FullName);
+
                     return RedirectToPage("/Customer/Dashboard");
                 }
             }
@@ -89,19 +128,20 @@ namespace RestaurantManagementSystem.Pages
             return LoginFailed("Invalid email/username or password.");
         }
 
-        // Logout Handler: Clears session and returns to Index homepage
+        // Logout Handler
         public IActionResult OnPostLogout()
         {
             HttpContext.Session.Clear();
             return RedirectToPage("/Index");
         }
 
-        // Show the homepage again with the popup open and the error message
+        // Login Error
         private IActionResult LoginFailed(string message)
         {
             ViewData["LoginError"] = message;
             ViewData["LoginEmail"] = LoginEmail;
             ViewData["OpenLogin"] = true;
+
             return Page();
         }
     }
