@@ -31,16 +31,17 @@
                 <a asp-page="/Staff/Reservation">Reservations</a>
                 <a asp-page="/Staff/Order">Orders</a>
                 <a asp-page="/Staff/Payment">Payments</a>
+                <a asp-page="/Staff/Profile"> My Profile</a>
             </div>
 
             <div class="staff-user-section">
                 <div class="staff-welcome">
                     <span>Welcome back,</span>
-                    <strong>Staff</strong>
+                    <strong>@Context.Session.GetString("StaffName")</strong>
                 </div>
 
                 <form method="post"
-                      asp-page="/Staff/Dashboard"
+                      asp-page="/Index"
                       asp-page-handler="Logout">
                     <button type="submit" class="staff-logout">
                         <i class="fa-solid fa-right-from-bracket"></i>

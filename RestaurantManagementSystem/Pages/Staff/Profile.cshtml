@@ -1,0 +1,167 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Staff.ProfileModel
+
+@{
+    Layout = "_StaffLayout";
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="staff-profile-container">
+
+    <!-- Page Heading -->
+    <div class="staff-profile-heading">
+        <div>
+            <h2><i class="fa-solid fa-user-circle me-2"></i> My Profile</h2>
+            <p>View and manage your personal account information.</p>
+        </div>
+    </div>
+
+    <!-- Profile Success Message -->
+    @if (TempData["ProfileSuccess"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            @TempData["ProfileSuccess"]
+        </div>
+    }
+
+    <!-- Profile Card -->
+    <div class="staff-profile-card">
+
+        <!-- Staff Header -->
+        <div class="staff-profile-card-header">
+            <div class="staff-profile-avatar">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div>
+                <h4>@Model.Profile.FullName</h4>
+                <p>Staff Account</p>
+            </div>
+        </div>
+
+        <hr />
+
+        <!-- Personal Information -->
+        <form method="post" asp-page-handler="UpdateProfile">
+
+            <div asp-validation-summary="All"
+                 class="text-danger mb-3"></div>
+
+            <h5 class="staff-profile-section-title">
+                <i class="fa-solid fa-id-card me-2"></i>
+                Personal Information
+            </h5>
+
+            <div class="staff-profile-form-group">
+                <label asp-for="Profile.FullName"></label>
+                <input asp-for="Profile.FullName" class="form-control" />
+                <span asp-validation-for="Profile.FullName"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="staff-profile-form-group">
+                <label asp-for="Profile.Email"></label>
+                <input asp-for="Profile.Email" class="form-control" />
+                <span asp-validation-for="Profile.Email"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="staff-profile-form-group">
+                <label asp-for="Profile.Username"></label>
+                <input asp-for="Profile.Username" class="form-control" />
+                <span asp-validation-for="Profile.Username"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="staff-profile-actions">
+                <button type="submit" class="staff-profile-save-btn">
+                    <i class="fa-solid fa-floppy-disk me-2"></i>
+                    Save Changes
+                </button>
+            </div>
+
+        </form>
+
+        <hr class="my-4" />
+
+        <!-- Password Success Message -->
+        @if (TempData["PasswordSuccess"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fa-solid fa-circle-check me-2"></i>
+                @TempData["PasswordSuccess"]
+            </div>
+        }
+
+        <!-- Change Password -->
+        <h5 class="staff-profile-section-title">
+            <i class="fa-solid fa-lock me-2"></i>
+            Change Password
+        </h5>
+
+        <form method="post" asp-page-handler="ChangePassword">
+
+            <div asp-validation-summary="ModelOnly"
+                class="text-danger mb-3"></div>
+
+            <div class="staff-profile-form-group">
+                <label asp-for="Password.CurrentPassword">
+                    Current Password
+                </label>
+
+                <input asp-for="Password.CurrentPassword"
+                       type="password"
+                       class="form-control"
+                       placeholder="Enter your current password" />
+
+                <span asp-validation-for="Password.CurrentPassword"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="staff-profile-form-group">
+                <label asp-for="Password.NewPassword">
+                    New Password
+                </label>
+
+                <input asp-for="Password.NewPassword"
+                       type="password"
+                       class="form-control"
+                       placeholder="Enter your new password" />
+
+                <span asp-validation-for="Password.NewPassword"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="staff-profile-form-group">
+                <label asp-for="Password.ConfirmNewPassword">
+                    Confirm New Password
+                </label>
+
+                <input asp-for="Password.ConfirmNewPassword"
+                       type="password"
+                       class="form-control"
+                       placeholder="Confirm your new password" />
+
+                <span asp-validation-for="Password.ConfirmNewPassword"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="staff-profile-actions">
+                <button type="submit" class="staff-profile-save-btn">
+                    <i class="fa-solid fa-key me-2"></i>
+                    Change Password
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
+}
+
