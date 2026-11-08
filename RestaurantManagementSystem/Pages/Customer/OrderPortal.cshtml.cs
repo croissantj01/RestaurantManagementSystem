@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RestaurantManagementSystem.Data;
 using RestaurantManagementSystem.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace RestaurantManagementSystem.Pages.Customer
 {
@@ -35,6 +36,15 @@ namespace RestaurantManagementSystem.Pages.Customer
 
         [BindProperty]
         public int TableId { get; set; }
+
+        // Separate Date and Time bound properties for UI inputs
+        [BindProperty]
+        [DataType(DataType.Date)]
+        public DateTime DineInDate { get; set; } = DateTime.Today;
+
+        [BindProperty]
+        [DataType(DataType.Time)]
+        public TimeSpan DineInTime { get; set; } = DateTime.Now.AddHours(1).TimeOfDay;
 
         public async Task<IActionResult> OnGetAsync(int? pax, string? code)
         {
@@ -190,6 +200,15 @@ namespace RestaurantManagementSystem.Pages.Customer
                 return RedirectToPage(new { pax = SelectedPax });
             }
 
+            // Combine separate Date and Time inputs into a single DateTime
+            DateTime combinedDineInDateTime = DineInDate.Date + DineInTime;
+
+            if (combinedDineInDateTime < DateTime.Now)
+            {
+                TempData["ErrorMessage"] = "Dine-in date and time cannot be in the past.";
+                return RedirectToPage(new { pax = SelectedPax });
+            }
+
             await LoadDataAsync(customerId.Value);
 
             string? activeCode = HttpContext.Session.GetString("ActivePromoCode");
@@ -211,6 +230,7 @@ namespace RestaurantManagementSystem.Pages.Customer
             {
                 CustomerId = customerId.Value,
                 TableId = TableId,
+                DineInDateTime = combinedDineInDateTime, // Saved to Order model
                 OrderDate = DateTime.Now,
                 Status = "Pending",
                 PaymentStatus = "Unpaid",
@@ -319,28 +339,20 @@ namespace RestaurantManagementSystem.Pages.Customer
                         DiscountDescription = "Add a dessert to use code";
                     }
                 }
-                else if (AppliedPromoCode.StartsWith("VOUCHER10-"))
-                {
-                    DiscountAmount = 10.00m;
-                    DiscountDescription = "RM10 Off Voucher";
-                }
             }
 
-            decimal discountedSubtotal = Math.Max(0m, Subtotal - DiscountAmount);
-            Tax = discountedSubtotal * 0.06m;
-            Total = discountedSubtotal + Tax;
+            Tax = Math.Round((Subtotal - DiscountAmount) * 0.06m, 2);
+            if (Tax < 0) Tax = 0;
 
-            var tables = await _context.RestaurantTables
-                .Where(t => t.Status == "Available" && t.Capacity >= SelectedPax)
-                .OrderBy(t => t.Capacity)
-                .ThenBy(t => t.TableNumber)
+            Total = (Subtotal - DiscountAmount) + Tax;
+            if (Total < 0) Total = 0;
+
+            var availableTables = await _context.RestaurantTables
+                .Where(t => t.Capacity >= SelectedPax)
+                .OrderBy(t => t.TableNumber)
                 .ToListAsync();
 
-            Tables = new SelectList(tables.Select(t => new
-            {
-                t.RestaurantTableId,
-                DisplayText = $"Table {t.TableNumber} ({t.DiningArea} - {t.Capacity} Seats)"
-            }), "RestaurantTableId", "DisplayText");
+            Tables = new SelectList(availableTables, "RestaurantTableId", "TableNumber");
         }
     }
 }

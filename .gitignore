@@ -361,3 +361,31 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# ========================================
+# Visual Studio & .NET Build Artifacts
+# ========================================
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ========================================
+# User Uploads & Local Media (Prevents Wallpapers/Photos)
+# ========================================
+wwwroot/images/menu/*
+wwwroot/images/announcements/*
+!wwwroot/images/menu/.gitkeep
+!wwwroot/images/announcements/.gitkeep
+
+# ========================================
+# Local Database Files (SQLite / LocalDB)
+# ========================================
+*.db
+*.db-shm
+*.db-wal
+*.mdf
+*.ldf

@@ -1,0 +1,57 @@
+﻿@page
+@model RestaurantManagementSystem.Pages.Customer.VerifyEmailModel
+
+@{
+    ViewData["Title"] = "Verify Email";
+    Layout = "_AuthLayout";
+}
+
+<div class="auth-shell">
+
+    <!-- Left food photo -->
+    <div class="auth-side">
+        <div class="auth-side-text">
+            <h3><i class="fa-solid fa-utensils"></i>MyCafe</h3>
+            <p>Verification keeps your account safe and secure.</p>
+        </div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="auth-main">
+        <div class="auth-main-body">
+
+            <div class="auth-icon"><i class="fa-solid fa-envelope-circle-check"></i></div>
+            <h2 class="auth-title">VERIFY EMAIL</h2>
+            <p class="text-muted text-center small mb-4">
+                We sent a 6-digit verification code to <br />
+                <strong class="text-dark">@Model.PendingEmail</strong>
+            </p>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success small py-2">@TempData["SuccessMessage"]</div>
+            }
+
+            <form method="post" class="auth-form">
+
+                <div class="auth-field">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-shield-keyhole"></i></span>
+                        <input asp-for="EnteredOtp" class="form-control text-center fw-bold fs-5" placeholder="6-Digit Code" maxlength="6" autofocus />
+                    </div>
+                    <span asp-validation-for="EnteredOtp" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <button type="submit" asp-page-handler="ResendOtp" class="btn btn-outline-secondary btn-sm" formnovalidate>Resend Code</button>
+                    <button type="submit" asp-page-handler="Verify" class="btn btn-auth">VERIFY & CONTINUE</button>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="auth-bottom">
+            Wrong email address? <a asp-page="/Customer/Register">Start Over</a>
+        </div>
+    </div>
+</div>
