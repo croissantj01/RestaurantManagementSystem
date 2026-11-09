@@ -111,22 +111,33 @@ namespace RestaurantManagementSystem.Pages.Staff
             {
                 "Pending",
                 "Preparing",
+                "Ready",
                 "Completed",
                 "Cancelled"
             };
 
-            if (!allowedStatuses.Contains(status))
+            if (string.IsNullOrWhiteSpace(status) || !allowedStatuses.Contains(status))
             {
                 return BadRequest();
             }
 
             order.Status = status;
 
+            // Free the table when staff cancel an order (same as customer cancel)
+            if (status == "Cancelled" && order.TableId != null)
+            {
+                var table = await _context.RestaurantTables.FindAsync(order.TableId);
+                if (table != null)
+                {
+                    table.Status = "Available";
+                }
+            }
+
             await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Order #{order.OrderId} status updated to {status}.";
 
             return RedirectToPage();
         }
     }
 }
-
-

@@ -27,20 +27,26 @@ namespace RestaurantManagementSystem.Pages.Customer
 
             Bookings = new List<ReservationViewModel>();
 
+            // Load this customer's existing reviews once
+            var myReviews = await _context.Reviews
+                .Where(rv => rv.CustomerId == customerId.Value)
+                .ToListAsync();
+
             // 1. Fetch standard Table Reservations (Table-Only)
             var reservations = await _context.Reservations
                 .Include(r => r.RestaurantTable)
-                .Where(r => r.CustomerId == customerId.Value && r.Status != "Hidden") // Skip hidden ones if desired, or handle via a boolean flag
+                .Where(r => r.CustomerId == customerId.Value && r.Status != "Hidden")
                 .ToListAsync();
 
             foreach (var r in reservations)
             {
-                // Skip if hidden
                 if (r.Status == "Hidden") continue;
 
                 DateTime reservationDateTime = (r.ReservationDate != default && r.ReservationDate.Year > 1)
                     ? r.ReservationDate.Date.Add(r.ReservationTime)
                     : (r.CreatedAt != default && r.CreatedAt.Year > 1 ? r.CreatedAt : DateTime.Now);
+
+                var review = myReviews.FirstOrDefault(rv => rv.BookingType == "Table Only" && rv.BookingId == r.ReservationId);
 
                 Bookings.Add(new ReservationViewModel
                 {
@@ -52,6 +58,9 @@ namespace RestaurantManagementSystem.Pages.Customer
                     StartTime = reservationDateTime,
                     Guests = r.NumberOfGuests,
                     Status = r.Status,
+                    IsCompleted = r.Status == "Completed",
+                    ReviewRating = review?.Rating,
+                    ReviewComment = review?.Comment,
                     OrderItems = new List<OrderItem>()
                 });
             }
@@ -66,7 +75,6 @@ namespace RestaurantManagementSystem.Pages.Customer
 
             foreach (var o in orders)
             {
-                // Skip if hidden
                 if (o.Status == "Hidden") continue;
 
                 DateTime orderDateTime = (o.DineInDateTime != default && o.DineInDateTime.Year > 1)
@@ -79,6 +87,8 @@ namespace RestaurantManagementSystem.Pages.Customer
                     displayStatus = (o.Status == "Completed" || o.PaymentStatus == "Paid") ? "Reserved" : o.Status;
                 }
 
+                var review = myReviews.FirstOrDefault(rv => rv.BookingType == "Table + Food Order" && rv.BookingId == o.OrderId);
+
                 Bookings.Add(new ReservationViewModel
                 {
                     Id = o.OrderId,
@@ -89,6 +99,9 @@ namespace RestaurantManagementSystem.Pages.Customer
                     StartTime = orderDateTime,
                     Guests = 2,
                     Status = displayStatus,
+                    IsCompleted = o.Status == "Completed",
+                    ReviewRating = review?.Rating,
+                    ReviewComment = review?.Comment,
                     TotalAmount = o.TotalAmount,
                     OrderItems = o.OrderItems.ToList()
                 });
@@ -153,7 +166,7 @@ namespace RestaurantManagementSystem.Pages.Customer
 
                 if (reservation != null)
                 {
-                    reservation.Status = "Hidden"; // Mark status as hidden so it filters out
+                    reservation.Status = "Hidden";
                     await _context.SaveChangesAsync();
                 }
             }
@@ -164,11 +177,86 @@ namespace RestaurantManagementSystem.Pages.Customer
 
                 if (order != null)
                 {
-                    order.Status = "Hidden"; // Mark status as hidden
+                    order.Status = "Hidden";
                     await _context.SaveChangesAsync();
                 }
             }
 
+            return RedirectToPage();
+        }
+
+        // Handler to submit a review for a completed booking
+        public async Task<IActionResult> OnPostReviewAsync(int id, string type, int rating, string? comment)
+        {
+            int? customerId = HttpContext.Session.GetInt32("CustomerId");
+            if (customerId == null) return RedirectToPage("/Customer/Login");
+
+            // Validate rating
+            if (rating < 1 || rating > 5)
+            {
+                TempData["ErrorMessage"] = "Please select a star rating from 1 to 5.";
+                return RedirectToPage();
+            }
+
+            // Validate comment (max 100 words)
+            comment = comment?.Trim();
+            if (!string.IsNullOrEmpty(comment))
+            {
+                int wordCount = comment.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
+                if (wordCount > 100 || comment.Length > 1000)
+                {
+                    TempData["ErrorMessage"] = "Your review is too long. Please keep it within 100 words.";
+                    return RedirectToPage();
+                }
+            }
+            else
+            {
+                comment = null;
+            }
+
+            // Make sure the booking belongs to this customer and is completed
+            bool isCompleted = false;
+
+            if (type == "Table Only")
+            {
+                isCompleted = await _context.Reservations
+                    .AnyAsync(r => r.ReservationId == id && r.CustomerId == customerId.Value && r.Status == "Completed");
+            }
+            else if (type == "Table + Food Order")
+            {
+                isCompleted = await _context.Orders
+                    .AnyAsync(o => o.OrderId == id && o.CustomerId == customerId.Value && o.Status == "Completed");
+            }
+
+            if (!isCompleted)
+            {
+                TempData["ErrorMessage"] = "You can only review a completed booking.";
+                return RedirectToPage();
+            }
+
+            // One review per booking
+            bool alreadyReviewed = await _context.Reviews
+                .AnyAsync(rv => rv.CustomerId == customerId.Value && rv.BookingType == type && rv.BookingId == id);
+
+            if (alreadyReviewed)
+            {
+                TempData["ErrorMessage"] = "You have already reviewed this booking.";
+                return RedirectToPage();
+            }
+
+            _context.Reviews.Add(new Review
+            {
+                CustomerId = customerId.Value,
+                BookingType = type,
+                BookingId = id,
+                Rating = rating,
+                Comment = comment,
+                CreatedAt = DateTime.Now
+            });
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Thank you! Your review has been submitted.";
             return RedirectToPage();
         }
     }
@@ -184,6 +272,9 @@ namespace RestaurantManagementSystem.Pages.Customer
         public int Guests { get; set; }
         public string Status { get; set; } = "";
         public decimal TotalAmount { get; set; }
+        public bool IsCompleted { get; set; }
+        public int? ReviewRating { get; set; }
+        public string? ReviewComment { get; set; }
         public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

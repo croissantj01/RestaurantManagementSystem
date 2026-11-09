@@ -27,11 +27,10 @@ namespace RestaurantManagementSystem.Models
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        // --- Membership & Loyalty Properties ---
         public bool IsMember { get; set; } = false;
 
         [StringLength(20)]
-        public string MembershipTier { get; set; } = "Bronze"; // Bronze, Silver, Gold
+        public string MembershipTier { get; set; } = "Bronze";
 
         public int LoyaltyPoints { get; set; } = 0;
 

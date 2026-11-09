@@ -238,8 +238,6 @@ namespace RestaurantManagementSystem.Pages.Customer
                     r.Status == "Reserved")
                 .ToListAsync();
 
-            // Remove tables that have
-            // overlapping reservations
             Tables =
                 allTables
                     .Where(table =>

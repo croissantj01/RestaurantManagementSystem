@@ -62,19 +62,6 @@ namespace RestaurantManagementSystem.Pages.Customer
                 PopularMenus = await _context.Menus.Take(3).ToListAsync();
             }
 
-            // Fallback mock items if the database menu table itself is empty
-            if (!FeaturedMenus.Any())
-            {
-                FeaturedMenus.Add(new RestaurantManagementSystem.Models.Menu
-                {
-                    Id = 1,
-                    MenuName = "Macaroon",
-                    Description = "Delicious sweet pastry with raspberry/coconut filling.",
-                    Price = 12.00m,
-                    ImagePath = "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=60"
-                });
-            }
-
             return Page();
         }
 

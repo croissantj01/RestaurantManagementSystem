@@ -22,6 +22,7 @@ namespace RestaurantManagementSystem.Data
         public DbSet<Announcement> Announcements { get; set; } = default!;
         public DbSet<Notification> Notifications { get; set; } = default!;
         public DbSet<RestaurantManagementSystem.Pages.Customer.RedeemedVoucher> RedeemedVouchers { get; set; }
+        public DbSet<Review> Reviews { get; set; }
 
         // Helper method to add system notifications directly via DbContext
         public async Task AddNotificationAsync(int customerId, string message)

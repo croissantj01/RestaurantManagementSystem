@@ -42,6 +42,11 @@
 
         <!-- Navigation Buttons -->
         <div class="d-grid gap-2">
+            <!-- Download / Print Receipt Button -->
+            <a asp-page-handler="ExportPdf" asp-route-orderId="@Model.Order?.OrderId" target="_blank" class="btn btn-outline-secondary rounded-pill py-2.5 fw-bold shadow-sm">
+                <i class="fa-solid fa-file-pdf text-danger me-2"></i> Download Receipt (PDF)
+            </a>
+
             <a asp-page="/Customer/MyReservation" class="btn btn-dark rounded-pill py-3 fw-bold shadow-sm">
                 <i class="fa-solid fa-calendar-check me-2"></i> View My Bookings &amp; Orders
             </a>

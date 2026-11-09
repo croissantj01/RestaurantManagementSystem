@@ -392,6 +392,40 @@ namespace RestaurantManagementSystem.Migrations
                     b.ToTable("RestaurantTables");
                 });
 
+            modelBuilder.Entity("RestaurantManagementSystem.Models.Review", b =>
+                {
+                    b.Property<int>("ReviewId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReviewId"));
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BookingType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReviewId");
+
+                    b.ToTable("Reviews");
+                });
+
             modelBuilder.Entity("RestaurantManagementSystem.Models.Staff", b =>
                 {
                     b.Property<int>("Id")

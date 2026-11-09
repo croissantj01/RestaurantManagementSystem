@@ -16,6 +16,14 @@
         </p>
     </div>
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
 <!-- Summary Cards -->
 <div class="reservation-summary">
 
@@ -217,6 +225,11 @@
                         @order.DineInDateTime.ToString("dd/MM/yyyy hh:mm tt")
                     </p>
 
+                    <p>
+                        <strong>Current Status:</strong>
+                        @order.Status
+                    </p>
+
                     <hr />
 
                     <h6 class="fw-bold">Ordered Items</h6>
@@ -246,6 +259,27 @@
                         Total: RM @order.TotalAmount.ToString("N2")
                     </h6>
 
+                    <hr />
+
+                    <!-- Update Status -->
+                    <form method="post" asp-page-handler="UpdateStatus" class="m-0">
+                        <input type="hidden" name="id" value="@order.OrderId" />
+
+                        <label class="form-label fw-bold">Update Status</label>
+                        <div class="d-flex gap-2">
+                            <select name="status" class="form-select">
+                                <option value="Pending" selected="@(order.Status == "Pending")">Pending</option>
+                                <option value="Preparing" selected="@(order.Status == "Preparing")">Preparing</option>
+                                <option value="Ready" selected="@(order.Status == "Ready")">Ready</option>
+                                <option value="Completed" selected="@(order.Status == "Completed")">Completed</option>
+                                <option value="Cancelled" selected="@(order.Status == "Cancelled")">Cancelled</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary text-nowrap">
+                                Update Status
+                            </button>
+                        </div>
+                    </form>
+
                 </div>
 
                 <div class="modal-footer">
@@ -260,4 +294,3 @@
         </div>
     </div>
 }
-

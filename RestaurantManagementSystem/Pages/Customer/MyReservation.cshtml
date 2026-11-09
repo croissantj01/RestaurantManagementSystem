@@ -9,6 +9,50 @@
     Layout = "_CustomerLayout";
 }
 
+<style>
+    /* Clickable 5-star picker (DOM order is 5 -> 1, reversed visually so hover fills left to right) */
+    .star-rating {
+        display: inline-flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        position: relative;
+    }
+
+        .star-rating input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+
+        .star-rating label {
+            font-size: 1.7rem;
+            line-height: 1;
+            color: #d9d9d9;
+            cursor: pointer;
+            padding: 0 2px;
+            transition: color 0.15s ease;
+        }
+
+            .star-rating input:checked ~ label,
+            .star-rating label:hover,
+            .star-rating label:hover ~ label {
+                color: #f59e0b;
+            }
+
+    .star-static .star-on {
+        color: #f59e0b;
+    }
+
+    .star-static .star-off {
+        color: #d9d9d9;
+    }
+
+    .star-static span {
+        font-size: 1.2rem;
+    }
+</style>
+
 <div class="my-4">
     <!-- Page Header Section -->
     <div class="mb-4">
@@ -20,6 +64,14 @@
     {
         <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4 shadow-sm" role="alert">
             @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 mb-4 shadow-sm" role="alert">
+            @TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
@@ -49,6 +101,7 @@
             @foreach (var booking in Model.Bookings)
             {
                 DateTime endDateTime = booking.StartTime.AddHours(2);
+                string key = (booking.Type == "Table Only" ? "R" : "O") + booking.Id;
 
                 <div class="col-md-6 col-xl-4">
                     <div class="card h-100 border-0 rounded-4 shadow-sm p-4 bg-white d-flex flex-column justify-content-between">
@@ -66,7 +119,13 @@
                                 </div>
 
                                 <div>
-                                    @if (booking.Status == "Reserved" || booking.Status == "Completed")
+                                    @if (booking.IsCompleted)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-1.5 rounded-pill fw-bold" style="font-size: 11px;">
+                                            <i class="fa-solid fa-check-double me-1"></i> Completed
+                                        </span>
+                                    }
+                                    else if (booking.Status == "Reserved")
                                     {
                                         <span class="badge bg-success bg-opacity-10 text-success px-3 py-1.5 rounded-pill fw-bold" style="font-size: 11px;">
                                             <i class="fa-solid fa-check me-1"></i> Active
@@ -133,6 +192,60 @@
                                     <p class="text-muted small italic mb-0">No food pre-ordered for this table reservation.</p>
                                 }
                             </div>
+
+                            <!-- Review Section (only for completed bookings) -->
+                            @if (booking.IsCompleted)
+                            {
+                                <div class="pt-3 border-top">
+                                    @if (booking.ReviewRating.HasValue)
+                                    {
+                                        <div class="small fw-bold mb-1" style="color: var(--text-main);">Your Review</div>
+                                        <div class="star-static">
+                                            @for (int s = 1; s <= 5; s++)
+                                            {
+                                                <span class="@(s <= booking.ReviewRating.Value ? "star-on" : "star-off")">&#9733;</span>
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrWhiteSpace(booking.ReviewComment))
+                                        {
+                                            <p class="small text-muted mb-0 mt-1">@booking.ReviewComment</p>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-warning btn-sm rounded-pill px-3 fw-bold" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#review-@(key)" aria-expanded="false">
+                                            <i class="fa-regular fa-star me-1"></i> Leave a Review
+                                        </button>
+
+                                        <div class="collapse mt-3" id="review-@(key)">
+                                            <form method="post" asp-page-handler="Review" class="m-0">
+                                                <input type="hidden" name="id" value="@booking.Id" />
+                                                <input type="hidden" name="type" value="@booking.Type" />
+
+                                                <div class="small fw-bold mb-1">How was your experience?</div>
+                                                <div class="star-rating mb-2">
+                                                    @for (int s = 5; s >= 1; s--)
+                                                    {
+                                                        <input type="radio" id="star-@(key)-@(s)" name="rating" value="@s" required />
+                                                        <label for="star-@(key)-@(s)" title="Rate @s out of 5">&#9733;</label>
+                                                    }
+                                                </div>
+
+                                                <textarea name="comment" rows="3" class="form-control form-control-sm review-comment"
+                                                          placeholder="Tell us more (optional, max 100 words)"></textarea>
+
+                                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                                    <small class="word-count text-muted">0 / 100 words</small>
+                                                    <button type="submit" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-white review-submit">
+                                                        Submit Review
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    }
+                                </div>
+                            }
                         </div>
 
                         <!-- Card Footer: Total Amount & Action Button -->
@@ -143,21 +256,11 @@
                             </div>
 
                             <div>
-                                @if (booking.Status != "Cancelled")
-                                {
-                                    <form method="post" asp-page-handler="Cancel" class="m-0 d-inline">
-                                        <input type="hidden" name="id" value="@booking.Id" />
-                                        <input type="hidden" name="type" value="@booking.Type" />
-                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-4 fw-bold" onclick="return confirm('Are you sure you want to cancel this booking?');">
-                                            Cancel Booking
-                                        </button>
-                                    </form>
-                                }
-                                else
+                                @if (booking.Status == "Cancelled")
                                 {
                                     <div class="d-flex align-items-center gap-2">
                                         <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-1 rounded-pill" style="font-size: 11px;">Cancelled</span>
-                                        
+
                                         <!-- Trash Can Button to Hide Cancelled Bookings -->
                                         <form method="post" asp-page-handler="Hide" class="m-0 d-inline">
                                             <input type="hidden" name="id" value="@booking.Id" />
@@ -167,6 +270,16 @@
                                             </button>
                                         </form>
                                     </div>
+                                }
+                                else if (!booking.IsCompleted)
+                                {
+                                    <form method="post" asp-page-handler="Cancel" class="m-0 d-inline">
+                                        <input type="hidden" name="id" value="@booking.Id" />
+                                        <input type="hidden" name="type" value="@booking.Type" />
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-4 fw-bold" onclick="return confirm('Are you sure you want to cancel this booking?');">
+                                            Cancel Booking
+                                        </button>
+                                    </form>
                                 }
                             </div>
                         </div>
@@ -189,6 +302,25 @@
                 this.classList.remove('btn-light', 'text-muted', 'bg-white', 'shadow-sm');
                 this.classList.add('btn-dark', 'text-white');
             });
+        });
+
+        // Live word counter for review text (max 100 words)
+        document.querySelectorAll('.review-comment').forEach(function (textarea) {
+            var form = textarea.closest('form');
+            var counter = form.querySelector('.word-count');
+            var submitBtn = form.querySelector('.review-submit');
+
+            function updateCount() {
+                var words = textarea.value.trim().split(/\s+/).filter(Boolean).length;
+                counter.textContent = words + ' / 100 words';
+                var tooLong = words > 100;
+                counter.classList.toggle('text-danger', tooLong);
+                counter.classList.toggle('text-muted', !tooLong);
+                submitBtn.disabled = tooLong;
+            }
+
+            textarea.addEventListener('input', updateCount);
+            updateCount();
         });
     </script>
 }
