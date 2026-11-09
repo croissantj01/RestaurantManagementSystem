@@ -19,6 +19,22 @@
     margin-bottom: 4px;
 }
 
+/* Filter by dining area */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.filter-select {
+    width: auto;
+    min-width: 200px;
+    border-radius: 50px;
+    border: 1.5px solid #D6E6F0;
+}
+
 /* Dining area chip */
 .area-chip {
     display: inline-block;

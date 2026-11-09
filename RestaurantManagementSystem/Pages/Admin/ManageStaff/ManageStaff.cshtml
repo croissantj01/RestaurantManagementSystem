@@ -31,16 +31,36 @@
 }
 
 <div class="panel-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="panel-title"><i class="fa-solid fa-users me-2 icon-accent"></i>All Staff Accounts</h5>
-        <span class="count-pill">@Model.StaffList.Count total</span>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <h5 class="panel-title mb-0"><i class="fa-solid fa-users me-2 icon-accent"></i>All Staff Accounts</h5>
+
+        <div class="d-flex align-items-center gap-2">
+            <span class="count-pill">
+                @if (Model.StaffList.Count != Model.TotalCount)
+                {
+                    @:@Model.StaffList.Count of @Model.TotalCount shown
+                }
+                else
+                {
+                    @:@Model.TotalCount total
+                }
+            </span>
+            <form method="get" class="d-flex gap-2">
+                <input type="text" name="Q" value="@Model.Q" class="form-control form-control-sm" placeholder="Search name or email" />
+                <button type="submit" class="btn btn-sm btn-orange px-3"><i class="fa-solid fa-magnifying-glass"></i></button>
+                @if (!string.IsNullOrWhiteSpace(Model.Q))
+                {
+                    <a asp-page="/Admin/ManageStaff/ManageStaff" class="btn btn-sm btn-outline-secondary">Clear</a>
+                }
+            </form>
+        </div>
     </div>
 
     @if (Model.StaffList.Count == 0)
     {
         <div class="empty-state">
             <i class="fa-solid fa-user-slash"></i>
-            No staff accounts yet. Click Add Staff to create one.
+            @(string.IsNullOrWhiteSpace(Model.Q) ? "No staff accounts yet. Click Add Staff to create one." : "No staff match your search.")
         </div>
     }
     else

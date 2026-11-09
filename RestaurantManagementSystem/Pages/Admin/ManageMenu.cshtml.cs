@@ -23,6 +23,19 @@ namespace RestaurantManagementSystem.Pages.Admin
         [TempData]
         public string? StatusMessage { get; set; }
 
+        // ---- Search + filter (bound from the query string) ----
+        [BindProperty(SupportsGet = true)]
+        public string? SearchTerm { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public string? CategoryFilter { get; set; }
+
+        // Options for the category dropdown (distinct categories in the database)
+        public List<string> Categories { get; set; } = new List<string>();
+
+        // Total number of menu items before any filtering
+        public int TotalCount { get; set; }
+
         public async Task<IActionResult> OnGetAsync()
         {
             // Check admin login
@@ -84,7 +97,32 @@ namespace RestaurantManagementSystem.Pages.Admin
 
         private async Task LoadMenuListAsync()
         {
-            MenuList = await _context.Menus
+            // Total before filtering (used for the "x of y shown" label)
+            TotalCount = await _context.Menus.CountAsync();
+
+            // Distinct categories for the filter dropdown
+            Categories = await _context.Menus
+                .Select(m => m.Category)
+                .Distinct()
+                .OrderBy(c => c)
+                .ToListAsync();
+
+            var query = _context.Menus.AsQueryable();
+
+            // Filter by category
+            if (!string.IsNullOrWhiteSpace(CategoryFilter))
+            {
+                query = query.Where(m => m.Category == CategoryFilter);
+            }
+
+            // Search by menu name (case-insensitive, partial match)
+            if (!string.IsNullOrWhiteSpace(SearchTerm))
+            {
+                var term = SearchTerm.Trim().ToLower();
+                query = query.Where(m => m.MenuName.ToLower().Contains(term));
+            }
+
+            MenuList = await query
                 .OrderBy(m => m.Category)
                 .ThenBy(m => m.MenuName)
                 .ToListAsync();

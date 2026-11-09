@@ -5,6 +5,8 @@
     Layout = "_AdminLayout";
     ViewData["Title"] = "Manage Restaurant Tables";
     ViewData["ActiveNav"] = "Tables";
+
+    bool isFiltering = !string.IsNullOrWhiteSpace(Model.AreaFilter);
 }
 
 @section Styles {
@@ -22,17 +24,49 @@
     </a>
 </div>
 
+<!-- Filter by Dining Area -->
+<form method="get" class="filter-bar">
+    <select name="AreaFilter" class="form-select filter-select" onchange="this.form.submit()">
+        <option value="">All Dining Areas</option>
+        @foreach (var area in Model.DiningAreas)
+        {
+            <option value="@area" selected="@(area == Model.AreaFilter)">@area</option>
+        }
+    </select>
+
+    @if (isFiltering)
+    {
+        <a asp-page="Index" class="btn-back">Clear</a>
+    }
+</form>
+
 <div class="panel-card">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="panel-title"><i class="fa-solid fa-chair me-2 icon-accent"></i>All Tables</h5>
-        <span class="count-pill">@Model.RestaurantTables.Count total</span>
+        <span class="count-pill">
+            @if (Model.RestaurantTables.Count != Model.TotalCount)
+            {
+                @:@Model.RestaurantTables.Count of @Model.TotalCount shown
+            }
+            else
+            {
+                @:@Model.TotalCount total
+            }
+        </span>
     </div>
 
     @if (Model.RestaurantTables.Count == 0)
     {
         <div class="empty-state">
             <i class="fa-solid fa-chair"></i>
-            No restaurant tables have been added yet.
+            @if (Model.TotalCount == 0)
+            {
+                @:No restaurant tables have been added yet.
+            }
+            else
+            {
+                @:No tables found in this dining area.
+            }
         </div>
     }
     else

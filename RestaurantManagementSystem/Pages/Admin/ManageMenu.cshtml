@@ -5,6 +5,11 @@
     Layout = "_AdminLayout";
     ViewData["Title"] = "Manage Menu";
     ViewData["ActiveNav"] = "Menu";
+
+    // Supports both the page model's StatusMessage and the "SuccessMessage" key
+    // set by the Add / Edit / Delete pages.
+    var successMessage = Model.StatusMessage ?? TempData["SuccessMessage"] as string;
+    bool isFiltering = !string.IsNullOrWhiteSpace(Model.SearchTerm) || !string.IsNullOrWhiteSpace(Model.CategoryFilter);
 }
 
 @section Styles {
@@ -22,25 +27,65 @@
     </a>
 </div>
 
-@if (TempData["SuccessMessage"] != null)
+@if (!string.IsNullOrEmpty(successMessage))
 {
     <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
-        <i class="fa-solid fa-circle-check me-1"></i> @TempData["SuccessMessage"]
+        <i class="fa-solid fa-circle-check me-1"></i> @successMessage
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
+<!-- Search + Category Filter -->
+<form method="get" class="filter-bar">
+    <div class="filter-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" name="SearchTerm" value="@Model.SearchTerm"
+               class="form-control" placeholder="Search by menu name..." />
+    </div>
+
+    <select name="CategoryFilter" class="form-select filter-select" onchange="this.form.submit()">
+        <option value="">All Categories</option>
+        @foreach (var c in Model.Categories)
+        {
+            <option value="@c" selected="@(c == Model.CategoryFilter)">@c</option>
+        }
+    </select>
+
+    <button type="submit" class="btn btn-orange">Search</button>
+
+    @if (isFiltering)
+    {
+        <a asp-page="/Admin/ManageMenu" class="btn-back">Clear</a>
+    }
+</form>
+
 <div class="panel-card">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="panel-title"><i class="fa-solid fa-burger me-2 icon-accent"></i>All Menu Items</h5>
-        <span class="count-pill">@Model.MenuList.Count total</span>
+        <span class="count-pill">
+            @if (Model.MenuList.Count != Model.TotalCount)
+            {
+                @:@Model.MenuList.Count of @Model.TotalCount shown
+            }
+            else
+            {
+                @:@Model.TotalCount total
+            }
+        </span>
     </div>
 
     @if (Model.MenuList.Count == 0)
     {
         <div class="empty-state">
             <i class="fa-solid fa-bowl-food"></i>
-            No menu items yet. Click Add Menu to create one.
+            @if (Model.TotalCount == 0)
+            {
+                @:No menu items yet. Click Add Menu to create one.
+            }
+            else
+            {
+                @:No menu items match your search or filter.
+            }
         </div>
     }
     else

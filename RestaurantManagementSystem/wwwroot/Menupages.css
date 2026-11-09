@@ -151,3 +151,39 @@
     height: 64px;
     font-size: 1.6rem;
 }
+
+/* Search + category filter (Manage Menu) */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.filter-search {
+    position: relative;
+    flex: 1 1 260px;
+    max-width: 380px;
+}
+
+    .filter-search i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #4DA8DA;
+    }
+
+    .filter-search .form-control {
+        padding-left: 42px;
+        border-radius: 50px;
+        border: 1.5px solid #D6E6F0;
+    }
+
+.filter-select {
+    width: auto;
+    min-width: 180px;
+    border-radius: 50px;
+    border: 1.5px solid #D6E6F0;
+}
