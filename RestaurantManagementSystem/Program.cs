@@ -28,6 +28,7 @@ builder.Services.AddSession(options =>
 
 // Explicitly disambiguated 'Customer' to prevent conflicts with Stripe.Customer
 builder.Services.AddScoped<IPasswordHasher<RestaurantManagementSystem.Models.Customer>, PasswordHasher<RestaurantManagementSystem.Models.Customer>>();
+builder.Services.AddTransient<RestaurantManagementSystem.Services.IEmailSender, RestaurantManagementSystem.Services.EmailSender>();
 
 var app = builder.Build();
 

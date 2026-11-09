@@ -12,10 +12,12 @@
         border-color: #d97706 !important;
         color: #d97706 !important;
     }
-    .btn-outline-custom:hover, .btn-outline-custom.active {
-        background-color: #d97706 !important;
-        color: #fff !important;
-    }
+
+        .btn-outline-custom:hover, .btn-outline-custom.active {
+            background-color: #d97706 !important;
+            color: #fff !important;
+        }
+
     .text-yellow-price {
         color: #d97706 !important;
     }
@@ -77,7 +79,7 @@
                         @foreach (var pop in Model.PopularMenus)
                         {
                             <div class="card border-0 shadow-sm rounded-4 p-2 bg-white" style="min-width: 180px;">
-                                <img src="@(string.IsNullOrEmpty(pop.ImagePath) ? "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=200&q=80" : pop.ImagePath)" 
+                                <img src="@(string.IsNullOrEmpty(pop.ImagePath) ? "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=200&q=80" : pop.ImagePath)"
                                      class="rounded-3 object-fit-cover mb-2" style="height: 110px; width: 100%;" />
                                 <h6 class="fw-bold mb-0 text-truncate" style="font-size: 0.9rem;">@pop.MenuName</h6>
                                 <span class="text-yellow-price fw-bold small">RM @pop.Price.ToString("N2")</span>
@@ -102,7 +104,7 @@
                     <div class="col-md-4 menu-card-item" data-category="@itemCat" data-name="@menu.MenuName.ToLower()" data-popular="@(isPopular ? "true" : "false")">
                         <div class="card h-100 p-3 shadow-sm rounded-4 border-0 bg-white">
                             <div class="d-flex flex-column gap-2 mb-2">
-                                <img src="@(string.IsNullOrEmpty(menu.ImagePath) ? "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=300&q=80" : menu.ImagePath)" 
+                                <img src="@(string.IsNullOrEmpty(menu.ImagePath) ? "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=300&q=80" : menu.ImagePath)"
                                      alt="@menu.MenuName" class="rounded-3 object-fit-cover w-100" style="height: 150px;" />
                                 <div>
                                     <div class="d-flex justify-content-between align-items-start">
@@ -240,7 +242,7 @@
                     </div>
                 </div>
 
-                <!-- ORDER CONFIRMATION FORM WITH PAX FILTERING -->
+                <!-- NUMBER OF PAX (GUESTS) FORM -->
                 <form method="get" id="paxFilterForm">
                     <div class="mb-2">
                         <label class="form-label small fw-bold">Number of Pax (Guests)</label>
@@ -248,20 +250,39 @@
                     </div>
                 </form>
 
+                <!-- FINAL ORDER & RESERVATION CONFIRMATION FORM -->
                 <form method="post" asp-page-handler="ConfirmOrder" class="mt-2">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="SelectedPax" value="@Model.SelectedPax" />
 
+                    <!-- Separate Dine-In Date Input -->
+                    <div class="mb-2">
+                        <label asp-for="DineInDate" class="form-label small fw-bold">
+                            <i class="fa-solid fa-calendar-days text-warning me-1"></i> Dine-In Date
+                        </label>
+                        <input asp-for="DineInDate" type="date" class="form-control form-control-sm rounded-3"
+                               min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                    </div>
+
+                    <!-- Separate Dine-In Time Input -->
+                    <div class="mb-2">
+                        <label asp-for="DineInTime" class="form-label small fw-bold">
+                            <i class="fa-solid fa-clock text-warning me-1"></i> Dine-In Time
+                        </label>
+                        <input asp-for="DineInTime" type="time" class="form-control form-control-sm rounded-3" required />
+                    </div>
+
+                    <!-- Table Selection -->
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Select Dine-In Table</label>
-                        <select asp-for="TableId" asp-items="Model.Tables" class="form-select form-select-sm rounded-3" required>
+                        <select asp-for="TableId" asp-items="@(Model.Tables ?? new SelectList(Enumerable.Empty<SelectListItem>()))" class="form-select form-select-sm rounded-3" required>
                             <option value="">-- Choose Available Table --</option>
                         </select>
                     </div>
 
-                    <button type="submit" class="btn text-white w-100 py-2 rounded-3 fw-bold shadow-sm" 
+                    <button type="submit" class="btn text-white w-100 py-2 rounded-3 fw-bold shadow-sm"
                             style="background-color: #d97706 !important; border: none;"
-                            @(Model.CartItems.Any() ? "" : "disabled")>
+                        @(Model.CartItems.Any() ? "" : "disabled")>
                         Proceed to Payment <i class="fa-solid fa-arrow-right ms-2"></i>
                     </button>
                 </form>

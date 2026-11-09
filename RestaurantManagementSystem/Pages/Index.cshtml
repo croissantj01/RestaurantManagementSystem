@@ -32,7 +32,6 @@
                     </a>
                 </div>
 
-              
             </div>
 
             <div class="col-lg-6">
@@ -106,7 +105,6 @@
                     <div class="dish-body"><h5>Sweet Desserts</h5><p>The perfect way to end your meal.</p></div>
                 </div>
             </div>
-
         </div>
     </div>
 </section>
@@ -146,3 +144,95 @@
         </div>
     </div>
 </section>
+
+<!-- ===== LOGIN MODAL ===== -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="loginModalLabel">
+                    <i class="fa-solid fa-right-to-bracket me-2 text-warning"></i>Sign In
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                @if (ViewData["LoginError"] != null)
+                {
+                    <div class="alert alert-danger small py-2">@ViewData["LoginError"]</div>
+                }
+
+                @if (ViewData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success small py-2">@ViewData["SuccessMessage"]</div>
+                }
+
+                @if (!Model.RequireOtp)
+                {
+                    <!-- STEP 1: Email & Password -> Button says LOGIN -->
+                    <form method="post" asp-page-handler="Login">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Email or Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                <input asp-for="LoginEmail" class="form-control" placeholder="Enter your email" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                <input asp-for="LoginPassword" type="password" class="form-control" placeholder="Enter your password" required />
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-warning text-white fw-bold py-2">LOGIN</button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <!-- STEP 2: Appears after entering email & password correctly, requesting OTP code -->
+                    <form method="post" asp-page-handler="VerifyLoginOtp">
+                        <div class="alert alert-warning small py-2 mb-3">
+                            <i class="fa-solid fa-envelope me-1"></i> A 6-digit verification code has been sent to your email.
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Verification Code</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-shield-keyhole"></i></span>
+                                <input asp-for="LoginOtp" class="form-control text-center fw-bold fs-5" placeholder="6-Digit Code" maxlength="6" required autofocus />
+                            </div>
+                            <span asp-validation-for="LoginOtp" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <button type="submit" asp-page-handler="CancelOtp" class="btn btn-outline-secondary btn-sm" formnovalidate>Back</button>
+                            <button type="submit" class="btn btn-warning text-white fw-bold py-2 px-4">VERIFY &amp; LOGIN</button>
+                        </div>
+                    </form>
+                }
+            </div>
+
+            <div class="modal-footer border-0 justify-content-center bg-light rounded-bottom-4 py-3">
+                <span class="small text-muted">Don't have an account?</span>
+                <a asp-page="/Customer/Register" class="small fw-bold text-warning text-decoration-none ms-1">Register Now</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @if (ViewData["OpenLogin"] != null && (bool)ViewData["OpenLogin"]!)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            });
+        </script>
+    }
+}
