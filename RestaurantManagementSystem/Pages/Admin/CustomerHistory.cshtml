@@ -1,0 +1,148 @@
+@page
+@model RestaurantManagementSystem.Pages.Admin.CustomerHistoryModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Customer History";
+    ViewData["ActiveNav"] = "ManageCustomer";
+    var isOrders = Model.Type == "orders";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-4 mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Customer History</h3>
+        <div class="text-muted">@Model.Customer.FullName · @Model.Customer.Email</div>
+    </div>
+    <a asp-page="/Admin/ManageCustomer" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Customers
+    </a>
+</div>
+
+<div class="panel-card mb-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h5 class="panel-title mb-0">
+            <i class="@(isOrders ? "fa-solid fa-receipt" : "fa-solid fa-chair") me-2 icon-accent"></i>
+            @(isOrders ? "Order History" : "Reservation History")
+        </h5>
+        <span class="count-pill">@Model.TotalRecords records</span>
+    </div>
+
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+        <a asp-page="/Admin/CustomerHistory" asp-route-customerId="@Model.CustomerId"
+           asp-route-type="orders" class="btn btn-sm @(isOrders ? "btn-orange" : "btn-outline-orange")">
+            Orders
+        </a>
+        <a asp-page="/Admin/CustomerHistory" asp-route-customerId="@Model.CustomerId"
+           asp-route-type="reservations" class="btn btn-sm @(!isOrders ? "btn-orange" : "btn-outline-orange")">
+            Reservations
+        </a>
+    </div>
+
+    <form method="get" class="row g-2 align-items-end mb-4">
+        <input type="hidden" name="CustomerId" value="@Model.CustomerId" />
+        <input type="hidden" name="Type" value="@Model.Type" />
+        <div class="col-md-3">
+            <label class="form-label">@(isOrders ? "Order ID" : "Reservation ID")</label>
+            <input name="Search" value="@Model.Search" class="form-control"
+                   placeholder="Enter @(isOrders ? "order" : "reservation") ID" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">From date</label>
+            <input type="date" name="FromDate" value="@Model.FromDate?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">To date</label>
+            <input type="date" name="ToDate" value="@Model.ToDate?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-orange flex-grow-1 px-3">Filter</button>
+            <a asp-page="/Admin/CustomerHistory" asp-route-customerId="@Model.CustomerId"
+               asp-route-type="@Model.Type" class="btn btn-outline-orange flex-grow-1 px-3">Clear</a>
+        </div>
+    </form>
+
+    @if (isOrders)
+    {
+        @if (Model.Orders.Any())
+        {
+            <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                    <thead><tr><th>Order ID</th><th>Ordered</th><th>Dine-in</th><th>Table</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+                    <tbody>
+                        @foreach (var o in Model.Orders)
+                        {
+                            var items = string.Join(", ", o.OrderItems.Select(i => (i.Menu?.MenuName ?? "Item") + " x" + i.Quantity));
+                            <tr>
+                                <td>@o.OrderId</td>
+                                <td class="text-nowrap">@o.OrderDate.ToString("dd MMM yyyy, h:mm tt")</td>
+                                <td class="text-nowrap">@o.DineInDateTime.ToString("dd MMM yyyy, h:mm tt")</td>
+                                <td>@(o.Table?.TableNumber ?? "-")</td>
+                                <td>@items</td>
+                                <td class="text-nowrap">RM @o.TotalAmount.ToString("0.00")</td>
+                                <td><span class="area-chip">@o.Status</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+
+            <div class="empty-state">No matching orders found.</div>
+        }
+    }
+    else
+    {
+        @if (Model.Reservations.Any())
+        {
+            <div class="table-responsive">
+                <table class="table admin-table align-middle">
+                    <thead><tr><th>Reservation ID</th><th>Date</th><th>Time</th><th>Table</th><th>Area</th><th>Guests</th><th>Status</th></tr></thead>
+                    <tbody>
+                        @foreach (var r in Model.Reservations)
+                        {
+                            var time = DateTime.Today.Add(r.ReservationTime).ToString("h:mm tt");
+                            <tr>
+                                <td>@r.ReservationId</td>
+                                <td class="text-nowrap">@r.ReservationDate.ToString("dd MMM yyyy")</td>
+                                <td>@time</td>
+                                <td>@r.RestaurantTable.TableNumber</td>
+                                <td>@r.RestaurantTable.DiningArea</td>
+                                <td>@r.NumberOfGuests</td>
+                                <td><span class="area-chip">@r.Status</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+
+            <div class="empty-state">No matching reservations found.</div>
+        }
+    }
+
+    @if (Model.PageCount > 1)
+    {
+        <nav class="mt-4" aria-label="History pages">
+            <ul class="pagination justify-content-center flex-wrap">
+                <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                    <a class="page-link" asp-page="/Admin/CustomerHistory"
+                       asp-route-customerId="@Model.CustomerId" asp-route-type="@Model.Type"
+                       asp-route-search="@Model.Search" asp-route-fromDate="@Model.FromDate?.ToString("yyyy-MM-dd")"
+                       asp-route-toDate="@Model.ToDate?.ToString("yyyy-MM-dd")"
+                       asp-route-pageNumber="@(Model.PageNumber - 1)">Previous</a>
+                </li>
+                <li class="page-item disabled"><span class="page-link">Page @Model.PageNumber of @Model.PageCount</span></li>
+                <li class="page-item @(Model.PageNumber >= Model.PageCount ? "disabled" : "")">
+                    <a class="page-link" asp-page="/Admin/CustomerHistory"
+                       asp-route-customerId="@Model.CustomerId" asp-route-type="@Model.Type"
+                       asp-route-search="@Model.Search" asp-route-fromDate="@Model.FromDate?.ToString("yyyy-MM-dd")"
+                       asp-route-toDate="@Model.ToDate?.ToString("yyyy-MM-dd")"
+                       asp-route-pageNumber="@(Model.PageNumber + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

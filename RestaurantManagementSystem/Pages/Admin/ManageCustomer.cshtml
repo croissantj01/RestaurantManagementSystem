@@ -1,6 +1,5 @@
 ﻿@page
 @model RestaurantManagementSystem.Pages.Admin.ManageCustomerModel
-
 @{
     Layout = "_AdminLayout";
     ViewData["Title"] = "Customer Information";
@@ -14,15 +13,20 @@
     </a>
 </div>
 
-<div class="panel-card mb-5">
+<div class="panel-card customer-panel mb-5">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-        <h5 class="panel-title mb-0"><i class="fa-solid fa-users me-2 icon-accent"></i>Customers</h5>
+        <h5 class="panel-title mb-0">
+            <i class="fa-solid fa-users me-2 icon-accent"></i>Customers
+        </h5>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="count-pill">@Model.Rows.Count total</span>
             <form method="get" class="d-flex gap-2">
-                <input type="text" name="Q" value="@Model.Q" class="form-control form-control-sm" placeholder="Search name or email" />
-                <button type="submit" class="btn btn-sm btn-orange px-3"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <input type="text" name="Q" value="@Model.Q"
+                       class="form-control form-control-sm" placeholder="Search name or email" />
+                <button type="submit" class="btn btn-sm btn-orange px-3" aria-label="Search customers">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
                 @if (!string.IsNullOrWhiteSpace(Model.Q))
                 {
                     <a asp-page="/Admin/ManageCustomer" class="btn btn-sm btn-outline-secondary">Clear</a>
@@ -33,8 +37,8 @@
 
     @if (Model.Rows.Any())
     {
-        <div class="table-scroll">
-            <table class="table admin-table align-middle">
+        <div class="table-scroll customer-list-scroll">
+            <table class="table admin-table customer-table align-middle">
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -53,10 +57,12 @@
                             <td><strong>@c.FullName</strong></td>
                             <td>@c.Email</td>
                             <td>@c.Phone</td>
-                            <td class="text-center"><span class="count-pill">@row.Orders.Count</span></td>
-                            <td class="text-center"><span class="count-pill">@row.Reservations.Count</span></td>
+                            <td class="text-center"><span class="count-pill">@row.OrderCount</span></td>
+                            <td class="text-center"><span class="count-pill">@row.ReservationCount</span></td>
                             <td class="text-end">
-                                <button type="button" class="btn btn-sm btn-edit" data-bs-toggle="collapse" data-bs-target="#cust-@c.CustomerId">
+                                <button type="button" class="btn btn-sm btn-edit"
+                                        data-bs-toggle="collapse" data-bs-target="#cust-@c.CustomerId"
+                                        aria-expanded="false" aria-controls="cust-@c.CustomerId">
                                     <i class="fa-solid fa-eye me-1"></i> View
                                 </button>
                             </td>
@@ -65,15 +71,20 @@
                             <td colspan="6" class="p-0 border-0">
                                 <div class="collapse" id="cust-@c.CustomerId">
                                     <div class="p-3 m-2 rounded-4" style="background:#FFF9F0;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="fw-bold mb-0">
+                                                <i class="fa-solid fa-receipt me-2 icon-accent"></i>Recent Orders
+                                            </h6>
+                                            <span class="count-pill">@row.OrderCount total</span>
+                                        </div>
 
-                                        <h6 class="fw-bold mb-2"><i class="fa-solid fa-receipt me-2 icon-accent"></i>Orders</h6>
-                                        @if (row.Orders.Any())
+                                        @if (row.RecentOrders.Any())
                                         {
-                                            <div class="table-scroll mb-4">
+                                            <div class="table-responsive mb-2">
                                                 <table class="table admin-table mb-0">
                                                     <thead>
                                                         <tr>
-                                                            <th>#</th>
+                                                            <th>Order ID</th>
                                                             <th>Ordered</th>
                                                             <th>Dine-in</th>
                                                             <th>Table</th>
@@ -83,9 +94,10 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @foreach (var o in row.Orders)
+                                                        @foreach (var o in row.RecentOrders)
                                                         {
-                                                            var items = string.Join(", ", o.OrderItems.Select(i => (i.Menu?.MenuName ?? "Item") + " x" + i.Quantity));
+                                                            var items = string.Join(", ", o.OrderItems.Select(i =>
+                                                                (i.Menu?.MenuName ?? "Item") + " x" + i.Quantity));
                                                             <tr>
                                                                 <td>@o.OrderId</td>
                                                                 <td class="text-nowrap">@o.OrderDate.ToString("dd MMM yyyy, h:mm tt")</td>
@@ -102,16 +114,37 @@
                                         }
                                         else
                                         {
-                                            <p class="text-muted small mb-4">No orders yet.</p>
+                                            <p class="text-muted small">No orders yet.</p>
                                         }
 
-                                        <h6 class="fw-bold mb-2"><i class="fa-solid fa-chair me-2 icon-accent"></i>Reservations</h6>
-                                        @if (row.Reservations.Any())
+                                        @if (row.OrderCount > 3)
                                         {
-                                            <div class="table-scroll">
+                                            <div class="text-end mb-4">
+                                                <a asp-page="/Admin/CustomerHistory" asp-route-customerId="@c.CustomerId"
+                                                   asp-route-type="orders" class="btn btn-sm btn-edit">
+                                                    View More Orders <i class="fa-solid fa-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="mb-4"></div>
+                                        }
+
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="fw-bold mb-0">
+                                                <i class="fa-solid fa-chair me-2 icon-accent"></i>Recent Reservations
+                                            </h6>
+                                            <span class="count-pill">@row.ReservationCount total</span>
+                                        </div>
+
+                                        @if (row.RecentReservations.Any())
+                                        {
+                                            <div class="table-responsive mb-2">
                                                 <table class="table admin-table mb-0">
                                                     <thead>
                                                         <tr>
+                                                            <th>Reservation ID</th>
                                                             <th>Date</th>
                                                             <th>Time</th>
                                                             <th>Table</th>
@@ -121,10 +154,11 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @foreach (var r in row.Reservations)
+                                                        @foreach (var r in row.RecentReservations)
                                                         {
                                                             var time = DateTime.Today.Add(r.ReservationTime).ToString("h:mm tt");
                                                             <tr>
+                                                                <td>@r.ReservationId</td>
                                                                 <td class="text-nowrap">@r.ReservationDate.ToString("dd MMM yyyy")</td>
                                                                 <td>@time</td>
                                                                 <td><strong>@r.RestaurantTable.TableNumber</strong></td>
@@ -139,7 +173,17 @@
                                         }
                                         else
                                         {
-                                            <p class="text-muted small mb-0">No reservations yet.</p>
+                                            <p class="text-muted small">No reservations yet.</p>
+                                        }
+
+                                        @if (row.ReservationCount > 3)
+                                        {
+                                            <div class="text-end">
+                                                <a asp-page="/Admin/CustomerHistory" asp-route-customerId="@c.CustomerId"
+                                                   asp-route-type="reservations" class="btn btn-sm btn-edit">
+                                                    View More Reservations <i class="fa-solid fa-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -154,7 +198,9 @@
     {
         <div class="empty-state">
             <i class="fa-solid fa-user-slash"></i>
-            @(string.IsNullOrWhiteSpace(Model.Q) ? "No customers have registered yet." : "No customers match your search.")
+            @(string.IsNullOrWhiteSpace(Model.Q)
+                ? "No customers have registered yet."
+                : "No customers match your search.")
         </div>
     }
 </div>

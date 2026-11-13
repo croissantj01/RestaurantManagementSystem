@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model RestaurantManagementSystem.Pages.Admin.Reports.IndexModel
 
 @{
@@ -129,10 +129,9 @@
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-6 col-lg-3"><div class="mini-stat"><div class="mini-label">Total revenue</div><div class="mini-value">RM @Model.TotalRevenue.ToString("N2")</div></div></div>
-            <div class="col-6 col-lg-3"><div class="mini-stat"><div class="mini-label">Served orders</div><div class="mini-value">@Model.TotalServedOrders</div></div></div>
-            <div class="col-6 col-lg-3"><div class="mini-stat"><div class="mini-label">Items sold</div><div class="mini-value">@Model.TotalItemsSold</div></div></div>
-            <div class="col-6 col-lg-3"><div class="mini-stat"><div class="mini-label">Average order value</div><div class="mini-value">RM @Model.AverageOrderValue.ToString("N2")</div></div></div>
+            <div class="col-6 col-lg-4"><div class="mini-stat"><div class="mini-label">Total revenue</div><div class="mini-value">RM @Model.TotalRevenue.ToString("N2")</div></div></div>
+            <div class="col-6 col-lg-4"><div class="mini-stat"><div class="mini-label">Served orders</div><div class="mini-value">@Model.TotalServedOrders</div></div></div>
+            <div class="col-12 col-lg-4"><div class="mini-stat"><div class="mini-label">Items sold</div><div class="mini-value">@Model.TotalItemsSold</div></div></div>
         </div>
 
         @if (Model.DailyRevenue.Any())
@@ -222,9 +221,8 @@
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-6 col-lg-4"><div class="mini-stat"><div class="mini-label">Total reservations</div><div class="mini-value">@Model.TotalReservations</div></div></div>
-            <div class="col-6 col-lg-4"><div class="mini-stat"><div class="mini-label">Total guests</div><div class="mini-value">@Model.TotalGuests</div></div></div>
-            <div class="col-12 col-lg-4"><div class="mini-stat"><div class="mini-label">Average party size</div><div class="mini-value">@Model.AveragePartySize.ToString("0.0")</div></div></div>
+            <div class="col-6"><div class="mini-stat"><div class="mini-label">Total reservations</div><div class="mini-value">@Model.TotalReservations</div></div></div>
+            <div class="col-6"><div class="mini-stat"><div class="mini-label">Total guests</div><div class="mini-value">@Model.TotalGuests</div></div></div>
         </div>
 
         @if (Model.ReservationStatuses.Any())

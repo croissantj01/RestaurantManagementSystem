@@ -1,0 +1,112 @@
+@page
+@model RestaurantManagementSystem.Pages.Admin.DummyDataModel
+
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Dummy Data";
+    ViewData["ActiveNav"] = "Dashboard";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/MenuPages.css" asp-append-version="true" />
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h2 class="page-title">Dummy Data</h2>
+        <p class="text-muted mb-0">Fill the system with sample data so you can test the dashboard and reports.</p>
+    </div>
+    <a asp-page="/Admin/Dashboard" class="btn-back">
+        <i class="fa-solid fa-arrow-left me-1"></i> Dashboard
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.StatusMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+        <i class="fa-solid fa-circle-check me-1"></i> @Model.StatusMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-1"></i> @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="panel-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="panel-title"><i class="fa-solid fa-database me-2 icon-accent"></i>Dummy data in the system now</h5>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-6 col-md-4 col-lg">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-value">@Model.MenuCount</div>
+                    <div class="stat-label">Menu Items</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-value">@Model.StaffCount</div>
+                    <div class="stat-label">Staff Accounts</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-value">@Model.CustomerCount</div>
+                    <div class="stat-label">Customers</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-value">@Model.OrderCount</div>
+                    <div class="stat-label">Orders</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-value">@Model.ReservationCount</div>
+                    <div class="stat-label">Reservations</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel-card mb-5">
+    <h5 class="panel-title mb-2">Add or refresh</h5>
+    <p class="text-muted small mb-3">
+        Adds sample menu items, staff accounts, customers, orders (about 45 days of history plus today's) and reservations.
+        Running it again replaces the old dummy data with a fresh set, so the dates stay current.
+        Your own data is not changed.
+    </p>
+
+    <div class="d-flex flex-wrap gap-3">
+        <form method="post" asp-page-handler="Seed">
+            <button type="submit" class="btn btn-orange">
+                <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Add / Refresh Dummy Data
+            </button>
+        </form>
+
+        <form method="post" asp-page-handler="Remove"
+              onsubmit="return confirm('Remove all dummy data? Your own data will not be touched.');">
+            <button type="submit" class="btn-danger-solid">
+                <i class="fa-solid fa-trash me-2"></i> Remove Dummy Data
+            </button>
+        </form>
+    </div>
+</div>

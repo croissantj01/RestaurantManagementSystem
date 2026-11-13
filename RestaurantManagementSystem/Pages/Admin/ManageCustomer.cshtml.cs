@@ -20,8 +20,10 @@ namespace RestaurantManagementSystem.Pages.Admin
         public class CustomerRow
         {
             public CustomerModel Customer { get; set; } = null!;
-            public List<OrderModel> Orders { get; set; } = new();
-            public List<ReservationModel> Reservations { get; set; } = new();
+            public List<OrderModel> RecentOrders { get; set; } = new();
+            public List<ReservationModel> RecentReservations { get; set; } = new();
+            public int OrderCount { get; set; }
+            public int ReservationCount { get; set; }
         }
 
         [BindProperty(SupportsGet = true)]
@@ -32,42 +34,50 @@ namespace RestaurantManagementSystem.Pages.Admin
         public async Task<IActionResult> OnGetAsync()
         {
             if (HttpContext.Session.GetString("AdminLoggedIn") != "true")
-            {
                 return RedirectToPage("/Admin/Login");
-            }
 
-            var query = _context.Customers.AsNoTracking().AsQueryable();
+            var customerQuery = _context.Customers.AsNoTracking().AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(Q))
             {
                 var term = Q.Trim();
-                query = query.Where(c =>
+                customerQuery = customerQuery.Where(c =>
                     c.FullName.Contains(term) || c.Email.Contains(term));
             }
 
-            var customers = await query.OrderBy(c => c.FullName).ToListAsync();
-            var ids = customers.Select(c => c.CustomerId).ToList();
+            var customers = await customerQuery.OrderBy(c => c.FullName).ToListAsync();
+            var customerIds = customers.Select(c => c.CustomerId).ToList();
 
-            var orders = await _context.Orders
+            // Load order and reservation records once, then show only the latest three
+            // in each customer's preview. The full history is on CustomerHistory.
+            var allOrders = await _context.Orders
                 .AsNoTracking()
                 .Include(o => o.Table)
                 .Include(o => o.OrderItems).ThenInclude(i => i.Menu)
-                .Where(o => o.CustomerId != null && ids.Contains(o.CustomerId.Value))
+                .Where(o => o.CustomerId != null && customerIds.Contains(o.CustomerId.Value))
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
 
-            var reservations = await _context.Reservations
+            var allReservations = await _context.Reservations
                 .AsNoTracking()
                 .Include(r => r.RestaurantTable)
-                .Where(r => ids.Contains(r.CustomerId))
+                .Where(r => customerIds.Contains(r.CustomerId))
                 .OrderByDescending(r => r.ReservationDate)
                 .ToListAsync();
 
-            Rows = customers.Select(c => new CustomerRow
+            Rows = customers.Select(c =>
             {
-                Customer = c,
-                Orders = orders.Where(o => o.CustomerId == c.CustomerId).ToList(),
-                Reservations = reservations.Where(r => r.CustomerId == c.CustomerId).ToList()
+                var customerOrders = allOrders.Where(o => o.CustomerId == c.CustomerId).ToList();
+                var customerReservations = allReservations.Where(r => r.CustomerId == c.CustomerId).ToList();
+
+                return new CustomerRow
+                {
+                    Customer = c,
+                    OrderCount = customerOrders.Count,
+                    ReservationCount = customerReservations.Count,
+                    RecentOrders = customerOrders.Take(3).ToList(),
+                    RecentReservations = customerReservations.Take(3).ToList()
+                };
             }).ToList();
 
             return Page();

@@ -32,6 +32,16 @@ builder.Services.AddTransient<RestaurantManagementSystem.Services.IEmailSender, 
 
 var app = builder.Build();
 
+// ---- TEMPORARY: auto-insert dummy data on startup (remove before submitting) ----
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    await db.Database.MigrateAsync();   // use EnsureCreatedAsync() if you don't use migrations
+    await DbSeeder.EnsureSeededAsync(db);
+}
+// ---------------------------------------------------------------------------------
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");

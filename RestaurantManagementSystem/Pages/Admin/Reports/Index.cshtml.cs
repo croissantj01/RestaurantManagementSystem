@@ -98,8 +98,6 @@ namespace RestaurantManagementSystem.Pages.Admin.Reports
         public int TotalServedOrders { get; set; }
         public decimal TotalRevenue { get; set; }
         public int TotalItemsSold { get; set; }
-        public decimal AverageOrderValue =>
-            TotalServedOrders > 0 ? TotalRevenue / TotalServedOrders : 0;
         public List<DailyRow> DailyRevenue { get; set; } = new();
 
         // Sales report + popular items
@@ -110,8 +108,6 @@ namespace RestaurantManagementSystem.Pages.Admin.Reports
         // Reservations
         public int TotalReservations { get; set; }
         public int TotalGuests { get; set; }
-        public decimal AveragePartySize =>
-            TotalReservations > 0 ? (decimal)TotalGuests / TotalReservations : 0;
         public List<StatusRow> ReservationStatuses { get; set; } = new();
         public List<DayCountRow> ReservationsByDay { get; set; } = new();
 
@@ -582,7 +578,6 @@ namespace RestaurantManagementSystem.Pages.Admin.Reports
                     Kpi(row, "Total revenue", $"RM {TotalRevenue:N2}");
                     Kpi(row, "Served orders", TotalServedOrders.ToString());
                     Kpi(row, "Items sold", TotalItemsSold.ToString());
-                    Kpi(row, "Average order value", $"RM {AverageOrderValue:N2}");
                 });
 
                 if (chart != null)
@@ -687,7 +682,6 @@ namespace RestaurantManagementSystem.Pages.Admin.Reports
                     row.Spacing(10);
                     Kpi(row, "Total reservations", TotalReservations.ToString());
                     Kpi(row, "Total guests", TotalGuests.ToString());
-                    Kpi(row, "Average party size", AveragePartySize.ToString("0.0"));
                 });
 
                 if (pie != null || bar != null)
